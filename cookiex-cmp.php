@@ -32,6 +32,8 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+require_once plugin_dir_path( __FILE__ ) . 'src/rest-api.php';
+
 /**
  * Plugin absolute path
  */

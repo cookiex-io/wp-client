@@ -13,6 +13,8 @@
 
 namespace Cookiex_CMP;
 
+require_once plugin_dir_path( __FILE__ ) . '/banner.php';
+
 /**
  * The core plugin class.
  *
@@ -117,6 +119,7 @@ class Cookiex_CMP {
 	 * @access    private
 	 */
 	private function define_public_hooks(): void {
+		add_action( 'wp_head', 'add_cookiex_banner' );
 	}
 
 	/**
