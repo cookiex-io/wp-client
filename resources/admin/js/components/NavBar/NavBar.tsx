@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ScrollArea } from '@mantine/core';
+import { Flex, ScrollArea, Text } from '@mantine/core';
 
 import {
 	IconHome,
@@ -10,10 +9,7 @@ import {
 } from '@tabler/icons-react';
 
 export function Navbar(props: any) {
-	const [active, setActive] = useState('DashBoard');
-
 	const handleSettings = (label: any) => {
-		setActive(label);
 		props.renderComponent(label);
 	};
 
@@ -26,33 +22,42 @@ export function Navbar(props: any) {
 	return (
 		<>
 			<ScrollArea className="ck-navbar-links">
-				<div
-					className={`ck-navbar-linksInner ${active === 'DashBoard' ? 'ckActive' : ''}`}
+				<Flex
+					className={`ck-navbar-linksInner ${props.active === 'DashBoard' ? 'ckActive' : ''}`}
 					onClick={() => handleSettings('DashBoard')}
 					onKeyDown={(e) => handleKeyDown(e, 'DashBoard')}
 					role="button"
 					tabIndex={0}
 				>
-					<IconHome /> &nbsp; DashBoard
-				</div>
-				<div
-					className={`ck-navbar-linksInner ${active === 'Settings' ? 'ckActive' : ''}`}
+					<IconHome /> &nbsp;{' '}
+					<Text ml="xs" fw={600}>
+						DashBoard
+					</Text>
+				</Flex>
+				<Flex
+					className={`ck-navbar-linksInner ${props.active === 'Settings' ? 'ckActive' : ''}`}
 					onClick={() => handleSettings('Settings')}
 					onKeyDown={(e) => handleKeyDown(e, 'Settings')}
 					role="button"
 					tabIndex={0}
 				>
-					<IconAdjustmentsHorizontal /> &nbsp; Settings
-				</div>
-				<div
-					className={`ck-navbar-linksInner ${active === 'Support' ? 'ckActive' : ''}`}
+					<IconAdjustmentsHorizontal /> &nbsp;{' '}
+					<Text ml="xs" fw={600}>
+						Settings
+					</Text>
+				</Flex>
+				<Flex
+					className={`ck-navbar-linksInner ${props.active === 'Support' ? 'ckActive' : ''}`}
 					onClick={() => handleSettings('Support')}
 					onKeyDown={(e) => handleKeyDown(e, 'Support')}
 					role="button"
 					tabIndex={0}
 				>
-					<IconHeadset /> &nbsp; Support
-				</div>
+					<IconHeadset /> &nbsp;{' '}
+					<Text ml="xs" fw={600}>
+						Support
+					</Text>
+				</Flex>
 			</ScrollArea>
 		</>
 	);

@@ -10,7 +10,15 @@ import {
 import { IconUserPlus, IconLogin } from '@tabler/icons-react';
 import React from 'react';
 
-function DashboardPage() {
+function DashboardPage(props: any) {
+	const handleSignUpClick = () => {
+		window.open('https://staging.cookiex.io/register', '_blank'); // Opens the link in a new tab
+	};
+
+	const handleSettings = (label: any) => {
+		props.renderComponent(label);
+	};
+
 	return (
 		<React.Fragment>
 			<>
@@ -20,9 +28,19 @@ function DashboardPage() {
 					</Title>
 					<Grid mt="xl">
 						<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-							<Card shadow="xs" radius="md">
+							<Card
+								shadow="xl"
+								radius="md"
+								withBorder
+								pb="xl"
+								pt="xl"
+							>
 								<Center>
-									<IconUserPlus size={48} stroke={1} />
+									<IconUserPlus
+										color="blue"
+										size={48}
+										stroke={1}
+									/>
 								</Center>
 								<Center>
 									<Title order={5} mt="md">
@@ -47,7 +65,8 @@ function DashboardPage() {
 										color="orange"
 										radius="sm"
 										size="sm"
-										mt="sm"
+										mt="md"
+										onClick={handleSignUpClick}
 									>
 										Sign Up
 									</Button>
@@ -55,9 +74,19 @@ function DashboardPage() {
 							</Card>
 						</Grid.Col>
 						<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-							<Card shadow="xs" radius="md">
+							<Card
+								shadow="xl"
+								radius="md"
+								withBorder
+								pb="xl"
+								pt="xl"
+							>
 								<Center>
-									<IconLogin size={48} stroke={1} />
+									<IconLogin
+										color="blue"
+										size={48}
+										stroke={1}
+									/>
 								</Center>
 								<Center>
 									<Title order={5} mt="md">
@@ -78,10 +107,13 @@ function DashboardPage() {
 								</Center>
 								<Center>
 									<Button
+										onClick={() =>
+											handleSettings('Settings')
+										}
 										color="orange"
 										radius="sm"
 										size="sm"
-										mt="sm"
+										mt="md"
 									>
 										Connect Your Domain
 									</Button>

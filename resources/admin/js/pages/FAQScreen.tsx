@@ -16,8 +16,9 @@ export function FAQScreen() {
 				<Title mt="lg" mb="lg" order={2}>
 					Support
 				</Title>
-				<Paper p="md">
+				<Paper p="md" shadow="md" withBorder>
 					<Tabs
+						variant="outline"
 						defaultValue="general"
 						styles={(theme) => ({
 							tab: {
@@ -33,22 +34,32 @@ export function FAQScreen() {
 						})}
 					>
 						<Tabs.List>
-							<Tabs.Tab value="general">General</Tabs.Tab>
-							<Tabs.Tab value="configuration">
-								Configuration
+							<Tabs.Tab value="general">
+								<Text size="xs">General</Text>
 							</Tabs.Tab>
-							<Tabs.Tab value="privacy">Privacy Policy</Tabs.Tab>
+							<Tabs.Tab value="configuration">
+								<Text size="xs">Configuration</Text>
+							</Tabs.Tab>
+							<Tabs.Tab value="privacy">
+								<Text size="xs">Privacy Policy</Text>
+							</Tabs.Tab>
 							<Tabs.Tab value="consentRecords">
-								Consent Records
+								<Text size="xs">Consent Records</Text>
 							</Tabs.Tab>
 							<Tabs.Tab value="consentBanner">
-								Consent Banner
+								<Text size="xs">Consent Banner</Text>
 							</Tabs.Tab>
-							<Tabs.Tab value="integration">Integration</Tabs.Tab>
-							<Tabs.Tab value="analytics">Analytics</Tabs.Tab>
-							<Tabs.Tab value="regulations">Regulations</Tabs.Tab>
+							<Tabs.Tab value="integration">
+								<Text size="xs">Integration</Text>
+							</Tabs.Tab>
+							<Tabs.Tab value="analytics">
+								<Text size="xs">Analytics</Text>
+							</Tabs.Tab>
+							<Tabs.Tab value="regulations">
+								<Text size="xs">Regulations</Text>
+							</Tabs.Tab>
 							<Tabs.Tab value="reseller">
-								Reseller Program
+								<Text size="xs">Reseller Program</Text>
 							</Tabs.Tab>
 						</Tabs.List>
 

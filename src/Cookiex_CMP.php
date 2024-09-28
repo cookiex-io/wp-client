@@ -6,7 +6,7 @@
  * public-facing side of the site and the admin area.
  *
  * @link       http://example.com
- * @since      1.0.0
+ * @since      0.9.0
  *
  * @package    Cookiex_CMP
  */
@@ -24,15 +24,15 @@ require_once plugin_dir_path( __FILE__ ) . '/banner.php';
  * Also maintains the unique identifier of this plugin as well as the current
  * version of the plugin.
  *
- * @since      1.0.0
+ * @since      0.9.0
  * @package    Cookiex_CMP
- * @author     Justin Vogt <mail@juvo-design.de>
+ * @author     Manoj Kumar <manoj@cookiex.io>
  */
 class Cookiex_CMP {
 
 
 	const PLUGIN_NAME    = 'cookiex-cmp';
-	const PLUGIN_VERSION = '1.0.0';
+	const PLUGIN_VERSION = '0.9.1';
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -49,7 +49,7 @@ class Cookiex_CMP {
 	 * Load the dependencies, define the locale, and set the hooks for the admin area and
 	 * the public-facing side of the site.
 	 *
-	 * @since    1.0.0
+	 * @since    0.9.0
 	 */
 	public function __construct() {
 
@@ -65,7 +65,7 @@ class Cookiex_CMP {
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
 	 *
-	 * @since    1.0.0
+	 * @since    0.9.0
 	 * @access   private
 	 */
 	private function load_dependencies(): void {
@@ -79,7 +79,7 @@ class Cookiex_CMP {
 	 * Uses the i18n class in order to set the domain and to register the hook
 	 * with WordPress.
 	 *
-	 * @since    1.0.0
+	 * @since    0.9.0
 	 * @access   private
 	 */
 	private function set_locale(): void {
@@ -115,7 +115,7 @@ class Cookiex_CMP {
 	 * Register all of the hooks related to the public-facing functionality
 	 * of the plugin.
 	 *
-	 * @since     1.0.0
+	 * @since     0.9.0
 	 * @access    private
 	 */
 	private function define_public_hooks(): void {

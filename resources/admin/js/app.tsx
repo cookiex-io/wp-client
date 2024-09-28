@@ -2,9 +2,8 @@
 
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-import { Box, Burger, Grid, MantineProvider } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import React, { useState } from 'react';
+import { Box, Grid, MantineProvider } from '@mantine/core';
+import { useState } from 'react';
 import { AdminHeader } from './components/Headers/AdminHeader';
 import { Navbar } from './components/NavBar/NavBar';
 
@@ -13,10 +12,11 @@ import { SettingsPage } from './pages/SettingsPage';
 import { FAQScreen } from './pages/FAQScreen';
 
 export function App() {
-	const [opened, { toggle }] = useDisclosure();
 	const [componentName, setComponentName] = useState('DashBoard');
+	const [active, setActive] = useState('DashBoard');
 
 	const renderComponent = (cName: any) => {
+		setActive(cName);
 		setComponentName(cName);
 	};
 
@@ -25,32 +25,29 @@ export function App() {
 			<MantineProvider>
 				<Box style={{ height: '100vh' }}>
 					<Box bg="#fff">
-						<AdminHeader
-							burger={
-								<Burger
-									opened={opened}
-									onClick={toggle}
-									hiddenFrom="sm"
-									size="sm"
-									mr="xl"
-								/>
-							}
-						/>
+						<AdminHeader />
 					</Box>
 					<Grid>
 						<Grid.Col span={3}>
-							<Box bg="#fff" p="md" style={{ height: '100vh' }}>
-								<Navbar renderComponent={renderComponent} />
+							<Box
+								p="md"
+								style={{
+									height: '100vh',
+									borderRight: '1px solid #eaeaea',
+								}}
+							>
+								<Navbar
+									active={active}
+									renderComponent={renderComponent}
+								/>
 							</Box>
 						</Grid.Col>
 						<Grid.Col span={9}>
-							<Box
-								p="md"
-								bg="#f2f2f8"
-								style={{ height: '100vh' }}
-							>
+							<Box p="md" style={{ height: '100vh' }}>
 								{componentName === 'DashBoard' && (
-									<DashboardPage />
+									<DashboardPage
+										renderComponent={renderComponent}
+									/>
 								)}
 								{componentName === 'Settings' && (
 									<SettingsPage />
