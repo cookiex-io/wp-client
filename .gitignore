@@ -1,0 +1,15 @@
+/build/
+/vendor/
+/node_modules/
+setup.sh
+.idea
+dist/
+.budfiles/
+/tests/cypress/screenshots/
+/tests/cypress/videos/
+/tests/setup/plugins
+/tests/setup/vendor
+bin/*
+!bin/.gitkeep
+/phpcs-report.xml
+cookiex-cmp-[0-9]*.[0-9]*.[0-9]*.zip
