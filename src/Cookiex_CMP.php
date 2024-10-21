@@ -32,7 +32,7 @@ class Cookiex_CMP {
 
 
 	const PLUGIN_NAME    = 'cookiex-cmp';
-	const PLUGIN_VERSION = '0.9.1';
+	const PLUGIN_VERSION = '0.9.2';
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power

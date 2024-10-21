@@ -2,7 +2,7 @@
 Contributors: (this should be a list of wordpress.org userid's)
 Tags: cookie consent, privacy, DPDPA, GDPR, data protection
 Tested up to: 6.6.2
-Stable tag: 0.9.1
+Stable tag: 0.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

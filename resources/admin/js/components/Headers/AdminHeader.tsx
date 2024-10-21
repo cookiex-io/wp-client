@@ -7,7 +7,7 @@ export function AdminHeader() {
 		<header className="cookiex-admin-header">
 			<Image
 				w="120"
-				src="https://staging.cookiex.io/static/media/logo.e0877046d5242b4d1441.png"
+				src="https://app.cookiex.io/static/media/logo.e0877046d5242b4d1441.png"
 			/>
 		</header>
 	);

@@ -12,7 +12,7 @@ import React from 'react';
 
 function DashboardPage(props: any) {
 	const handleSignUpClick = () => {
-		window.open('https://staging.cookiex.io/register', '_blank'); // Opens the link in a new tab
+		window.open('https://app.cookiex.io/register', '_blank'); // Opens the link in a new tab
 	};
 
 	const handleSettings = (label: any) => {
