@@ -1,5 +1,5 @@
 {
-  "name": "cookiex-cmp",
+  "name": "cookiex-consent-management-plugin",
   "type": "module",
   "devDependencies": {
     "@roots/bud": "^6.23.3",

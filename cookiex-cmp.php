@@ -8,17 +8,17 @@
  * that starts the plugin.
  *
  * @link              https://cookiex.io
- * @since             0.9.0
+ * @since             1.0.0
  * @package           Cookiex_CMP
  *
  * @wordpress-plugin
  * Plugin Name:       CookieX Consent Management Platform
  * Description:       Automatically manages cookie consent
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires PHP:      8.0
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       cookiex-cmp
+ * Text Domain:       cookiex-consent-management-platform
  * Domain Path:       /languages
  */
 

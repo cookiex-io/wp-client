@@ -2,7 +2,7 @@
 Contributors: cookiexcmp
 Tags: Cookie Consent, privacy, DPDPA, Privacy compliance, PDPL
 Tested up to: 6.7
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,10 +55,13 @@ Yes, Cookiex CMP offers multi-language support to cater to users from various re
 
 == Changelog ==
 
+= 1.0.1 =
+* Now using wordpress assigned plugin name: cookiex-consent-management-platform
+
 = 1.0.0 =
 * Initial release.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
+= 1.0.1 =
 Upgrade to the latest version for enhanced performance, usability improvements, and bug fixes.

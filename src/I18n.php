@@ -26,7 +26,7 @@ class I18n {
 	public function load_plugin_textdomain(): void {
 
 		load_plugin_textdomain(
-			'cookiex-cmp',
+			'cookiex-consent-management-plugin',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);

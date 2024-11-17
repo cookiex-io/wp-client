@@ -31,8 +31,8 @@ require_once plugin_dir_path( __FILE__ ) . '/banner.php';
 class Cookiex_CMP {
 
 
-	const PLUGIN_NAME    = 'cookiex-cmp';
-	const PLUGIN_VERSION = '1.0.0';
+	const PLUGIN_NAME    = 'cookiex-consent-management-platform';
+	const PLUGIN_VERSION = '1.0.1';
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
