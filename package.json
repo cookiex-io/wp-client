@@ -1,0 +1,33 @@
+{
+  "name": "cookiex-cmp",
+  "type": "module",
+  "devDependencies": {
+    "@roots/bud": "^6.23.3",
+    "@roots/bud-eslint": "^6.23.3",
+    "@roots/bud-preset-recommend": "^6.23.3",
+    "@roots/bud-preset-wordpress": "^6.23.3",
+    "@roots/bud-react": "^6.23.3",
+    "@roots/bud-sass": "^6.23.3",
+    "@roots/bud-typescript": "^6.23.3",
+    "@roots/eslint-config": "^6.23.2",
+    "@types/react": "^18.3.6",
+    "@types/react-dom": "^18.3.0",
+    "@wordpress/eslint-plugin": "^21.4.0",
+    "typescript": "5.3.3"
+  },
+  "scripts": {
+    "development": "npx bud build development",
+    "production": "npx bud build production"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.14.0",
+    "@mantine/form": "^7.14.0",
+    "@mantine/hooks": "^7.14.0",
+    "@mantine/notifications": "^7.14.0",
+    "@tabler/icons-react": "^3.22.0",
+    "@wordpress/api-fetch": "^7.11.0",
+    "axios": "^1.7.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

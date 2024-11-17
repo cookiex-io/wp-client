@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="runtime.js"></script>
+    <script src="js/bundle/vendor.js"></script>
+    <script>
+    function generateNonce(length = 16) {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let nonce = '';
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            nonce += charset[randomIndex];
+        }
+        return nonce;
+    }
+
+    var cookiex_cmp = {
+        "nonce": generateNonce(),
+        "apiUrl": "https://api.in.cookiex.io/"
+    };
+    </script>
+    <title>CookieX CMP Development</title>
+</head>
+<body>
+    <div id="cookiex-root"></div>
+    <script type="module" src="cookiex-cmp-admin.js"></script>
+</body>
+</html>
