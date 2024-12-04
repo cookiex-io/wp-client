@@ -59,12 +59,10 @@ jobs:
           rsync -av \
             --exclude='.*' \
             --exclude='composer.lock' \
-            --exclude='package.json' \
             --exclude='package-lock.json' \
             --exclude='**/composer.lock' \
-            --exclude='**/package.json' \
             --exclude='**/package-lock.json' \
-            --exclude='README.md' \
+            --exclude='dist/index.html' \
             --exclude='build.sh' \
             --exclude='phpunit.xml.dist' \
             --exclude='phpcs.xml' \
@@ -72,11 +70,9 @@ jobs:
             --exclude='phpcs-report.xml' \
             --exclude='eslint.config.js' \
             --exclude='bud.config.js' \
-            --exclude='.github' \
             --exclude='tests' \
             --exclude='bin' \
             --exclude='node_modules' \
-            --exclude='resources' \
             ./ cookiex-cmp/
         shell: bash
 
