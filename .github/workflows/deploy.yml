@@ -58,11 +58,9 @@ jobs:
           mkdir cookiex-cmp
           rsync -av \
             --exclude='.*' \
-            --exclude='composer.json' \
             --exclude='composer.lock' \
             --exclude='package.json' \
             --exclude='package-lock.json' \
-            --exclude='**/composer.json' \
             --exclude='**/composer.lock' \
             --exclude='**/package.json' \
             --exclude='**/package-lock.json' \
