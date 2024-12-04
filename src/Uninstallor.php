@@ -17,7 +17,7 @@ namespace Cookiex_CMP;
 class Uninstallor {
 
 	/**
-	 * This is the general callback run during the 'uninstall_cookiex_cmp' register_uninstall_hook.
+	 * This is the general callback run during the 'cookiex_cmp_uninstall' register_uninstall_hook.
 	 *
 	 * @return void
 	 */

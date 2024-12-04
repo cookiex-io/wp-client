@@ -10,5 +10,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-define( 'COOKIEX_CMP_PATH', plugin_dir_path( __FILE__ ) );
-define( 'COOKIEX_CMP_URL', plugin_dir_url( __FILE__ ) );
+define( 'COOKIEX_CMP_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+define( 'COOKIEX_CMP_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

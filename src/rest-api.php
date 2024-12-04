@@ -20,15 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function cookiex_register_api_routes(): void {
+function cookiex_cmp_register_api_routes(): void {
 	register_rest_route(
 		'cookiex/v1',
 		'/save-settings',
 		array(
 			array(
 				'methods'             => 'POST',
-				'callback'            => 'save_settings_details',
-				'permission_callback' => 'cookiex_permission_callback',
+				'callback'            => 'cookiex_cmp_save_settings',
+				'permission_callback' => 'cookiex_cmp_permission_callback',
 			),
 		)
 	);
@@ -39,21 +39,21 @@ function cookiex_register_api_routes(): void {
 		array(
 			array(
 				'methods'             => 'GET',
-				'callback'            => 'fetch_settings_details',
-				'permission_callback' => 'cookiex_permission_callback',
+				'callback'            => 'cookiex_cmp_fetch_settings',
+				'permission_callback' => 'cookiex_cmp_permission_callback',
 			),
 		)
 	);
 }
 
-add_action( 'rest_api_init', 'cookiex_register_api_routes' );
+add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
 
 /**
  * Check if the user has the necessary permissions to access the API
  *
  * @return bool True if the user is logged in, false otherwise
  */
-function cookiex_permission_callback(): bool {
+function cookiex_cmp_permission_callback(): bool {
 	return is_user_logged_in();
 }
 
@@ -65,7 +65,7 @@ function cookiex_permission_callback(): bool {
  *
  * @phpstan-param WP_REST_Request<array{domainId?: string, language?: string, autoBlockCookies?: bool, gtmEnabled?: bool, gtmId?: string, cookiePreference?: array<string, mixed>}> $request
  */
-function save_settings_details( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 	$domain_id          = sanitize_text_field( $request->get_param( 'domainId' ) );
 	$language           = sanitize_text_field( $request->get_param( 'language' ) );
 	$auto_block_cookies = $request->get_param( 'autoBlockCookies' ) ? true : false;
@@ -74,17 +74,17 @@ function save_settings_details( WP_REST_Request $request ): WP_REST_Response|WP_
 	$cookie_preferences = $request->get_param( 'cookiePreference' ); // This will be an array
 
 	if ( ! empty( $domain_id ) && ! empty( $language ) ) {
-		update_option( 'cookiex_domain_id', $domain_id );
-		update_option( 'cookiex_language', $language );
-		update_option( 'cookiex_auto_block_cookies', $auto_block_cookies );
-		update_option( 'cookiex_gtm_enabled', $gtm_enabled );
+		update_option( 'cookiex_cmp_domain_id', $domain_id );
+		update_option( 'cookiex_cmp_language', $language );
+		update_option( 'cookiex_cmp_auto_block_cookies', $auto_block_cookies );
+		update_option( 'cookiex_cmp_gtm_enabled', $gtm_enabled );
 
 		if ( $gtm_enabled && ! empty( $gtm_id ) ) {
-			update_option( 'cookiex_gtm_id', $gtm_id );
+			update_option( 'cookiex_cmp_gtm_id', $gtm_id );
 		}
 
 		if ( $gtm_enabled ) {
-			update_option( 'cookiex_cookie_preferences', $cookie_preferences );
+			update_option( 'cookiex_cmp_cookie_preferences', $cookie_preferences );
 		}
 
 		return new WP_REST_Response( 'Settings saved successfully', 200 );
@@ -98,13 +98,13 @@ function save_settings_details( WP_REST_Request $request ): WP_REST_Response|WP_
  *
  * @return WP_REST_Response The settings details
  */
-function fetch_settings_details(): WP_REST_Response {
-	$domain_id          = get_option( 'cookiex_domain_id', '' );
-	$language           = get_option( 'cookiex_language', 'en' ); // Default to English
-	$auto_block_cookies = get_option( 'cookiex_auto_block_cookies', false );
-	$gtm_enabled        = get_option( 'cookiex_gtm_enabled', false );
-	$gtm_id             = get_option( 'cookiex_gtm_id', '' );
-	$cookie_preferences = get_option( 'cookiex_cookie_preferences', array() );
+function cookiex_cmp_fetch_settings(): WP_REST_Response {
+	$domain_id          = get_option( 'cookiex_cmp_domain_id', '' );
+	$language           = get_option( 'cookiex_cmp_language', 'en' ); // Default to English
+	$auto_block_cookies = get_option( 'cookiex_cmp_auto_block_cookies', false );
+	$gtm_enabled        = get_option( 'cookiex_cmp_gtm_enabled', false );
+	$gtm_id             = get_option( 'cookiex_cmp_gtm_id', '' );
+	$cookie_preferences = get_option( 'cookiex_cmp_cookie_preferences', array() );
 
 	return new WP_REST_Response(
 		array(

@@ -48,27 +48,27 @@ require plugin_dir_path( __FILE__ ) . 'vendor/vendor-prefixed/autoload.php';
 /**
  * The code that runs during plugin activation.
  */
-function activate_cookiex_cmp(): void {
+function cookiex_cmp_activate(): void {
 	Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
  */
-function deactivate_cookiex_cmp(): void {
+function cookiex_cmp_deactivate(): void {
 	Deactivator::deactivate();
 }
 
 /**
  * The code that runs during plugin uninstallation.
  */
-function uninstall_cookiex_cmp(): void {
+function cookiex_cmp_uninstall(): void {
 	Uninstallor::uninstall();
 }
 
-register_activation_hook( __FILE__, 'activate_cookiex_cmp' );
-register_deactivation_hook( __FILE__, 'deactivate_cookiex_cmp' );
-register_uninstall_hook( __FILE__, 'uninstall_cookiex_cmp' );
+register_activation_hook( __FILE__, 'cookiex_cmp_activate' );
+register_deactivation_hook( __FILE__, 'cookiex_cmp_deactivate' );
+register_uninstall_hook( __FILE__, 'cookiex_cmp_uninstall' );
 
 /**
  * Begins execution of the plugin.
@@ -79,8 +79,8 @@ register_uninstall_hook( __FILE__, 'uninstall_cookiex_cmp' );
  *
  * @since    0.9.0
  */
-function run_cookiex_cmp(): void {
+function cookiex_cmp_run(): void {
 	$plugin = new Cookiex_CMP();
 	$plugin->run();
 }
-run_cookiex_cmp();
+cookiex_cmp_run();

@@ -18,13 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Add the CookieX banner to the website
  */
-function add_cookiex_banner(): void {
-	$domain_id          = get_option( 'cookiex_domain_id' );
-	$language           = get_option( 'cookiex_language' ); // Assuming this is stored
-	$auto_block_cookies = get_option( 'cookiex_auto_block_cookies' ); // Assuming this is stored
-	$gtm_enabled        = get_option( 'cookiex_gtm_enabled' ); // Assuming this is stored
-	$gtm_id             = get_option( 'cookiex_gtm_id' ); // Assuming this is stored
-	$cookie_preferences = get_option( 'cookiex_cookie_preferences' ); // Assuming this is stored as an array
+function cookiex_cmp_add_banner(): void {
+	$domain_id          = get_option( 'cookiex_cmp_domain_id' );
+	$language           = get_option( 'cookiex_cmp_language' ); // Assuming this is stored
+	$auto_block_cookies = get_option( 'cookiex_cmp_auto_block_cookies' ); // Assuming this is stored
+	$gtm_enabled        = get_option( 'cookiex_cmp_gtm_enabled' ); // Assuming this is stored
+	$gtm_id             = get_option( 'cookiex_cmp_gtm_id' ); // Assuming this is stored
+	$cookie_preferences = get_option( 'cookiex_cmp_cookie_preferences' ); // Assuming this is stored as an array
 	$domain_name        = '';
 
 	if ( isset( $_SERVER['HTTP_HOST'] ) ) {
@@ -57,10 +57,10 @@ function add_cookiex_banner(): void {
 /**
  * Register settings for the plugin
  */
-function cookiex_register_settings(): void {
+function cookiex_cmp_register_settings(): void {
 	register_setting(
 		'cookiex',
-		'cookiex_domain_id',
+		'cookiex_cmp_domain_id',
 		array(
 			'sanitize_callback' => 'sanitize_text_field',
 			'type'              => 'string',
@@ -68,7 +68,7 @@ function cookiex_register_settings(): void {
 	);
 	register_setting(
 		'cookiex',
-		'cookiex_language',
+		'cookiex_cmp_language',
 		array(
 			'sanitize_callback' => 'sanitize_text_field',
 			'type'              => 'string',
@@ -76,7 +76,7 @@ function cookiex_register_settings(): void {
 	);
 	register_setting(
 		'cookiex',
-		'cookiex_auto_block_cookies',
+		'cookiex_cmp_auto_block_cookies',
 		array(
 			'sanitize_callback' => 'rest_sanitize_boolean',
 			'type'              => 'boolean',
@@ -84,7 +84,7 @@ function cookiex_register_settings(): void {
 	);
 	register_setting(
 		'cookiex',
-		'cookiex_gtm_enabled',
+		'cookiex_cmp_gtm_enabled',
 		array(
 			'sanitize_callback' => 'rest_sanitize_boolean',
 			'type'              => 'boolean',
@@ -92,7 +92,7 @@ function cookiex_register_settings(): void {
 	);
 	register_setting(
 		'cookiex',
-		'cookiex_gtm_id',
+		'cookiex_cmp_gtm_id',
 		array(
 			'sanitize_callback' => 'sanitize_text_field',
 			'type'              => 'string',
@@ -100,9 +100,9 @@ function cookiex_register_settings(): void {
 	);
 	register_setting(
 		'cookiex',
-		'cookiex_cookie_preferences',
+		'cookiex_cmp_cookie_preferences',
 		array(
-			'sanitize_callback' => 'cookiex_sanitize_cookie_preferences',
+			'sanitize_callback' => 'cookiex_cmp_sanitize_cookie_preferences',
 			'type'              => 'array',
 		)
 	);
@@ -114,7 +114,7 @@ function cookiex_register_settings(): void {
  * @param mixed $preferences The preferences to sanitize.
  * @return array<string> The sanitized preferences array
  */
-function cookiex_sanitize_cookie_preferences( mixed $preferences ): array {
+function cookiex_cmp_sanitize_cookie_preferences( mixed $preferences ): array {
 	if ( ! is_array( $preferences ) ) {
 		return array();
 	}
@@ -122,4 +122,4 @@ function cookiex_sanitize_cookie_preferences( mixed $preferences ): array {
 	return array_map( 'sanitize_text_field', $preferences );
 }
 
-add_action( 'admin_init', 'cookiex_register_settings' );
+add_action( 'admin_init', 'cookiex_cmp_register_settings' );

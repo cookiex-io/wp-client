@@ -119,7 +119,7 @@ class Cookiex_CMP {
 	 * @access    private
 	 */
 	private function define_public_hooks(): void {
-		add_action( 'wp_head', 'add_cookiex_banner' );
+		add_action( 'wp_head', 'cookiex_cmp_add_banner' );
 	}
 
 	/**
@@ -145,7 +145,7 @@ class Cookiex_CMP {
 	 * @param array<string,mixed> $localize_data Array of associated data. See https://developer.wordpress.org/reference/functions/wp_localize_script/ .
 	 */
 	private function enqueue_bud_entrypoint( string $entry, array $localize_data = array() ): void {
-		$entrypoints_manifest = COOKIEX_CMP_PATH . '/dist/entrypoints.json';
+		$entrypoints_manifest = COOKIEX_CMP_PLUGIN_PATH . '/dist/entrypoints.json';
 
 		// Try to get WordPress filesystem. If not possible load it.
 		global $wp_filesystem;
@@ -176,7 +176,7 @@ class Cookiex_CMP {
 					if ( 'js' === $type ) {
 						wp_enqueue_script(
 							self::PLUGIN_NAME . "/$file",
-							COOKIEX_CMP_URL . 'dist/' . $file,
+							COOKIEX_CMP_PLUGIN_URL . 'dist/' . $file,
 							$bundle->dependencies ?? array(),
 							self::PLUGIN_VERSION,
 							true,
@@ -194,7 +194,7 @@ class Cookiex_CMP {
 					if ( 'css' === $type ) {
 						wp_enqueue_style(
 							self::PLUGIN_NAME . "/$file",
-							COOKIEX_CMP_URL . 'dist/' . $file,
+							COOKIEX_CMP_PLUGIN_URL . 'dist/' . $file,
 							array(),
 							self::PLUGIN_VERSION,
 						);
