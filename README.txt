@@ -47,11 +47,73 @@ Cookiex automatically scans your site and blocks non-essential cookies until use
 = Does Cookiex support multi-language websites? =
 Yes, Cookiex CMP offers multi-language support to cater to users from various regions.
 
-== Screenshots ==
+= Where can I contribute to the plugin? =
 
-1. **Cookie Banner** - A customizable cookie banner displayed to website visitors.
-2. **Privacy Scan Report** - A detailed report showing detected cookies and trackers.
-3. **Consent Dashboard** - An intuitive dashboard for managing compliance data.
+All development for this plugin is handled via GitHub. Any issues or pull requests should be submitted to our [GitHub repository](https://github.com/cookiex-io/wp-plugin). Please read our [contributing guidelines](CONTRIBUTING.md) before submitting contributions.
+
+= What development standards does the plugin follow? =
+
+The plugin follows WordPress Coding Standards and uses several quality assurance tools:
+* PHPStan for static analysis
+* PHPCS for coding standards enforcement
+* ESLint for JavaScript/TypeScript linting
+
+= How can I report issues or suggest improvements? =
+
+If you encounter any issues or have suggestions for improvements, please:
+1. Check if the issue already exists in our GitHub issue tracker
+2. If not, create a new issue with detailed information about the problem or suggestion
+3. For bugs, include steps to reproduce, expected behavior, and actual behavior
+4. For feature requests, explain the use case and potential benefits
+
+= How can I set up the development environment? =
+
+1. Clone the repository
+2. Install dependencies using `composer install` and `npm install`
+3. For admin interface development with hot reloading, use `npm run development`
+4. Follow the setup instructions in CONTRIBUTING.md for detailed steps
+
+= Does the plugin need to pass all checks before contributing? =
+
+Yes, all contributions should pass:
+* PHPStan analysis
+* PHPCS checks
+* ESLint validation
+* All automated tests
+* WordPress Plugin Check requirements
+
+This ensures high code quality and maintains compatibility with WordPress standards.
+
+== External Services ==
+
+This plugin connects to CookieX's services (cookiex.io) to provide cookie consent management functionality. The following external connections are made:
+
+1. Cookie Banner Script
+- What: The plugin loads the CookieX banner script from CookieX's CDN
+- When: The script is loaded when your website pages are accessed
+- URL: https://cdn.cookiex.io/banner/cookiex.min.js
+- Purpose: To display and manage the cookie consent banner
+
+2. CookieX API Integration
+- What: The plugin communicates with CookieX's API to manage cookie preferences and compliance settings
+- When: During configuration and when visitors interact with the cookie consent banner
+- Data sent: 
+  * Domain ID
+  * Selected language
+  * Cookie preferences
+  * GTM configuration (if enabled)
+  * Domain name
+- Purpose: To manage cookie consent preferences and ensure compliance with privacy regulations
+
+3. CookieX Registration Portal
+- What: Links to CookieX's registration page
+- When: When users click the "Sign Up" button in the plugin's dashboard
+- URL: https://app.cookiex.io/register
+- Purpose: To allow users to create a CookieX account for accessing additional features and managing their cookie consent settings
+
+For more information about how CookieX handles your data:
+* Terms of Service: https://cookiex.io/terms
+* Privacy Policy: https://cookiex.io/privacy
 
 == Changelog ==
 
