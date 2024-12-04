@@ -57,13 +57,69 @@ function add_cookiex_banner(): void {
 /**
  * Register settings for the plugin
  */
-function icc_register_settings(): void {
-	register_setting( 'cookiex', 'cookiex_domain_id' );
-	register_setting( 'cookiex', 'cookiex_language' );
-	register_setting( 'cookiex', 'cookiex_auto_block_cookies' );
-	register_setting( 'cookiex', 'cookiex_gtm_enabled' );
-	register_setting( 'cookiex', 'cookiex_gtm_id' );
-	register_setting( 'cookiex', 'cookiex_cookie_preferences' );
+function cookiex_register_settings(): void {
+	register_setting(
+		'cookiex',
+		'cookiex_domain_id',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		)
+	);
+	register_setting(
+		'cookiex',
+		'cookiex_language',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		)
+	);
+	register_setting(
+		'cookiex',
+		'cookiex_auto_block_cookies',
+		array(
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'type'              => 'boolean',
+		)
+	);
+	register_setting(
+		'cookiex',
+		'cookiex_gtm_enabled',
+		array(
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'type'              => 'boolean',
+		)
+	);
+	register_setting(
+		'cookiex',
+		'cookiex_gtm_id',
+		array(
+			'sanitize_callback' => 'sanitize_text_field',
+			'type'              => 'string',
+		)
+	);
+	register_setting(
+		'cookiex',
+		'cookiex_cookie_preferences',
+		array(
+			'sanitize_callback' => 'cookiex_sanitize_cookie_preferences',
+			'type'              => 'array',
+		)
+	);
 }
 
-add_action( 'admin_init', 'icc_register_settings' );
+/**
+ * Sanitization function for cookie preferences
+ *
+ * @param mixed $preferences The preferences to sanitize.
+ * @return array<string> The sanitized preferences array
+ */
+function cookiex_sanitize_cookie_preferences( mixed $preferences ): array {
+	if ( ! is_array( $preferences ) ) {
+		return array();
+	}
+
+	return array_map( 'sanitize_text_field', $preferences );
+}
+
+add_action( 'admin_init', 'cookiex_register_settings' );
