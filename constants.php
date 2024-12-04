@@ -6,5 +6,9 @@
  * @package Cookiex_CMP
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 define( 'COOKIEX_CMP_PATH', plugin_dir_path( __FILE__ ) );
 define( 'COOKIEX_CMP_URL', plugin_dir_url( __FILE__ ) );

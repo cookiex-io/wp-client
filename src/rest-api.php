@@ -11,6 +11,10 @@
  * @version 1.0.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Register the REST API routes for the plugin
  *
