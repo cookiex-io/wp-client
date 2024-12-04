@@ -19,38 +19,51 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Add the CookieX banner to the website
  */
 function cookiex_cmp_add_banner(): void {
+	// Get all the options
 	$domain_id          = get_option( 'cookiex_cmp_domain_id' );
-	$language           = get_option( 'cookiex_cmp_language' ); // Assuming this is stored
-	$auto_block_cookies = get_option( 'cookiex_cmp_auto_block_cookies' ); // Assuming this is stored
-	$gtm_enabled        = get_option( 'cookiex_cmp_gtm_enabled' ); // Assuming this is stored
-	$gtm_id             = get_option( 'cookiex_cmp_gtm_id' ); // Assuming this is stored
-	$cookie_preferences = get_option( 'cookiex_cmp_cookie_preferences' ); // Assuming this is stored as an array
-	$domain_name        = '';
-
-	if ( isset( $_SERVER['HTTP_HOST'] ) ) {
-		$domain_name = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
-	}
+	$language           = get_option( 'cookiex_cmp_language' );
+	$auto_block_cookies = get_option( 'cookiex_cmp_auto_block_cookies' );
+	$gtm_enabled        = get_option( 'cookiex_cmp_gtm_enabled' );
+	$gtm_id             = get_option( 'cookiex_cmp_gtm_id' );
+	$cookie_preferences = get_option( 'cookiex_cmp_cookie_preferences' );
+	$domain_name        = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 
 	if ( $domain_id ) {
-		// Convert cookie preferences array to a JSON string
-		$cookie_preferences_json = wp_json_encode( $cookie_preferences );
-
-		echo '<script id="cookiex" data-ckid="' . esc_attr( $domain_id ) . '" src="https://cdn.cookiex.io/banner/cookiex.min.js" type="text/javascript"></script> 
-		<script type="text/javascript"> 
-			document.addEventListener( "DOMContentLoaded", function() { 
+		// Register and enqueue the CookieX script
+		wp_register_script(
+			'cookiex-cmp-banner',
+			'https://cdn.cookiex.io/banner/cookiex.min.js',
+			array(),
+			'1.0.0',
+			true
+		);
+		wp_enqueue_script( 'cookiex-cmp-banner' );
+		// Prepare the initialization script
+		$init_script = sprintf(
+			'document.addEventListener("DOMContentLoaded", function() { 
 				const theme = { 
-					domainId: "' . esc_js( $domain_id ) . '", 
-					domainName: "' . esc_js( $domain_name ) . '",
-					language: "' . esc_js( $language ) . '",
-					autoBlockCookies: ' . wp_json_encode( $auto_block_cookies ) . ',
-					gtmEnabled: ' . wp_json_encode( $gtm_enabled ) . ',
-					gtmId: "' . esc_js( $gtm_id ) . '",
-					cookiePreferences: ' . esc_js( $cookie_preferences_json ) . '
+					domainId: %s,
+					domainName: %s,
+					language: %s,
+					autoBlockCookies: %s,
+					gtmEnabled: %s,
+					gtmId: %s,
+					cookiePreferences: %s
 				}; 
 				const cookiex = new Cookiex(); 
 				cookiex.init(theme); 
-			} ); 
-		</script>';
+			});',
+			wp_json_encode( $domain_id ),
+			wp_json_encode( $domain_name ),
+			wp_json_encode( $language ),
+			wp_json_encode( $auto_block_cookies ),
+			wp_json_encode( $gtm_enabled ),
+			wp_json_encode( $gtm_id ),
+			wp_json_encode( $cookie_preferences )
+		);
+
+		// Add the initialization code as inline script
+		wp_add_inline_script( 'cookiex-cmp-banner', $init_script );
 	}
 }
 
