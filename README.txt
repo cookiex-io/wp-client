@@ -49,7 +49,7 @@ Yes, Cookiex CMP offers multi-language support to cater to users from various re
 
 = Where can I contribute to the plugin? =
 
-All development for this plugin is handled via GitHub. Any issues or pull requests should be submitted to our [GitHub repository](https://github.com/cookiex-io/wp-plugin). Please read our [contributing guidelines](CONTRIBUTING.md) before submitting contributions.
+All development for this plugin is handled via GitHub. Any issues or pull requests should be submitted to our [GitHub repository](https://github.com/cookiex-io/wp-client). Please read our [contributing guidelines](CONTRIBUTING.md) before submitting contributions.
 
 = What development standards does the plugin follow? =
 
