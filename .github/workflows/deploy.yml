@@ -55,7 +55,7 @@ jobs:
 
       - name: Prepare Release Package
         run: |
-          mkdir cookiex-cmp
+          mkdir cookiex-consent-management-platform
           rsync -av \
             --exclude='.*' \
             --exclude='composer.lock' \
@@ -74,24 +74,24 @@ jobs:
             --exclude='tests' \
             --exclude='bin' \
             --exclude='node_modules' \
-            ./ cookiex-cmp/
+            ./ cookiex-consent-management-platform/
         shell: bash
 
       - name: Run WordPress Plugin Check
         uses: wordpress/plugin-check-action@v1
         with:
-          build-dir: 'cookiex-cmp'
+          build-dir: 'cookiex-consent-management-platform'
 
       - name: Zip Release Package
         shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y zip
-          zip -r cookiex-cmp-${{ env.RELEASE_VERSION }}.zip cookiex-cmp
+          zip -r cookiex-consent-management-platform-${{ env.RELEASE_VERSION }}.zip cookiex-consent-management-platform
 
       - name: Release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           omitBodyDuringUpdate: true
-          artifacts: "cookiex-cmp-${{ env.RELEASE_VERSION }}.zip"
+          artifacts: "cookiex-consent-management-platform-${{ env.RELEASE_VERSION }}.zip"
