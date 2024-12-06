@@ -2,7 +2,7 @@
 Contributors: cookiexcmp
 Tags: Cookie Consent, privacy, DPDPA, Privacy compliance, PDPL
 Tested up to: 6.7
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,7 +117,7 @@ For more information about how CookieX handles your data:
 
 == Changelog ==
 
-= 1.0.2 =
+= 1.0.3 =
 * Fixed the flaws and irregular practices as reported by the wordpress plugin review team
 
 = 1.0.1 =
@@ -128,5 +128,5 @@ For more information about how CookieX handles your data:
 
 == Upgrade Notice ==
 
-= 1.0.2 =
+= 1.0.3 =
 Upgrade to the latest version for enhanced performance, usability improvements, and bug fixes.
