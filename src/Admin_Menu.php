@@ -37,6 +37,6 @@ class Admin_Menu {
 	 */
 	public static function render_dashboard_page(): void {
 		$nonce = wp_create_nonce( 'cookiex_cmp_nonce' );
-		echo '<div id="cookiex-root" data-nonce="' . esc_attr( $nonce ) . '"></div>';
+		echo '<div id="cookiex-root" class="cookiex-cmp-admin" data-nonce="' . esc_attr( $nonce ) . '"></div>';
 	}
 }
