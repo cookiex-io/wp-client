@@ -51,10 +51,10 @@ add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
 /**
  * Check if the user has the necessary permissions to access the API
  *
- * @return bool True if the user is logged in, false otherwise
+ * @return bool True if the user has admin capabilities, false otherwise
  */
 function cookiex_cmp_permission_callback(): bool {
-	return is_user_logged_in();
+	return current_user_can( 'manage_options' );
 }
 
 /**
