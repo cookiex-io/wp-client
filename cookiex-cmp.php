@@ -14,7 +14,7 @@
  * @wordpress-plugin
  * Plugin Name:       CookieX Consent Management Platform
  * Description:       Automatically manages cookie consent
- * Version:           1.0.3
+ * Version:           1.0.4
  * Requires PHP:      8.0
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
