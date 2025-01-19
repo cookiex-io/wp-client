@@ -26,7 +26,7 @@
 use Cookiex_CMP\Activator;
 use Cookiex_CMP\Deactivator;
 use Cookiex_CMP\Cookiex_CMP;
-use Cookiex_CMP\Uninstallor;
+use Cookiex_CMP\Uninstaller;
 
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -63,7 +63,7 @@ function cookiex_cmp_deactivate(): void {
  * The code that runs during plugin uninstallation.
  */
 function cookiex_cmp_uninstall(): void {
-	Uninstallor::uninstall();
+	Uninstaller::uninstall();
 }
 
 register_activation_hook( __FILE__, 'cookiex_cmp_activate' );
