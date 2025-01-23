@@ -24,8 +24,7 @@ We welcome contributions to the CookieX WordPress plugin! This document provides
    ./build.sh
    ```
 
-5. For admin interface development with hot reloading: in resources/admin/js/pages/SettingsPage.tsx, look for and follow the following instruction: "Uncomment following apiFetch for development mode". 
-   You can then:
+5. For admin interface development with hot reloading:
    ```
    npm run development
    ```

@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { IconInfoCircle } from '@tabler/icons-react';
 import React, { useState, useEffect } from 'react';
-import apiFetch from '@wordpress/api-fetch';
+import { runtimeConfig } from '../config';
 
 const languageNames = {
 	en: 'English',
@@ -49,16 +49,18 @@ const SettingsPage = () => {
 	useEffect(() => {
 		try {
 			setLoading(true);
-			apiFetch({
-				path: '/cookiex/v1/settings',
-			}).then((res: any) => {
-				setDomainId(res.domainId);
-				setGtmId(res.gtmId);
-				setGtmEnabled(res.gtmEnabled);
-				setAutoBlockCookies(res.autoBlockCookies);
-				setLanguage(res.language);
-				setCookiePreference(res.cookiePreference);
-			});
+			runtimeConfig
+				.apiFetch({
+					path: '/cookiex/v1/settings',
+				})
+				.then((res: any) => {
+					setDomainId(res.domainId);
+					setGtmId(res.gtmId);
+					setGtmEnabled(res.gtmEnabled);
+					setAutoBlockCookies(res.autoBlockCookies);
+					setLanguage(res.language);
+					setCookiePreference(res.cookiePreference);
+				});
 
 			setLoading(false);
 		} catch (error) {

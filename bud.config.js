@@ -101,4 +101,16 @@ export default async bud => {
     from: bud.path('resources/admin/index.html'),
     to: bud.path('@dist/index.html'),
   });
+
+	if (bud.mode === 'development') {
+		bud.assets({
+			from: bud.path('node_modules/.msw/mockServiceWorker.js'),
+			to: bud.path('@dist/mockServiceWorker.js'),
+			noErrorOnMissing: true,
+		})
+	}
+
+	bud.define({
+		'process.env.NODE_ENV': JSON.stringify(bud.mode)
+	})
 }
