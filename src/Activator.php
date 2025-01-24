@@ -23,5 +23,7 @@ class Activator {
 	 * @return void
 	 */
 	public static function activate(): void {
+		// Add activation redirect
+		add_option( 'cookiex_cmp_do_activation_redirect', true );
 	}
 }

@@ -14,6 +14,7 @@
 namespace Cookiex_CMP;
 
 require_once plugin_dir_path( __FILE__ ) . '/banner.php';
+require_once plugin_dir_path( __FILE__ ) . '/Redirect.php';
 
 /**
  * The core plugin class.
@@ -95,6 +96,10 @@ class Cookiex_CMP {
 	 */
 	private function define_admin_hooks(): void {
 		add_action( 'admin_menu', array( Admin_Menu::class, 'add_menu_pages' ) );
+
+		// Initialize the redirect functionality
+		$redirect = new Redirect();
+		$redirect->init();
 
 		add_action(
 			'admin_enqueue_scripts',
