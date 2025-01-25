@@ -23,15 +23,15 @@ export function Navbar(props: any) {
 		<>
 			<ScrollArea className="ck-navbar-links">
 				<Flex
-					className={`ck-navbar-linksInner ${props.active === 'DashBoard' ? 'ckActive' : ''}`}
-					onClick={() => handleSettings('DashBoard')}
-					onKeyDown={(e) => handleKeyDown(e, 'DashBoard')}
+					className={`ck-navbar-linksInner ${props.active === 'Dashboard' ? 'ckActive' : ''}`}
+					onClick={() => handleSettings('Dashboard')}
+					onKeyDown={(e) => handleKeyDown(e, 'Dashboard')}
 					role="button"
 					tabIndex={0}
 				>
 					<IconHome /> &nbsp;{' '}
 					<Text ml="xs" fw={600}>
-						DashBoard
+						Dashboard
 					</Text>
 				</Flex>
 				<Flex

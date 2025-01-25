@@ -12,8 +12,8 @@ import { SettingsPage } from './pages/SettingsPage';
 import { FAQScreen } from './pages/FAQScreen';
 
 export function App() {
-	const [componentName, setComponentName] = useState('DashBoard');
-	const [active, setActive] = useState('DashBoard');
+	const [componentName, setComponentName] = useState('Dashboard');
+	const [active, setActive] = useState('Dashboard');
 
 	const renderComponent = (cName: any) => {
 		setActive(cName);
@@ -74,7 +74,7 @@ export function App() {
 						</Grid.Col>
 						<Grid.Col span={9}>
 							<Box p="md" style={{ height: '100vh' }}>
-								{componentName === 'DashBoard' && (
+								{componentName === 'Dashboard' && (
 									<DashboardPage
 										renderComponent={renderComponent}
 									/>
