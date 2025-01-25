@@ -3,17 +3,20 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import { Box, createTheme, Grid, MantineProvider } from '@mantine/core';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AdminHeader } from './components/Headers/AdminHeader';
 import { Navbar } from './components/NavBar/NavBar';
 
 import { DashboardPage } from './pages/DashboardPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FAQScreen } from './pages/FAQScreen';
+import { Welcome } from './pages/Welcome';
+import { runtimeConfig } from './config';
 
 export function App() {
 	const [componentName, setComponentName] = useState('Dashboard');
 	const [active, setActive] = useState('Dashboard');
+	const [showWelcome, setShowWelcome] = useState(true);
 
 	const renderComponent = (cName: any) => {
 		setActive(cName);
@@ -50,9 +53,25 @@ export function App() {
 		primaryColor: 'blue',
 	});
 
+	useEffect(() => {
+		// Check if we should show welcome screen
+		runtimeConfig
+			.apiFetch({ path: '/cookiex/v1/welcome-status' })
+			.then((response: any) => {
+				setShowWelcome(response.show_welcome);
+			});
+	}, []);
+
 	return (
-		<>
-			<MantineProvider theme={theme}>
+		<MantineProvider theme={theme}>
+			{showWelcome ? (
+				<Welcome
+					renderComponent={renderComponent}
+					onComplete={() => {
+						setShowWelcome(false);
+					}}
+				/>
+			) : (
 				<Box style={{ height: '100vh' }}>
 					<Box bg="#fff">
 						<AdminHeader />
@@ -87,7 +106,7 @@ export function App() {
 						</Grid.Col>
 					</Grid>
 				</Box>
-			</MantineProvider>
-		</>
+			)}
+		</MantineProvider>
 	);
 }

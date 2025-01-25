@@ -1,6 +1,24 @@
-import { http, HttpResponse } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
+
+// Add state variable to track welcome status
+let showWelcome = true;
 
 export const handlers = [
+	http.post('/cookiex/v1/clear-welcome', async () => {
+		// 50ms network round trip
+		await delay(50);
+		showWelcome = false;
+		return HttpResponse.json({ success: true }, { status: 200 });
+	}),
+
+	http.get('/cookiex/v1/welcome-status', () => {
+		// Return the current welcome status
+		return HttpResponse.json(
+			{ show_welcome: showWelcome },
+			{ status: 200 }
+		);
+	}),
+
 	http.get('/cookiex/v1/settings', () => {
 		return HttpResponse.json(
 			{

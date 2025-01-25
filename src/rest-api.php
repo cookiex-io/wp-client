@@ -44,6 +44,26 @@ function cookiex_cmp_register_api_routes(): void {
 			),
 		)
 	);
+
+	register_rest_route(
+		'cookiex/v1',
+		'/welcome-status',
+		array(
+			'methods'             => 'GET',
+			'callback'            => 'cookiex_cmp_get_welcome_status',
+			'permission_callback' => 'cookiex_cmp_permission_callback',
+		)
+	);
+
+	register_rest_route(
+		'cookiex/v1',
+		'/clear-welcome',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'cookiex_cmp_clear_welcome_status',
+			'permission_callback' => 'cookiex_cmp_permission_callback',
+		)
+	);
 }
 
 add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
@@ -114,6 +134,35 @@ function cookiex_cmp_fetch_settings(): WP_REST_Response {
 			'gtmEnabled'       => $gtm_enabled,
 			'gtmId'            => $gtm_id,
 			'cookiePreference' => $cookie_preferences,
+		),
+		200
+	);
+}
+
+/**
+ * Get the welcome message display status
+ *
+ * @return WP_REST_Response The welcome status
+ */
+function cookiex_cmp_get_welcome_status(): WP_REST_Response {
+	return new WP_REST_Response(
+		array(
+			'show_welcome' => get_option( 'cookiex_cmp_show_welcome', false ),
+		),
+		200
+	);
+}
+
+/**
+ * Clear the welcome message display status
+ *
+ * @return WP_REST_Response Success response
+ */
+function cookiex_cmp_clear_welcome_status(): WP_REST_Response {
+	delete_option( 'cookiex_cmp_show_welcome' );
+	return new WP_REST_Response(
+		array(
+			'success' => true,
 		),
 		200
 	);
