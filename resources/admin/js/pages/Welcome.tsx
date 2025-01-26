@@ -27,7 +27,7 @@ export function Welcome(props: any) {
 
 	const handleOnboardingComplete = () => {
 		props.onComplete?.();
-		props.renderComponent('Dashboard');
+		props.renderComponent('ConsentDashboard');
 	};
 
 	useEffect(() => {
