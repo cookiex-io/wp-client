@@ -5,21 +5,19 @@ import '@mantine/notifications/styles.css';
 import { Box, createTheme, Grid, MantineProvider } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { AdminHeader } from './components/Headers/AdminHeader';
-import { Navbar } from './components/NavBar/NavBar';
 
 import { DashboardPage } from './pages/DashboardPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { FAQScreen } from './pages/FAQScreen';
 import { Welcome } from './pages/Welcome';
 import { runtimeConfig } from './config';
+import ConsentDashboard from './pages/ConsentDashboard';
 
 export function App() {
-	const [componentName, setComponentName] = useState('Dashboard');
-	const [active, setActive] = useState('Dashboard');
+	const [componentName, setComponentName] = useState('ConsentDashboard');
 	const [showWelcome, setShowWelcome] = useState(true);
 
 	const renderComponent = (cName: any) => {
-		setActive(cName);
 		setComponentName(cName);
 	};
 
@@ -77,26 +75,15 @@ export function App() {
 						<AdminHeader />
 					</Box>
 					<Grid>
-						<Grid.Col span={3}>
-							<Box
-								p="md"
-								style={{
-									height: '100vh',
-									borderRight: '1px solid #eaeaea',
-								}}
-							>
-								<Navbar
-									active={active}
-									renderComponent={renderComponent}
-								/>
-							</Box>
-						</Grid.Col>
-						<Grid.Col span={9}>
+						<Grid.Col span={12}>
 							<Box p="md" style={{ height: '100vh' }}>
 								{componentName === 'Dashboard' && (
 									<DashboardPage
 										renderComponent={renderComponent}
 									/>
+								)}
+								{componentName === 'ConsentDashboard' && (
+									<ConsentDashboard />
 								)}
 								{componentName === 'Settings' && (
 									<SettingsPage />
