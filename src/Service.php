@@ -104,3 +104,93 @@ function cookiex_cmp_register_domain(): bool {
 
 	return true;
 }
+
+/**
+ * Scan the domain for cookies
+ *
+ * @return array<string, mixed> Array containing scan status
+ */
+function cookiex_cmp_quickscan_if_needed(): array {
+	$api_server = cookiex_cmp_fetch_api_server();
+	if ( ! $api_server ) {
+		return array( 'status' => false );
+	}
+
+	$domain_id = get_option( 'cookiex_cmp_domain_id' );
+	if ( ! $domain_id ) {
+		return array( 'status' => false );
+	}
+
+	$auth_token = get_option( 'cookiex_cmp_auth_token' );
+	if ( ! $auth_token ) {
+		return array( 'status' => false );
+	}
+
+	$check_response = wp_remote_get(
+		$api_server . '/domains/' . $domain_id . '/scans',
+		array(
+			'headers' => array(
+				'Authorization' => 'Bearer ' . $auth_token,
+			),
+		)
+	);
+
+	if ( ! is_wp_error( $check_response ) ) {
+		$status_code = wp_remote_retrieve_response_code( $check_response );
+
+		if ( 200 === $status_code ) {
+			$body      = wp_remote_retrieve_body( $check_response );
+			$scan_data = json_decode( $body, true );
+
+			if ( isset( $scan_data['latestScanResult'] ) ) {
+				return array(
+					'status'        => true,
+					'type'          => 'existing',
+					'last_scan'     => $scan_data['latestScanResult']['scannedOn'],
+					'pages'         => $scan_data['latestScanResult']['pages'],
+					'cookies_count' => $scan_data['latestScanResult']['cookiesCount'],
+				);
+			}
+
+			return array( 'status' => true );
+		}
+
+		if ( 404 !== $status_code ) {
+			return array( 'status' => false );
+		}
+	}
+
+	// If we get here, either there was a 404 or an error, so proceed with quick scan
+	$response = wp_remote_post(
+		$api_server . '/domains/' . $domain_id . '/quick/scan',
+		array(
+			'headers' => array(
+				'Authorization' => 'Bearer ' . $auth_token,
+			),
+		)
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return array( 'status' => false );
+	}
+
+	$body = wp_remote_retrieve_body( $response );
+	$data = json_decode( $body, true );
+
+	if ( ! is_array( $data ) || ! isset( $data['status'] ) ) {
+		return array( 'status' => false );
+	}
+
+	// Store theme color if available
+	if ( isset( $data['themeColor'] ) ) {
+		update_option( 'cookiex_cmp_theme_color', $data['themeColor'] );
+	}
+
+	$cookies_count = isset( $data['cookies'] ) ? count( $data['cookies'] ) : 0;
+
+	return array(
+		'status'        => true,
+		'type'          => 'quick',
+		'cookies_count' => $cookies_count,
+	);
+}

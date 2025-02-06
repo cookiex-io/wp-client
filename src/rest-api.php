@@ -84,6 +84,26 @@ function cookiex_cmp_register_api_routes(): void {
 			'permission_callback' => 'cookiex_cmp_permission_callback',
 		)
 	);
+
+	register_rest_route(
+		'cookiex/v1',
+		'/quickscan',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'cookiex_cmp_quickscan',
+			'permission_callback' => 'cookiex_cmp_permission_callback',
+		)
+	);
+
+	register_rest_route(
+		'cookiex/v1',
+		'/enable-consent-management',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'cookiex_cmp_enable_consent_management',
+			'permission_callback' => 'cookiex_cmp_permission_callback',
+		)
+	);
 }
 
 add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
@@ -240,6 +260,38 @@ function cookiex_cmp_register(): WP_REST_Response|WP_Error {
 			'domainId'  => get_option( 'cookiex_cmp_domain_id' ),
 			'token'     => get_option( 'cookiex_cmp_auth_token' ),
 			'apiServer' => get_option( 'cookiex_cmp_api_server' ),
+		),
+		200
+	);
+}
+
+/**
+ * Handle quickscan request
+ *
+ * @return WP_REST_Response The quickscan status
+ */
+function cookiex_cmp_quickscan(): WP_REST_Response {
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
+
+	$result = cookiex_cmp_quickscan_if_needed();
+
+	return new WP_REST_Response(
+		$result,
+		200
+	);
+}
+
+/**
+ * Enable consent management
+ *
+ * @return WP_REST_Response The consent management status
+ */
+function cookiex_cmp_enable_consent_management(): WP_REST_Response {
+	update_option( 'cookiex_cmp_auto_block_cookies', true );
+
+	return new WP_REST_Response(
+		array(
+			'status' => true,
 		),
 		200
 	);

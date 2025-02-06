@@ -73,6 +73,42 @@ export function Welcome(props: any) {
 					break;
 				case 1:
 					// Start cookie scanning
+					updateStepDescription(1, 'Scanning your site for cookies');
+					runtimeConfig
+						.apiFetch({
+							path: '/cookiex/v1/quickscan',
+							method: 'POST',
+						})
+						.then((response: any) => {
+							if (response.status) {
+								let description =
+									'Cookies scanned successfully';
+
+								// Add additional details if available
+								if (response.type === 'existing') {
+									const scanDate = new Date(
+										response.last_scan
+									).toLocaleDateString();
+									description =
+										`Last scan from ${scanDate}\n` +
+										`Pages scanned: ${response.pages}\n` +
+										`Cookies found: ${response.cookies_count}`;
+								} else if (response.type === 'quick') {
+									description =
+										`Quick scan completed\n` +
+										`Cookies found: ${response.cookies_count}`;
+								}
+
+								updateStepDescription(1, description);
+								setCurrentStep((prevStep) => prevStep + 1);
+							}
+						})
+						.catch((error) => {
+							updateStepDescription(
+								1,
+								'Scanning failed, please try again: ' + error
+							);
+						});
 					break;
 				case 2:
 					updateStepDescription(2, 'Creating your banner');
@@ -80,6 +116,26 @@ export function Welcome(props: any) {
 					setCurrentStep((prevStep) => prevStep + 1);
 					break;
 				case 3:
+					runtimeConfig
+						.apiFetch({
+							path: '/cookiex/v1/enable-consent-management',
+							method: 'POST',
+						})
+						.then((response: any) => {
+							if (response.status) {
+								updateStepDescription(
+									3,
+									'Consent management activated'
+								);
+								setCurrentStep((prevStep) => prevStep + 1);
+							}
+						})
+						.catch((error) => {
+							updateStepDescription(
+								3,
+								'Consent management activation failed' + error
+							);
+						});
 					break;
 			}
 			return () => clearTimeout(timer);

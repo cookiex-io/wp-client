@@ -66,6 +66,9 @@ export function App() {
 				<Welcome
 					renderComponent={renderComponent}
 					onComplete={() => {
+						runtimeConfig.apiFetch({
+							path: '/cookiex/v1/clear-welcome',
+						});
 						setShowWelcome(false);
 					}}
 				/>

@@ -48,4 +48,28 @@ export const handlers = [
 			{ status: 200 }
 		);
 	}),
+
+	http.post('/cookiex/v1/quickscan', async () => {
+		await delay(50);
+		return HttpResponse.json(
+			{
+				status: true,
+				type: 'existing',
+				last_scan: new Date().toISOString(),
+				pages: 5,
+				cookies_count: 15,
+			},
+			{ status: 200 }
+		);
+	}),
+
+	http.post('/cookiex/v1/enable-consent-management', async () => {
+		await delay(50);
+		return HttpResponse.json(
+			{
+				status: true,
+			},
+			{ status: 200 }
+		);
+	}),
 ];
