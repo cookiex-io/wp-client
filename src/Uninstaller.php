@@ -21,5 +21,12 @@ class Uninstaller {
 	 *
 	 * @return void
 	 */
-	public static function uninstall() {}
+	public static function uninstall() {
+		delete_option( 'cookiex_cmp_domain_id' );
+		delete_option( 'cookiex_cmp_cookie_preferences' );
+		delete_option( 'cookiex_cmp_gtm_id' );
+		delete_option( 'cookiex_cmp_gtm_enabled' );
+		delete_option( 'cookiex_cmp_auto_block_cookies' );
+		delete_option( 'cookiex_cmp_language' );
+	}
 }
