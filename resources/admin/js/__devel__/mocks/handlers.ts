@@ -38,4 +38,14 @@ export const handlers = [
 			status: 200,
 		});
 	}),
+
+	http.post('/cookiex/v1/register', async () => {
+		await delay(50);
+		return HttpResponse.json(
+			{
+				status: true,
+			},
+			{ status: 200 }
+		);
+	}),
 ];

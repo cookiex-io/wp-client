@@ -23,6 +23,10 @@ class Uninstaller {
 	 */
 	public static function uninstall() {
 		delete_option( 'cookiex_cmp_domain_id' );
+		delete_option( 'cookiex_cmp_auth_token' );
+		delete_option( 'cookiex_cmp_passkey' );
+		delete_option( 'cookiex_cmp_show_welcome' );
+		delete_option( 'cookiex_cmp_do_activation_redirect' );
 		delete_option( 'cookiex_cmp_cookie_preferences' );
 		delete_option( 'cookiex_cmp_gtm_id' );
 		delete_option( 'cookiex_cmp_gtm_enabled' );

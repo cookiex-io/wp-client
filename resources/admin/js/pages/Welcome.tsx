@@ -23,6 +23,9 @@ const onboardingSteps = [
 export function Welcome(props: any) {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [onboardNow, setOnboardNow] = useState(false);
+	const [stepDescriptions, setStepDescriptions] = useState(
+		onboardingSteps.map(() => '')
+	);
 	const progressValue = (currentStep / onboardingSteps.length) * 100;
 
 	const handleOnboardingComplete = () => {
@@ -30,11 +33,55 @@ export function Welcome(props: any) {
 		props.renderComponent('ConsentDashboard');
 	};
 
+	const updateStepDescription = (step: number, description: string) => {
+		setStepDescriptions((prev) => {
+			const newDescriptions = [...prev];
+			newDescriptions[step] = description;
+			return newDescriptions;
+		});
+	};
+
 	useEffect(() => {
 		if (onboardNow && currentStep < onboardingSteps.length) {
 			const timer = setTimeout(() => {
 				setCurrentStep((prevStep) => prevStep + 1);
 			}, 2000);
+			switch (currentStep) {
+				case 0:
+					updateStepDescription(0, 'Registering your domain');
+					runtimeConfig
+						.apiFetch({
+							path: '/cookiex/v1/register',
+							method: 'POST',
+						})
+						.then((response: any) => {
+							if (response.status) {
+								updateStepDescription(
+									0,
+									'Domain registered with ID: ' +
+										response.domainId
+								);
+								setCurrentStep((prevStep) => prevStep + 1);
+							}
+						})
+						.catch((error) => {
+							updateStepDescription(
+								0,
+								'Registration unsuccessful' + error
+							);
+						});
+					break;
+				case 1:
+					// Start cookie scanning
+					break;
+				case 2:
+					updateStepDescription(2, 'Creating your banner');
+					updateStepDescription(2, 'Banner created successfully');
+					setCurrentStep((prevStep) => prevStep + 1);
+					break;
+				case 3:
+					break;
+			}
 			return () => clearTimeout(timer);
 		}
 	}, [currentStep, onboardNow]);
@@ -78,8 +125,8 @@ export function Welcome(props: any) {
 								mt="md"
 							>
 								When you start below, your domain name will be
-								used to register the cookie consent management
-								service
+								used to register with the cookie consent
+								management service
 							</Text>
 							<Button
 								radius="md"
@@ -102,12 +149,12 @@ export function Welcome(props: any) {
 							Go to Dashboard
 						</Button>
 					</Stepper.Completed>
-					{onboardingSteps.map((step) => (
-						<Stepper.Step key={step.id} label={step.title}>
-							<Text size="sm" c="dimmed">
-								{step.description}
-							</Text>
-						</Stepper.Step>
+					{onboardingSteps.map((step, index) => (
+						<Stepper.Step
+							key={step.id}
+							label={step.title}
+							description={stepDescriptions[index]}
+						></Stepper.Step>
 					))}
 				</Stepper>
 			</Paper>
