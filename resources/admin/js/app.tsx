@@ -15,11 +15,25 @@ import ConsentDashboard from './pages/ConsentDashboard';
 
 export function App() {
 	const [componentName, setComponentName] = useState('ConsentDashboard');
-	const [showWelcome, setShowWelcome] = useState(true);
+	const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
 
 	const renderComponent = (cName: any) => {
 		setComponentName(cName);
 	};
+
+	useEffect(() => {
+		// Check if we should show welcome screen
+		runtimeConfig
+			.apiFetch({ path: '/cookiex/v1/welcome-status' })
+			.then((response: any) => {
+				setShowWelcome(response.show_welcome);
+			});
+	}, []);
+
+	// Show nothing while loading
+	if (showWelcome === null) {
+		return null;
+	}
 
 	const theme = createTheme({
 		colors: {
@@ -50,15 +64,6 @@ export function App() {
 		},
 		primaryColor: 'blue',
 	});
-
-	useEffect(() => {
-		// Check if we should show welcome screen
-		runtimeConfig
-			.apiFetch({ path: '/cookiex/v1/welcome-status' })
-			.then((response: any) => {
-				setShowWelcome(response.show_welcome);
-			});
-	}, []);
 
 	return (
 		<MantineProvider theme={theme}>
