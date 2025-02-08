@@ -1,9 +1,17 @@
 'use client';
 
-import { Grid, Paper, Text, Radio, Divider } from '@mantine/core';
+import {
+	Grid,
+	Paper,
+	Text,
+	Radio,
+	Divider,
+	useMantineTheme,
+} from '@mantine/core';
 import React, { useState } from 'react';
 
 function ConsentBannerScreen() {
+	const theme = useMantineTheme();
 	const [layoutType, setLayoutType] = useState('Box');
 	const [bannerValue, setBannerValue] = useState('leftBottomPopUp');
 
@@ -15,6 +23,7 @@ function ConsentBannerScreen() {
 				border: '1px solid #eaeaea',
 				padding: '10px',
 				position: 'absolute',
+				backgroundColor: theme.colors[theme.primaryColor][6],
 				width: '40%',
 				left:
 					bannerValue === 'leftBottomPopUp' ||
@@ -44,6 +53,7 @@ function ConsentBannerScreen() {
 			bannerValue: 'bannerBottom',
 			styles: {
 				border: '1px solid #eaeaea',
+				backgroundColor: theme.colors[theme.primaryColor][6],
 				left: '5px',
 				bottom: '7px',
 				padding: '5px',
@@ -57,6 +67,7 @@ function ConsentBannerScreen() {
 			bannerValue: 'popUpCenter',
 			styles: {
 				border: '1px solid #eaeaea',
+				backgroundColor: theme.colors[theme.primaryColor][6],
 				left: '30%',
 				bottom: '30%',
 				padding: '10px',
@@ -114,7 +125,6 @@ function ConsentBannerScreen() {
 													}}
 												>
 													<div
-														className="fill-primary"
 														style={layout.styles}
 													></div>
 													{layoutType ===
@@ -127,7 +137,11 @@ function ConsentBannerScreen() {
 																position:
 																	'absolute',
 																background:
-																	'#0078b4',
+																	theme
+																		.colors[
+																		theme
+																			.primaryColor
+																	][6],
 																borderRadius:
 																	'20px',
 																fontSize:
