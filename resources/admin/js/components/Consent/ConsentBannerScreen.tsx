@@ -1,53 +1,71 @@
 'use client';
 
-import { Grid, Paper, Text, Radio } from '@mantine/core';
+import { Grid, Paper, Text, Radio, Divider } from '@mantine/core';
 import React, { useState } from 'react';
-
-const layouts = [
-	{
-		layoutType: 'Box',
-		bannerValue: 'leftBottomPopUp',
-		styles: {
-			border: '1px solid #eaeaea',
-			left: '7px',
-			bottom: '7px',
-			padding: '10px',
-			position: 'absolute',
-			width: '40%',
-		},
-		text: 'Box',
-	},
-	{
-		layoutType: 'Banner',
-		bannerValue: 'bannerBottom',
-		styles: {
-			border: '1px solid #eaeaea',
-			left: '5px',
-			bottom: '7px',
-			padding: '5px',
-			position: 'absolute',
-			width: '80%',
-		},
-		text: 'Banner',
-	},
-	{
-		layoutType: 'PopUp',
-		bannerValue: 'popUpCenter',
-		styles: {
-			border: '1px solid #eaeaea',
-			left: '30%',
-			bottom: '30%',
-			padding: '10px',
-			position: 'absolute',
-			width: '40%',
-		},
-		text: 'Popup',
-	},
-];
 
 function ConsentBannerScreen() {
 	const [layoutType, setLayoutType] = useState('Box');
 	const [bannerValue, setBannerValue] = useState('leftBottomPopUp');
+
+	const layouts = [
+		{
+			layoutType: 'Box',
+			bannerValue: 'leftBottomPopUp',
+			styles: {
+				border: '1px solid #eaeaea',
+				padding: '10px',
+				position: 'absolute',
+				width: '40%',
+				left:
+					bannerValue === 'leftBottomPopUp' ||
+					bannerValue === 'leftTopPopUp'
+						? '7px'
+						: 'auto',
+				right:
+					bannerValue === 'rightBottomPopUp' ||
+					bannerValue === 'rightTopPopUp'
+						? '7px'
+						: 'auto',
+				bottom:
+					bannerValue === 'leftBottomPopUp' ||
+					bannerValue === 'rightBottomPopUp'
+						? '7px'
+						: 'auto',
+				top:
+					bannerValue === 'leftTopPopUp' ||
+					bannerValue === 'rightTopPopUp'
+						? '7px'
+						: 'auto',
+			},
+			text: 'Box',
+		},
+		{
+			layoutType: 'Banner',
+			bannerValue: 'bannerBottom',
+			styles: {
+				border: '1px solid #eaeaea',
+				left: '5px',
+				bottom: '7px',
+				padding: '5px',
+				position: 'absolute',
+				width: '80%',
+			},
+			text: 'Banner',
+		},
+		{
+			layoutType: 'PopUp',
+			bannerValue: 'popUpCenter',
+			styles: {
+				border: '1px solid #eaeaea',
+				left: '30%',
+				bottom: '30%',
+				padding: '10px',
+				position: 'absolute',
+				width: '40%',
+			},
+			text: 'Popup',
+		},
+	];
 
 	return (
 		<React.Fragment>
@@ -134,6 +152,7 @@ function ConsentBannerScreen() {
 										</Grid.Col>
 									))}
 								</Grid>
+								<Divider my="sm" />
 								{layoutType === 'Box' && (
 									<Radio.Group
 										mt={15}
