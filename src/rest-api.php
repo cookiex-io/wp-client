@@ -159,21 +159,25 @@ function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response
  * @return WP_REST_Response The settings details
  */
 function cookiex_cmp_fetch_settings(): WP_REST_Response {
-	$domain_id          = get_option( 'cookiex_cmp_domain_id', '' );
-	$language           = get_option( 'cookiex_cmp_language', 'en' ); // Default to English
-	$auto_block_cookies = get_option( 'cookiex_cmp_auto_block_cookies', false );
-	$gtm_enabled        = get_option( 'cookiex_cmp_gtm_enabled', false );
-	$gtm_id             = get_option( 'cookiex_cmp_gtm_id', '' );
-	$cookie_preferences = get_option( 'cookiex_cmp_cookie_preferences', array() );
+	$domain_id           = get_option( 'cookiex_cmp_domain_id', '' );
+	$language            = get_option( 'cookiex_cmp_language', 'en' ); // Default to English
+	$auto_block_cookies  = get_option( 'cookiex_cmp_auto_block_cookies', false );
+	$gtm_enabled         = get_option( 'cookiex_cmp_gtm_enabled', false );
+	$gtm_id              = get_option( 'cookiex_cmp_gtm_id', '' );
+	$cookie_preferences  = get_option( 'cookiex_cmp_cookie_preferences', array() );
+	$server_country      = get_option( 'cookiex_cmp_server_country', '' );
+	$languages_available = get_option( 'cookiex_cmp_languages_available', array() );
 
 	return new WP_REST_Response(
 		array(
-			'domainId'         => $domain_id,
-			'language'         => $language,
-			'autoBlockCookies' => $auto_block_cookies,
-			'gtmEnabled'       => $gtm_enabled,
-			'gtmId'            => $gtm_id,
-			'cookiePreference' => $cookie_preferences,
+			'domainId'           => $domain_id,
+			'language'           => $language,
+			'autoBlockCookies'   => $auto_block_cookies,
+			'gtmEnabled'         => $gtm_enabled,
+			'gtmId'              => $gtm_id,
+			'cookiePreference'   => $cookie_preferences,
+			'serverCountry'      => $server_country,
+			'languagesAvailable' => $languages_available,
 		),
 		200
 	);

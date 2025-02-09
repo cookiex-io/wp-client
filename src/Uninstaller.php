@@ -32,5 +32,8 @@ class Uninstaller {
 		delete_option( 'cookiex_cmp_gtm_enabled' );
 		delete_option( 'cookiex_cmp_auto_block_cookies' );
 		delete_option( 'cookiex_cmp_language' );
+		delete_option( 'cookiex_cmp_api_server' );
+		delete_option( 'cookiex_cmp_server_country' );
+		delete_option( 'cookiex_cmp_languages_available' );
 	}
 }

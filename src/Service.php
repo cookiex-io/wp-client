@@ -41,6 +41,8 @@ function cookiex_cmp_fetch_api_server(): string|bool {
 	}
 
 	update_option( 'cookiex_cmp_api_server', $data['api_server'] );
+	update_option( 'cookiex_cmp_server_country', $data['country'] );
+	update_option( 'cookiex_cmp_languages_available', $data['languages'] );
 	return $data['api_server'];
 }
 

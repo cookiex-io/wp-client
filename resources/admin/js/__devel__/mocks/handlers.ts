@@ -22,12 +22,20 @@ export const handlers = [
 	http.get('/cookiex/v1/settings', () => {
 		return HttpResponse.json(
 			{
-				domainId: '',
+				domainId: '123e4567-e89b-12d3-a456-426614174000',
 				language: 'en',
-				autoBlockCookies: false,
+				autoBlockCookies: true,
 				gtmEnabled: false,
 				gtmId: '',
 				cookiePreference: {},
+				serverCountry: 'in',
+				languagesAvailable: {
+					en: 'English',
+					fr: 'Français',
+					es: 'Español',
+					pt: 'Português',
+					ar: 'العربية',
+				},
 			},
 			{ status: 200 }
 		);
