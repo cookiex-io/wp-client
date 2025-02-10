@@ -10,7 +10,7 @@ import {
 } from '@mantine/core';
 import { SettingsPanel } from '../components/SettingsPanel';
 
-function ConsentDashboard() {
+function Dashboard() {
 	return (
 		<Container fluid>
 			<Tabs defaultValue="dashboard">
@@ -113,4 +113,4 @@ function ConsentDashboard() {
 	);
 }
 
-export default ConsentDashboard;
+export default Dashboard;

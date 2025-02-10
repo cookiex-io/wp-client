@@ -6,15 +6,13 @@ import { Box, createTheme, Grid, MantineProvider } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { AdminHeader } from './components/Headers/AdminHeader';
 
-import { DashboardPage } from './pages/DashboardPage';
-import { SettingsPage } from './pages/SettingsPage';
 import { FAQScreen } from './pages/FAQScreen';
 import { Welcome } from './pages/Welcome';
 import { runtimeConfig } from './config';
-import ConsentDashboard from './pages/ConsentDashboard';
+import Dashboard from './pages/Dashboard';
 
 export function App() {
-	const [componentName, setComponentName] = useState('ConsentDashboard');
+	const [componentName, setComponentName] = useState('Dashboard');
 	const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
 
 	const renderComponent = (cName: any) => {
@@ -85,17 +83,7 @@ export function App() {
 					<Grid>
 						<Grid.Col span={12}>
 							<Box p="md" style={{ height: '100vh' }}>
-								{componentName === 'Dashboard' && (
-									<DashboardPage
-										renderComponent={renderComponent}
-									/>
-								)}
-								{componentName === 'ConsentDashboard' && (
-									<ConsentDashboard />
-								)}
-								{componentName === 'Settings' && (
-									<SettingsPage />
-								)}
+								{componentName === 'Dashboard' && <Dashboard />}
 								{componentName === 'Support' && <FAQScreen />}
 							</Box>
 						</Grid.Col>
