@@ -10,7 +10,7 @@ import {
 } from '@mantine/core';
 import React, { useState } from 'react';
 
-function ConsentBannerScreen() {
+function ConsentBannerScreen(props: any) {
 	const theme = useMantineTheme();
 	const [layoutType, setLayoutType] = useState('Box');
 	const [bannerValue, setBannerValue] = useState('leftBottomPopUp');
@@ -78,13 +78,17 @@ function ConsentBannerScreen() {
 		},
 	];
 
+	const handleConsentBannerChange = (fieldName: any, value: any) => {
+		props.handleLayout(fieldName, value);
+	};
+
 	return (
 		<React.Fragment>
 			<>
 				<Grid>
 					<Grid.Col
 						span={{ base: 12, md: 12, lg: 12 }}
-						style={{ borderRadius: '8px', background: '#fff' }}
+						style={{ borderRadius: '8px' }}
 					>
 						<div>
 							<Paper withBorder shadow="0" p="sm">
@@ -116,8 +120,16 @@ function ConsentBannerScreen() {
 														height: '100%',
 													}}
 													onClick={() => {
+														handleConsentBannerChange(
+															'layout',
+															layout.layoutType
+														);
 														setLayoutType(
 															layout.layoutType
+														);
+														handleConsentBannerChange(
+															'alignment',
+															layout.bannerValue
 														);
 														setBannerValue(
 															layout.bannerValue
@@ -173,6 +185,10 @@ function ConsentBannerScreen() {
 										mb={15}
 										value={bannerValue}
 										onChange={(e: any) => {
+											handleConsentBannerChange(
+												'alignment',
+												e
+											);
 											setBannerValue(e);
 										}}
 									>

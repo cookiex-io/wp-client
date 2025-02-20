@@ -2,37 +2,17 @@
 
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-import { Box, createTheme, Grid, MantineProvider } from '@mantine/core';
-import { useState, useEffect } from 'react';
+import {
+	Box,
+	Container,
+	createTheme,
+	Grid,
+	MantineProvider,
+} from '@mantine/core';
 import { AdminHeader } from './components/Headers/AdminHeader';
-
-import { FAQScreen } from './pages/FAQScreen';
-import { Welcome } from './pages/Welcome';
-import { runtimeConfig } from './config';
-import Dashboard from './pages/Dashboard';
+import OnBoardPanel from './pages/OnBoardPanel';
 
 export function App() {
-	const [componentName, setComponentName] = useState('Dashboard');
-	const [showWelcome, setShowWelcome] = useState<boolean | null>(null);
-
-	const renderComponent = (cName: any) => {
-		setComponentName(cName);
-	};
-
-	useEffect(() => {
-		// Check if we should show welcome screen
-		runtimeConfig
-			.apiFetch({ path: '/cookiex/v1/welcome-status' })
-			.then((response: any) => {
-				setShowWelcome(response.show_welcome);
-			});
-	}, []);
-
-	// Show nothing while loading
-	if (showWelcome === null) {
-		return null;
-	}
-
 	const theme = createTheme({
 		colors: {
 			blue: [
@@ -65,17 +45,7 @@ export function App() {
 
 	return (
 		<MantineProvider theme={theme}>
-			{showWelcome ? (
-				<Welcome
-					renderComponent={renderComponent}
-					onComplete={() => {
-						runtimeConfig.apiFetch({
-							path: '/cookiex/v1/clear-welcome',
-						});
-						setShowWelcome(false);
-					}}
-				/>
-			) : (
+			<Container fluid>
 				<Box style={{ height: '100vh' }}>
 					<Box bg="#fff">
 						<AdminHeader />
@@ -83,13 +53,12 @@ export function App() {
 					<Grid>
 						<Grid.Col span={12}>
 							<Box p="md" style={{ height: '100vh' }}>
-								{componentName === 'Dashboard' && <Dashboard />}
-								{componentName === 'Support' && <FAQScreen />}
+								<OnBoardPanel />
 							</Box>
 						</Grid.Col>
 					</Grid>
 				</Box>
-			)}
+			</Container>
 		</MantineProvider>
 	);
 }
