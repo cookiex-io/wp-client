@@ -23,6 +23,7 @@ import { ConsentBannerScreen } from '../components/Consent/ConsentBannerScreen';
 import { regulations, finalConsentConfig, themesConfig } from '../utils/utils';
 import { BannerTheme } from '../components/Consent/BannerTheme';
 import { ButtonTheme } from '../components/Consent/ButtonTheme';
+import { UpgradeCard } from '../components/Consent/UpgradeCard';
 
 declare let Cookiex: {
 	new (): {
@@ -500,7 +501,7 @@ export function CookieBanner() {
 					<Tabs.Panel value="content&Colours" bg="#fafafa">
 						<Grid gutter="lg">
 							{/* General Settings */}
-							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
+							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 								<Card
 									padding="lg"
 									style={{
@@ -764,6 +765,9 @@ export function CookieBanner() {
 									)}
 									<div style={{ flexGrow: 1 }}></div>
 								</Card>
+							</Grid.Col>
+							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+								<UpgradeCard />
 							</Grid.Col>
 						</Grid>
 					</Tabs.Panel>
