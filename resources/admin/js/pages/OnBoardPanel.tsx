@@ -12,14 +12,28 @@ import {
 	ThemeIcon,
 	Group,
 } from '@mantine/core';
-import { IconCheck, IconCircleFilled } from '@tabler/icons-react';
+import { IconCheck, IconX, IconClock } from '@tabler/icons-react';
 import OverView from './OverView';
 import { CookieBanner } from './CookieBanner';
 import { runtimeConfig } from '../config';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const onboardingSteps = [
+	{ id: 1, title: '1. Registering your domain', description: '' },
+	{ id: 2, title: '2. Scanning your site for cookies', description: '' },
+	{ id: 3, title: '3. Creating your banner', description: '' },
+	{ id: 4, title: '4. Activating consent management', description: '' },
+];
 
 function OnBoardPanel() {
 	const [openedItems, setOpenedItems] = useState<string[]>(['description']);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [stepStatuses, setStepStatuses] = useState(
+		onboardingSteps.map(() => 'pending') // pending, success, failed
+	);
+	const [stepDescriptions, setStepDescriptions] = useState(
+		onboardingSteps.map(() => '')
+	);
 
 	const handleCloseAccordion = () => {
 		setOpenedItems([]);
@@ -30,6 +44,138 @@ function OnBoardPanel() {
 			runtimeConfig.cmpRedirectUrl,
 			'_blank',
 			'noopener,noreferrer'
+		);
+	};
+
+	const updateStep = (stepIndex: any, status: any, description = '') => {
+		setStepStatuses((prev) => {
+			const updated = [...prev];
+			updated[stepIndex] = status;
+			return updated;
+		});
+
+		setStepDescriptions((prev) => {
+			const updated = [...prev];
+			updated[stepIndex] = description;
+			return updated;
+		});
+	};
+
+	useEffect(() => {
+		if (currentStep < onboardingSteps.length) {
+			switch (currentStep) {
+				case 0:
+					updateStep(0, 'pending', 'Registering your domain...');
+					runtimeConfig
+						.apiFetch({
+							path: '/cookiex/v1/register',
+							method: 'POST',
+						})
+						.then((response) => {
+							if (response.status) {
+								updateStep(
+									0,
+									'success',
+									'Domain registered successfully!'
+								);
+								setCurrentStep((prevStep) => prevStep + 1);
+							} else {
+								updateStep(
+									0,
+									'failed',
+									'Domain registration failed.'
+								);
+							}
+						})
+						.catch(() =>
+							updateStep(0, 'failed', 'Registration failed.')
+						);
+					break;
+				case 1:
+					updateStep(
+						1,
+						'pending',
+						'Scanning your site for cookies...'
+					);
+					runtimeConfig
+						.apiFetch({
+							path: '/cookiex/v1/quickscan',
+							method: 'POST',
+						})
+						.then((response) => {
+							if (response.status) {
+								updateStep(
+									1,
+									'success',
+									'Cookies scanned successfully.'
+								);
+								setCurrentStep((prevStep) => prevStep + 1);
+							} else {
+								updateStep(
+									1,
+									'failed',
+									'Cookie scanning failed.'
+								);
+							}
+						})
+						.catch(() =>
+							updateStep(1, 'failed', 'Scanning failed.')
+						);
+					break;
+				case 2:
+					updateStep(2, 'success', 'Banner created successfully.');
+					setCurrentStep((prevStep) => prevStep + 1);
+					break;
+				case 3:
+					updateStep(
+						3,
+						'pending',
+						'Activating consent management...'
+					);
+					runtimeConfig
+						.apiFetch({
+							path: '/cookiex/v1/enable-consent-management',
+							method: 'POST',
+						})
+						.then((response) => {
+							if (response.status) {
+								updateStep(
+									3,
+									'success',
+									'Consent management activated.'
+								);
+								setCurrentStep((prevStep) => prevStep + 1);
+							} else {
+								updateStep(3, 'failed', 'Activation failed.');
+							}
+						})
+						.catch(() =>
+							updateStep(3, 'failed', 'Activation failed.')
+						);
+					break;
+			}
+		}
+	}, [currentStep]);
+
+	const getStepIcon = (status: string) => {
+		if (status === 'success') {
+			return (
+				<ThemeIcon color="blue" size={30} radius="xl">
+					<IconCheck size={20} />
+				</ThemeIcon>
+			);
+		}
+		if (status === 'failed') {
+			return (
+				<ThemeIcon color="red" size={30} radius="xl">
+					<IconX size={20} />
+				</ThemeIcon>
+			);
+		}
+		return (
+			<ThemeIcon color="gray" size={30} radius="xl">
+				<IconClock size={20} />
+			</ThemeIcon>
 		);
 	};
 
@@ -59,7 +205,7 @@ function OnBoardPanel() {
 										</Title>
 										<Text size="sm" mt="xs">
 											{
-												"Welcome to CookieX To become legally compliant for your use of cookies' here's what you need to do."
+												"Welcome to CookieX. To become legally compliant for your use of cookies, here's what you need to do."
 											}
 										</Text>
 									</Stack>
@@ -67,61 +213,48 @@ function OnBoardPanel() {
 								<Accordion.Panel>
 									<Divider />
 									<Timeline
-										active={1}
+										active={currentStep}
 										lineWidth={5}
 										bulletSize={30}
 										pt={30}
 									>
-										<Timeline.Item
-											bullet={<IconCheck size={30} />}
-											title="Activate your cookie banner"
-										>
-											{/* eslint-disable-next-line react/no-unescaped-entities */}
-											<Text c="dimmed" size="sm">
-												Wel done! 🎉 You have
-												successfully implemented a
-												cookie banner on your website.
-											</Text>
-											<Text c="dimmed" size="sm">
-												&nbsp;
-											</Text>
-										</Timeline.Item>
-
-										<Timeline.Item
-											mt={30}
-											color="#eaeaea"
-											bullet={
-												<ThemeIcon
-													variant="outline"
-													radius="xl"
-													size="md"
+										{onboardingSteps.map((step, index) => (
+											<Timeline.Item
+												key={step.id}
+												bullet={getStepIcon(
+													stepStatuses[index]
+												)}
+												title={step.title}
+											>
+												<Text
+													c={
+														stepStatuses[index] ===
+														'failed'
+															? 'red'
+															: 'dimmed'
+													}
+													size="sm"
 												>
-													<IconCircleFilled
-														color="#0078b4"
-														style={{
-															width: '70%',
-															height: '70%',
-														}}
-													/>
-												</ThemeIcon>
-											}
-											title="Connect and scan your website"
-										>
-											<Text c="dimmed" size="sm">
-												To initiate an automatic cookie
-												scan, you need to connect to the
-												CookieYes web app. By connecting
-												you can:
-											</Text>
-										</Timeline.Item>
+													{stepDescriptions[index] ||
+														'Pending...'}
+												</Text>
+											</Timeline.Item>
+										))}
 									</Timeline>
 									<Group mt={20}>
-										<Button
-											variant="filled"
-											onClick={openCMP}
-										>
-											Connect to Web App
-										</Button>
+										{currentStep ===
+										onboardingSteps.length ? (
+											<Button variant="filled">
+												Go to Dashboard
+											</Button>
+										) : (
+											<Button
+												variant="filled"
+												onClick={openCMP}
+											>
+												Connect to Web App
+											</Button>
+										)}
 										<Button
 											variant="subtle"
 											onClick={handleCloseAccordion}
@@ -144,15 +277,13 @@ function OnBoardPanel() {
 									<Text fw={500}>OverView</Text>
 								</Group>
 							</Card.Section>
-							<Card.Section withBorder inheritPadding py="xs">
+							<Card.Section
+								withBorder
+								inheritPadding
+								py="xs"
+								bg="#f1f3f5"
+							>
 								<OverView />
-							</Card.Section>
-							<Card.Section withBorder inheritPadding py="xs">
-								<Group>
-									<Button variant="subtle">
-										Customize Banner
-									</Button>
-								</Group>
 							</Card.Section>
 						</Card>
 					</Container>
@@ -163,6 +294,7 @@ function OnBoardPanel() {
 					value="settings"
 					mt={30}
 					style={{ border: '1px solid #dee2e6' }}
+					p={20}
 				>
 					<CookieBanner />
 				</Tabs.Panel>

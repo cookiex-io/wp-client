@@ -272,7 +272,7 @@ export function CookieBanner() {
 				</Alert>
 			)}
 			<Tabs
-				color="#fafafa"
+				color="#f1f3f5"
 				variant="pills"
 				defaultValue="general"
 				orientation="vertical"
@@ -298,10 +298,10 @@ export function CookieBanner() {
 						style={{ color: '#000', borderRadius: '0px' }}
 						value="content&Colours"
 					>
-						Content & Colours
+						Color Schemes
 					</Tabs.Tab>
 				</Tabs.List>
-				<div style={{ flex: 1, padding: '20px' }}>
+				<div style={{ padding: '20px' }}>
 					<Group justify="space-between" mb="lg">
 						<Group>
 							<Select
@@ -338,10 +338,10 @@ export function CookieBanner() {
 							Publish Changes
 						</Button>
 					</Group>
-					<Text size="sm" mb={20}>
-						{regulation?.description}
-					</Text>
-					<Tabs.Panel value="general" bg="#fafafa">
+					<Alert variant="light" color="blue" mb={20}>
+						<Text size="sm">{regulation?.description}</Text>
+					</Alert>
+					<Tabs.Panel value="general" bg="#f1f3f5" p={20}>
 						<Grid gutter="lg">
 							{/* General Settings */}
 							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
@@ -353,7 +353,8 @@ export function CookieBanner() {
 										minHeight: '300px',
 										height: '100%',
 									}}
-									bg="#fafafa"
+									radius="md"
+									withBorder
 								>
 									<Title order={3}>General Settings</Title>
 									<input
@@ -362,12 +363,12 @@ export function CookieBanner() {
 										value={serverCountry}
 									/>
 									<Divider my="md" />
-									<Paper withBorder p={20}>
+									<Paper p={20}>
 										<Group gap="sm" grow>
 											<Text size="sm">
 												Connect domain ID (UUID)
 											</Text>
-											<Group>
+											<Group grow>
 												<TextInput
 													value={domainId}
 													onChange={(e) =>
@@ -472,7 +473,7 @@ export function CookieBanner() {
 							</Grid.Col>
 						</Grid>
 					</Tabs.Panel>
-					<Tabs.Panel value="layout" bg="#fafafa">
+					<Tabs.Panel value="layout" bg="#f1f3f5" p={20}>
 						<Grid gutter="lg">
 							{/* General Settings */}
 							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
@@ -484,7 +485,8 @@ export function CookieBanner() {
 										minHeight: '300px',
 										height: '100%',
 									}}
-									bg="#fafafa"
+									radius="md"
+									withBorder
 								>
 									<Title order={3}>
 										Consent Banner Settings
@@ -498,23 +500,23 @@ export function CookieBanner() {
 							</Grid.Col>
 						</Grid>
 					</Tabs.Panel>
-					<Tabs.Panel value="content&Colours" bg="#fafafa">
-						<Grid gutter="lg">
+					<Tabs.Panel value="content&Colours" bg="#f1f3f5" p={20}>
+						<Grid>
 							{/* General Settings */}
 							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 								<Card
 									padding="lg"
 									style={{
-										display: 'flex',
-										flexDirection: 'column',
 										minHeight: '300px',
 										height: '100%',
 									}}
-									bg="#fafafa"
+									radius="md"
+									withBorder
 								>
 									<Title order={3}>Colour scheme</Title>
 									<Divider my="md" />
 									<SegmentedControl
+										color="blue"
 										fullWidth
 										value={colorScheme}
 										onChange={setColorScheme}
@@ -529,247 +531,280 @@ export function CookieBanner() {
 										mb="md"
 									/>
 									<Divider my="md" />
-									{colorScheme === 'Custom' && (
-										<div>
-											<BannerTheme
-												customStyles={
-													handleCustomStyles
-												}
-												background={
-													consentConfig?.theme
-														?.background || '#fff'
-												}
-												name="background"
-												label="Background"
-												description=""
-											/>
-											<BannerTheme
-												customStyles={
-													handleCustomStyles
-												}
-												background={
-													consentConfig?.theme
-														?.textColor || '#000'
-												}
-												name="textColor"
-												label="Text Color"
-												description="Choose the color of all texts within the banner"
-											/>
-											<BannerTheme
-												customStyles={
-													handleCustomStyles
-												}
-												background={
-													consentConfig?.theme
-														?.highlight || '#fff'
-												}
-												name="highlight"
-												label="Highlight"
-												description="Choose your highlight color that will impact all links and active toggles in your banner"
-											/>
-											<Divider my="sm" />
-											{regulation.value === 'gdpr' && (
-												<>
-													<Group justify="left">
-														<Text size="xs">
-															{' '}
-															Button 1 (Reject
-															All){' '}
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonReject"
-														description=""
-													/>
-													<Divider my="sm" />
-													<Group justify="left">
-														<Text size="xs">
-															Button 2 (Accept){' '}
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonAcceptBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonAccept"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonAcceptTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonAccept"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonAcceptBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonAccept"
-														description=""
-													/>
-													<Divider my="sm" />
-													<Group justify="left">
-														<Text size="xs">
-															Button 3 (Customize)
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonCustomizeBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonCustomize"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonCustomizeTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonCustomize"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonCustomizeBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonCustomize"
-														description=""
-													/>
-												</>
-											)}
-											{regulation.value === 'us' && (
-												<>
-													<Group
-														justify="left"
-														mt={20}
-													>
-														<Text size="xs">
-															{' '}
-															Button 1 (Do Not
-															Sell My Info){' '}
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonReject"
-														description=""
-													/>
-												</>
-											)}
-										</div>
-									)}
-									<div style={{ flexGrow: 1 }}></div>
 								</Card>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 								<UpgradeCard />
 							</Grid.Col>
 						</Grid>
+						{colorScheme === 'Custom' && (
+							<Grid>
+								<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+									<Card
+										padding="lg"
+										style={{
+											minHeight: '300px',
+											height: '100%',
+										}}
+										radius="md"
+										withBorder
+									>
+										{colorScheme === 'Custom' && (
+											<div>
+												<BannerTheme
+													customStyles={
+														handleCustomStyles
+													}
+													background={
+														consentConfig?.theme
+															?.background ||
+														'#fff'
+													}
+													name="background"
+													label="Background"
+													description=""
+												/>
+												<BannerTheme
+													customStyles={
+														handleCustomStyles
+													}
+													background={
+														consentConfig?.theme
+															?.textColor ||
+														'#000'
+													}
+													name="textColor"
+													label="Text Color"
+													description="Choose the color of all texts within the banner"
+												/>
+												<BannerTheme
+													customStyles={
+														handleCustomStyles
+													}
+													background={
+														consentConfig?.theme
+															?.highlight ||
+														'#fff'
+													}
+													name="highlight"
+													label="Highlight"
+													description="Choose your highlight color that will impact all links and active toggles in your banner"
+												/>
+												<Divider my="sm" />
+												{regulation.value ===
+													'gdpr' && (
+													<>
+														<Group justify="left">
+															<Text size="xs">
+																{' '}
+																Button 1 (Reject
+																All){' '}
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonReject"
+															description=""
+														/>
+														<Divider my="sm" />
+														<Group justify="left">
+															<Text size="xs">
+																Button 2
+																(Accept){' '}
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonAcceptBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonAccept"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonAcceptTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonAccept"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonAcceptBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonAccept"
+															description=""
+														/>
+														<Divider my="sm" />
+														<Group justify="left">
+															<Text size="xs">
+																Button 3
+																(Customize)
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonCustomizeBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonCustomize"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonCustomizeTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonCustomize"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonCustomizeBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonCustomize"
+															description=""
+														/>
+													</>
+												)}
+												{regulation.value === 'us' && (
+													<>
+														<Group
+															justify="left"
+															mt={20}
+														>
+															<Text size="xs">
+																{' '}
+																Button 1 (Do Not
+																Sell My Info){' '}
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonReject"
+															description=""
+														/>
+													</>
+												)}
+											</div>
+										)}
+									</Card>
+								</Grid.Col>
+							</Grid>
+						)}
 					</Tabs.Panel>
 				</div>
 			</Tabs>
