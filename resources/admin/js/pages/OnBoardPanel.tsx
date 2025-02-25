@@ -21,7 +21,7 @@ import {
 import OverView from './OverView';
 import { CookieBanner } from './CookieBanner';
 import { runtimeConfig } from '../config';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const onboardingSteps = [
 	{ id: 1, title: '1. Registering your domain', description: '' },
@@ -67,6 +67,11 @@ function OnBoardPanel() {
 			return updated;
 		});
 
+		if (status === 'failed') {
+			return;
+		}
+
+		// ✅ If last step succeeds, mark onboarding as complete
 		if (stepIndex === onboardingSteps.length - 1 && status === 'success') {
 			setTimeout(() => {
 				setIsOnBoardCompleted(false);
@@ -74,109 +79,115 @@ function OnBoardPanel() {
 		}
 	};
 
+	// ✅ Fetch onboarding status once
 	useEffect(() => {
 		runtimeConfig
 			.apiFetch({ path: '/cookiex/v1/welcome-status' })
-			.then((response: any) => {
+			.then((response) => {
 				setIsOnBoardCompleted(response.show_welcome);
 			});
 	}, []);
 
-	useEffect(() => {
-		if (isOnBoardCompleted && currentStep < onboardingSteps.length) {
+	// ✅ Process steps sequentially
+	const executeStep = useCallback(async () => {
+		if (!isOnBoardCompleted || currentStep >= onboardingSteps.length) {
+			return;
+		}
+
+		// ✅ Stop execution if any previous step has failed
+		if (
+			stepStatuses.some(
+				(status, index) => index < currentStep && status === 'failed'
+			)
+		) {
+			return;
+		}
+
+		try {
 			switch (currentStep) {
-				case 0:
+				case 0: {
 					updateStep(0, 'pending', 'Registering your domain...');
-					runtimeConfig
-						.apiFetch({
-							path: '/cookiex/v1/register',
-							method: 'POST',
-						})
-						.then((response) => {
-							if (response.status) {
-								updateStep(
-									0,
-									'success',
-									'Domain registered successfully!'
-								);
-								setCurrentStep((prevStep) => prevStep + 1);
-							} else {
-								updateStep(
-									0,
-									'failed',
-									'Domain registration failed.'
-								);
-							}
-						})
-						.catch(() =>
-							updateStep(0, 'failed', 'Registration failed.')
+					const registerResponse = await runtimeConfig.apiFetch({
+						path: '/cookiex/v1/register',
+						method: 'POST',
+					});
+
+					if (registerResponse.status) {
+						updateStep(
+							0,
+							'success',
+							'Domain registered successfully!'
 						);
+						setCurrentStep(1);
+					} else {
+						updateStep(0, 'failed', 'Domain registration failed.');
+					}
 					break;
-				case 1:
+				}
+
+				case 1: {
 					updateStep(
 						1,
 						'pending',
 						'Scanning your site for cookies...'
 					);
-					runtimeConfig
-						.apiFetch({
-							path: '/cookiex/v1/quickscan',
-							method: 'POST',
-						})
-						.then((response) => {
-							if (response.status) {
-								updateStep(
-									1,
-									'success',
-									'Cookies scanned successfully.'
-								);
-								setCurrentStep((prevStep) => prevStep + 1);
-							} else {
-								updateStep(
-									1,
-									'failed',
-									'Cookie scanning failed.'
-								);
-							}
-						})
-						.catch(() =>
-							updateStep(1, 'failed', 'Scanning failed.')
+					const scanResponse = await runtimeConfig.apiFetch({
+						path: '/cookiex/v1/quickscan',
+						method: 'POST',
+					});
+
+					if (scanResponse.status) {
+						updateStep(
+							1,
+							'success',
+							'Cookies scanned successfully.'
 						);
+						setCurrentStep(2);
+					} else {
+						updateStep(1, 'failed', 'Cookie scanning failed.');
+					}
 					break;
-				case 2:
+				}
+
+				case 2: {
+					updateStep(2, 'pending', 'Creating your banner...');
+					await new Promise((resolve) => setTimeout(resolve, 1000));
 					updateStep(2, 'success', 'Banner created successfully.');
-					setCurrentStep((prevStep) => prevStep + 1);
+					setCurrentStep(3);
 					break;
-				case 3:
+				}
+
+				case 3: {
 					updateStep(
 						3,
 						'pending',
 						'Activating consent management...'
 					);
-					runtimeConfig
-						.apiFetch({
-							path: '/cookiex/v1/enable-consent-management',
-							method: 'POST',
-						})
-						.then((response) => {
-							if (response.status) {
-								updateStep(
-									3,
-									'success',
-									'Consent management activated.'
-								);
-								setCurrentStep((prevStep) => prevStep + 1);
-							} else {
-								updateStep(3, 'failed', 'Activation failed.');
-							}
-						})
-						.catch(() =>
-							updateStep(3, 'failed', 'Activation failed.')
+					const consentResponse = await runtimeConfig.apiFetch({
+						path: '/cookiex/v1/enable-consent-management',
+						method: 'POST',
+					});
+
+					if (consentResponse.status) {
+						updateStep(
+							3,
+							'success',
+							'Consent management activated.'
 						);
+					} else {
+						updateStep(3, 'failed', 'Activation failed.');
+					}
 					break;
+				}
 			}
+		} catch (error) {
+			updateStep(currentStep, 'failed', 'An error occurred.');
 		}
-	}, [currentStep, isOnBoardCompleted]);
+	}, [currentStep, isOnBoardCompleted, stepStatuses]);
+
+	useEffect(() => {
+		executeStep();
+	}, [currentStep, executeStep]);
 
 	const getStepIcon = (status: string) => {
 		if (status === 'success') {
@@ -243,31 +254,88 @@ function OnBoardPanel() {
 											pt={30}
 										>
 											{onboardingSteps.map(
-												(step, index) => (
-													<Timeline.Item
-														key={step.id}
-														bullet={getStepIcon(
-															stepStatuses[index]
-														)}
-														title={step.title}
-													>
-														<Text
-															c={
+												(step, index) => {
+													// Determine line color based on step status
+													let lineColor = 'gray'; // Default
+
+													if (
+														stepStatuses[index] ===
+														'failed'
+													) {
+														lineColor = 'red';
+													} else if (
+														stepStatuses[index] ===
+														'success'
+													) {
+														lineColor = 'blue';
+													}
+
+													return (
+														<Timeline.Item
+															key={step.id}
+															bullet={getStepIcon(
 																stepStatuses[
 																	index
-																] === 'failed'
-																	? 'red'
-																	: 'dimmed'
-															}
-															size="sm"
+																]
+															)}
+															title={step.title}
+															style={{
+																'&::before': {
+																	backgroundColor:
+																		lineColor,
+																},
+															}}
 														>
-															{stepDescriptions[
-																index
-															] || 'Pending...'}
-														</Text>
-													</Timeline.Item>
-												)
+															<Text
+																c={
+																	stepStatuses[
+																		index
+																	] ===
+																	'failed'
+																		? 'red'
+																		: 'dimmed'
+																}
+																size="sm"
+															>
+																{stepDescriptions[
+																	index
+																] ||
+																	'Pending...'}
+															</Text>
+														</Timeline.Item>
+													);
+												}
 											)}
+											{isOnBoardCompleted &&
+												stepStatuses.some(
+													(status) =>
+														status === 'failed'
+												) && (
+													<Group mt="md">
+														<Button
+															color="red"
+															onClick={() => {
+																// ✅ Reset all statuses to "pending"
+																setStepStatuses(
+																	onboardingSteps.map(
+																		() =>
+																			'pending'
+																	)
+																);
+																setStepDescriptions(
+																	onboardingSteps.map(
+																		() => ''
+																	)
+																);
+																setCurrentStep(
+																	0
+																); // Restart from step 0
+															}}
+														>
+															Retry
+														</Button>
+													</Group>
+												)}
 										</Timeline>
 									)}
 									{!isOnBoardCompleted && (
