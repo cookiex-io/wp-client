@@ -12,7 +12,12 @@ import {
 	ThemeIcon,
 	Group,
 } from '@mantine/core';
-import { IconCheck, IconX, IconClock } from '@tabler/icons-react';
+import {
+	IconCheck,
+	IconX,
+	IconClock,
+	IconCircleFilled,
+} from '@tabler/icons-react';
 import OverView from './OverView';
 import { CookieBanner } from './CookieBanner';
 import { runtimeConfig } from '../config';
@@ -28,6 +33,8 @@ const onboardingSteps = [
 function OnBoardPanel() {
 	const [openedItems, setOpenedItems] = useState<string[]>(['description']);
 	const [currentStep, setCurrentStep] = useState(0);
+	const [isOnBoardCompleted, setIsOnBoardCompleted] =
+		useState<boolean>(false);
 	const [stepStatuses, setStepStatuses] = useState(
 		onboardingSteps.map(() => 'pending') // pending, success, failed
 	);
@@ -59,10 +66,24 @@ function OnBoardPanel() {
 			updated[stepIndex] = description;
 			return updated;
 		});
+
+		if (stepIndex === onboardingSteps.length - 1 && status === 'success') {
+			setTimeout(() => {
+				setIsOnBoardCompleted(false);
+			}, 1000);
+		}
 	};
 
 	useEffect(() => {
-		if (currentStep < onboardingSteps.length) {
+		runtimeConfig
+			.apiFetch({ path: '/cookiex/v1/welcome-status' })
+			.then((response: any) => {
+				setIsOnBoardCompleted(response.show_welcome);
+			});
+	}, []);
+
+	useEffect(() => {
+		if (isOnBoardCompleted && currentStep < onboardingSteps.length) {
 			switch (currentStep) {
 				case 0:
 					updateStep(0, 'pending', 'Registering your domain...');
@@ -155,7 +176,7 @@ function OnBoardPanel() {
 					break;
 			}
 		}
-	}, [currentStep]);
+	}, [currentStep, isOnBoardCompleted]);
 
 	const getStepIcon = (status: string) => {
 		if (status === 'success') {
@@ -184,7 +205,9 @@ function OnBoardPanel() {
 			<Tabs defaultValue="dashboard">
 				<Tabs.List style={{ fontSize: '1.2rem' }}>
 					<Tabs.Tab value="dashboard">Dashboard</Tabs.Tab>
-					<Tabs.Tab value="settings">Cookie Banner</Tabs.Tab>
+					{!isOnBoardCompleted && (
+						<Tabs.Tab value="settings">Cookie Banner</Tabs.Tab>
+					)}
 				</Tabs.List>
 
 				<Tabs.Panel value="dashboard">
@@ -212,82 +235,145 @@ function OnBoardPanel() {
 								</Accordion.Control>
 								<Accordion.Panel>
 									<Divider />
-									<Timeline
-										active={currentStep}
-										lineWidth={5}
-										bulletSize={30}
-										pt={30}
-									>
-										{onboardingSteps.map((step, index) => (
-											<Timeline.Item
-												key={step.id}
-												bullet={getStepIcon(
-													stepStatuses[index]
-												)}
-												title={step.title}
-											>
-												<Text
-													c={
-														stepStatuses[index] ===
-														'failed'
-															? 'red'
-															: 'dimmed'
-													}
-													size="sm"
-												>
-													{stepDescriptions[index] ||
-														'Pending...'}
-												</Text>
-											</Timeline.Item>
-										))}
-									</Timeline>
-									<Group mt={20}>
-										{currentStep ===
-										onboardingSteps.length ? (
-											<Button variant="filled">
-												Go to Dashboard
-											</Button>
-										) : (
-											<Button
-												variant="filled"
-												onClick={openCMP}
-											>
-												Connect to Web App
-											</Button>
-										)}
-										<Button
-											variant="subtle"
-											onClick={handleCloseAccordion}
+									{isOnBoardCompleted && (
+										<Timeline
+											active={currentStep}
+											lineWidth={5}
+											bulletSize={30}
+											pt={30}
 										>
-											Do it later
-										</Button>
-									</Group>
+											{onboardingSteps.map(
+												(step, index) => (
+													<Timeline.Item
+														key={step.id}
+														bullet={getStepIcon(
+															stepStatuses[index]
+														)}
+														title={step.title}
+													>
+														<Text
+															c={
+																stepStatuses[
+																	index
+																] === 'failed'
+																	? 'red'
+																	: 'dimmed'
+															}
+															size="sm"
+														>
+															{stepDescriptions[
+																index
+															] || 'Pending...'}
+														</Text>
+													</Timeline.Item>
+												)
+											)}
+										</Timeline>
+									)}
+									{!isOnBoardCompleted && (
+										<>
+											<Timeline
+												active={1}
+												bulletSize={30}
+												lineWidth={5}
+												pt={30}
+											>
+												<Timeline.Item
+													title="Activate your cookie banner"
+													bullet={
+														<ThemeIcon
+															color="blue"
+															size={30}
+															radius="xl"
+														>
+															<IconCheck
+																size={20}
+															/>
+														</ThemeIcon>
+													}
+												>
+													<Text size="xs">
+														Well done! 🎉 You have
+														successfully implemented
+														a cookie banner on your
+														website.
+													</Text>
+												</Timeline.Item>
+												<Timeline.Item
+													title="Connect and scan your website"
+													bullet={
+														<ThemeIcon
+															variant="outline"
+															size={30}
+															radius="xl"
+														>
+															<IconCircleFilled
+																color="white"
+																size={20}
+															/>
+														</ThemeIcon>
+													}
+												>
+													<Text size="xs">
+														To initiate an automatic
+														cookie scan, you need to
+														connect to the CookieYes
+														web app. By connecting
+														you can:
+													</Text>
+												</Timeline.Item>
+											</Timeline>
+											<Group mt="md">
+												<Button
+													color="blue"
+													onClick={openCMP}
+												>
+													Connect to Web App
+												</Button>
+												<Button
+													variant="subtle"
+													onClick={
+														handleCloseAccordion
+													}
+												>
+													Do it later
+												</Button>
+											</Group>
+										</>
+									)}
 								</Accordion.Panel>
 							</Accordion.Item>
 						</Accordion>
-
-						<Card
-							withBorder
-							mt={20}
-							mb={20}
-							style={{ borderRadius: '0px' }}
-						>
-							<Card.Section withBorder inheritPadding py="xs">
-								<Group justify="space-between">
-									<Text fw={500}>OverView</Text>
-								</Group>
-							</Card.Section>
-							<Card.Section
-								withBorder
-								inheritPadding
-								py="xs"
-								bg="#f1f3f5"
-							>
-								<OverView />
-							</Card.Section>
-						</Card>
+						{!isOnBoardCompleted && (
+							<>
+								<Card
+									withBorder
+									mt={20}
+									mb={20}
+									style={{ borderRadius: '0px' }}
+								>
+									<Card.Section
+										withBorder
+										inheritPadding
+										py="xs"
+									>
+										<Group justify="space-between">
+											<Text fw={500}>OverView</Text>
+										</Group>
+									</Card.Section>
+									<Card.Section
+										withBorder
+										inheritPadding
+										py="xs"
+										bg="#f1f3f5"
+									>
+										<OverView />
+									</Card.Section>
+								</Card>
+								<Divider />
+							</>
+						)}
 					</Container>
-					<Divider />
 				</Tabs.Panel>
 
 				<Tabs.Panel
