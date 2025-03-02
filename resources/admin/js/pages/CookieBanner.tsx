@@ -10,7 +10,6 @@ import {
 	Switch,
 	MultiSelect,
 	Alert,
-	LoadingOverlay,
 	Tabs,
 	Grid,
 	Paper,
@@ -31,12 +30,11 @@ declare let Cookiex: {
 	};
 };
 
-export function CookieBanner() {
+export function CookieBanner(props: any) {
 	const [domainId, setDomainId] = useState('');
 	const [gtmId, setGtmId] = useState('');
 	const [gtmEnabled, setGtmEnabled] = useState(false);
 	const [language, setLanguage] = useState<any>('en');
-	const [loading, setLoading] = useState(true);
 	const [autoBlockCookies, setAutoBlockCookies] = useState(false);
 	const [cookiePreference, setCookiePreference] = useState<any[]>([]);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -78,32 +76,18 @@ export function CookieBanner() {
 	}, [colorScheme]);
 
 	useEffect(() => {
-		try {
-			setLoading(true);
-			runtimeConfig
-				.apiFetch({
-					path: '/cookiex/v1/settings',
-				})
-				.then((res: any) => {
-					setConsentConfig(res?.theme || finalConsentConfig);
-					setDomainId(res.domainId);
-					setGtmId(res.gtmId);
-					setGtmEnabled(res.gtmEnabled);
-					setAutoBlockCookies(res.autoBlockCookies);
-					setLanguage(res.language);
-					setCookiePreference(res.cookiePreference);
-					setServerCountry(res.serverCountry);
-					setLanguagesAvailable(res.languagesAvailable);
-					setRegulation(res.regulation || regulations[0]);
-					setColorScheme(res?.theme.type || 'Light');
-				});
-
-			setLoading(false);
-		} catch (error) {
-			console.error('Failed to fetch settings:', error);
-			setLoading(false);
-		}
-	}, []);
+		setConsentConfig(props?.consentConfig?.theme || finalConsentConfig);
+		setDomainId(props?.consentConfig?.domainId);
+		setGtmId(props?.consentConfig?.gtmId);
+		setGtmEnabled(props?.consentConfig?.gtmEnabled);
+		setAutoBlockCookies(props?.consentConfig?.autoBlockCookies);
+		setLanguage(props?.consentConfig?.language);
+		setCookiePreference(props?.consentConfig?.cookiePreference);
+		setServerCountry(props?.consentConfig?.serverCountry);
+		setLanguagesAvailable(props?.consentConfig?.languagesAvailable);
+		setRegulation(props?.consentConfig?.regulation || regulations[0]);
+		setColorScheme(props?.consentConfig?.theme.type || 'Light');
+	}, [props.consentConfig]);
 
 	const validateInputs = () => {
 		setErrorMessage('');
@@ -242,14 +226,6 @@ export function CookieBanner() {
 
 	return (
 		<>
-			{loading && (
-				<LoadingOverlay
-					visible={true}
-					zIndex={1000}
-					overlayProps={{ radius: 'sm', blur: 2 }}
-					loaderProps={{ color: 'green', type: 'bars' }}
-				/>
-			)}
 			{errorMessage && (
 				<Alert
 					variant="light"
@@ -399,16 +375,18 @@ export function CookieBanner() {
 										</Group>
 										<Group gap="sm" grow mt="sm">
 											<Text size="sm">Language</Text>
-											<Select
-												value={language}
-												onChange={setLanguage}
-												data={Object.entries(
-													languagesAvailable
-												).map(([code, name]) => ({
-													value: code,
-													label: name,
-												}))}
-											/>
+											{languagesAvailable && (
+												<Select
+													value={language}
+													onChange={setLanguage}
+													data={Object.entries(
+														languagesAvailable
+													).map(([code, name]) => ({
+														value: code,
+														label: name,
+													}))}
+												/>
+											)}
 										</Group>
 										<Divider my="md" />
 										<Title order={4}>
@@ -493,6 +471,7 @@ export function CookieBanner() {
 									</Title>
 									<Divider my="md" />
 									<ConsentBannerScreen
+										consentConfig={consentConfig}
 										handleLayout={handleLayout}
 									/>
 									<div style={{ flexGrow: 1 }}></div>

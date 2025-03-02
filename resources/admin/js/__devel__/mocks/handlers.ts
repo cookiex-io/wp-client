@@ -23,6 +23,7 @@ export const handlers = [
 		return HttpResponse.json(
 			{
 				domainId: '123e4567-e89b-12d3-a456-426614174000',
+				domainUrl: 'https://www.rempute.com',
 				language: 'en',
 				autoBlockCookies: true,
 				gtmEnabled: false,

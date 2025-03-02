@@ -12,8 +12,12 @@ import React, { useState } from 'react';
 
 function ConsentBannerScreen(props: any) {
 	const theme = useMantineTheme();
-	const [layoutType, setLayoutType] = useState('Box');
-	const [bannerValue, setBannerValue] = useState('leftBottomPopUp');
+	const [layoutType, setLayoutType] = useState(
+		props?.consentConfig?.layout || 'Box'
+	);
+	const [bannerValue, setBannerValue] = useState(
+		props?.consentConfig?.alignment || 'leftBottomPopUp'
+	);
 
 	const layouts = [
 		{
