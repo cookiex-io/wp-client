@@ -1,28 +1,79 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
 	Container,
-	Title,
-	Text,
-	Button,
-	Center,
-	Image,
 	Paper,
 	Stepper,
 	Progress,
-	Stack,
+	Grid,
+	Button,
+	Loader,
+	rem,
 } from '@mantine/core';
+import { IconX, IconClock } from '@tabler/icons-react';
+
+// ✅ Define inline styles for Mantine v7
+const stepperStyles = {
+	root: {
+		backgroundColor: '#fff',
+	},
+	progress: {
+		height: rem(8),
+		borderRadius: rem(6),
+		backgroundColor: '#f1f3f5',
+	},
+	stepLabel: {
+		fontSize: rem(16),
+		color: '#000',
+	},
+	stepDescription: {
+		fontSize: rem(16),
+		color: '#000',
+	},
+	stepIcon: {
+		width: rem(15),
+		height: rem(15),
+		borderRadius: '50%',
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		fontSize: rem(16),
+	},
+	stepCompletedIcon: {
+		color: '#228be6',
+		backgroundColor: '#e7f5ff',
+		padding: rem(4),
+		borderRadius: rem(20),
+	},
+	stepFailedIcon: {
+		color: '#fa5252',
+		backgroundColor: '#ffe3e3',
+		padding: rem(4),
+		borderRadius: rem(20),
+	},
+	stepPendingIcon: {
+		color: '#228be6',
+		border: '1px solid',
+		backgroundColor: '#f8f9fa',
+		padding: rem(4),
+		borderRadius: rem(20),
+	},
+	retryButton: {
+		marginTop: rem(16),
+		display: 'flex',
+	},
+};
 
 interface OnboardingPanelProps {
 	progressValue: number;
 	onboardNow: boolean;
 	currentStep: number;
 	stepDescriptions: string[];
+	stepStatuses: ('completed' | 'failed' | 'pending')[];
 	onboardingSteps: Array<{
 		id: number;
 		title: string;
 		description: string;
 	}>;
-	logoUrl: string;
 	onStartOnboarding: () => void;
 	onComplete: () => void;
 }
@@ -32,79 +83,151 @@ export function OnboardingPanel({
 	onboardNow,
 	currentStep,
 	stepDescriptions,
+	stepStatuses,
 	onboardingSteps,
-	logoUrl,
 	onStartOnboarding,
 	onComplete,
 }: OnboardingPanelProps) {
+	useEffect(() => {
+		onStartOnboarding();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	// ✅ Auto-call onComplete when last step is completed
+	useEffect(() => {
+		if (
+			currentStep === onboardingSteps.length &&
+			stepStatuses[onboardingSteps.length - 1] === 'completed'
+		) {
+			onComplete();
+		}
+	}, [currentStep, stepStatuses, onboardingSteps.length, onComplete]);
+
+	// ✅ Check if any step has failed
+	const retryNeeded = stepStatuses.some((status) => status === 'failed');
+
+	const getStepIcon = (
+		index: number,
+		status: 'completed' | 'failed' | 'pending'
+	) => {
+		if (index === currentStep && status === 'pending') {
+			return <Loader color="blue" size="xs" />;
+		}
+
+		switch (status) {
+			case 'failed':
+				return <IconX style={stepperStyles.stepFailedIcon} size={18} />;
+			case 'pending':
+				return (
+					<IconClock
+						style={stepperStyles.stepPendingIcon}
+						size={30}
+					/>
+				);
+			default:
+				return null;
+		}
+	};
+
+	const getStepColor = (status: 'completed' | 'failed' | 'pending') => {
+		if (status === 'failed') {
+			return 'red';
+		}
+		if (status === 'completed') {
+			return 'blue';
+		}
+		return 'gray';
+	};
+
 	return (
-		<Container size="md" mt="md">
-			<Center>
-				<Image w="180" src={logoUrl} alt="Cookiex logo" />
-			</Center>
-			<Progress value={progressValue} size="xs" radius="xs" mt="md" />
-			<Paper shadow="md" p="md" radius="md" pos="relative">
-				{!onboardNow && (
-					<Paper
-						style={{
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-							background: 'rgba(255, 255, 255, 0.99)',
-							zIndex: 1,
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-						}}
-					>
-						<Stack align="center" gap="xs">
-							<Title order={1} ta="center">
-								Cookie Compliance Made Easy
-							</Title>
-							<Text size="lg" ta="center" maw={500} mx="auto">
-								Seamlessly track cookie consents using
-								personalized cookie banners and handle all your
-								cookie compliance tasks with ease
-							</Text>
-							<Text
-								fs="italic"
-								ta="center"
-								maw={500}
-								mx="auto"
-								mt="md"
-							>
-								When you start below, your domain name will be
-								used to register with the cookie consent
-								management service
-							</Text>
-							<Button
-								radius="md"
-								size="xl"
-								mt="md"
-								onClick={onStartOnboarding}
-							>
-								Configure Now
-							</Button>
-						</Stack>
+		<Container size="responsive" style={stepperStyles.root} mt="md">
+			<Grid>
+				<Grid.Col span={6}>
+					{onboardNow && (
+						<Progress
+							style={stepperStyles.progress}
+							striped
+							animated
+							value={progressValue}
+							size="md"
+							radius="xs"
+							mb="md"
+							color="blue"
+						/>
+					)}
+					<Paper>
+						<Stepper
+							active={currentStep}
+							size="xs"
+							orientation="vertical"
+							styles={{
+								stepLabel: {
+									fontWeight: 700,
+									color: '#0078b4',
+								},
+								stepDescription: {
+									fontSize: rem(12),
+									color: '#868e96',
+								},
+								separator: {
+									borderWidth: rem(4),
+									borderColor: '#0078b4',
+								},
+								stepIcon: {
+									width: rem(10),
+									height: rem(10),
+									borderRadius: '50%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									fontSize: rem(16),
+								},
+							}}
+						>
+							{onboardingSteps.map((step, index) => {
+								const status = stepStatuses[index];
+
+								return (
+									<Stepper.Step
+										key={step.id}
+										label={
+											<span
+												style={stepperStyles.stepLabel}
+											>
+												{step.title}
+											</span>
+										}
+										description={
+											<span
+												style={
+													stepperStyles.stepDescription
+												}
+											>
+												{stepDescriptions[index]}
+											</span>
+										}
+										color={getStepColor(status)}
+										icon={getStepIcon(index, status)}
+									/>
+								);
+							})}
+						</Stepper>
+
+						{/* ✅ Show "Retry" button when any step fails */}
+						{retryNeeded && (
+							<div style={stepperStyles.retryButton}>
+								<Button
+									color="red"
+									size="md"
+									onClick={onStartOnboarding}
+								>
+									Retry
+								</Button>
+							</div>
+						)}
 					</Paper>
-				)}
-				<Stepper active={currentStep} size="md" orientation="vertical">
-					<Stepper.Completed>
-						<Button radius="md" size="xl" onClick={onComplete}>
-							Go to Dashboard
-						</Button>
-					</Stepper.Completed>
-					{onboardingSteps.map((step, index) => (
-						<Stepper.Step
-							key={step.id}
-							label={step.title}
-							description={stepDescriptions[index]}
-						></Stepper.Step>
-					))}
-				</Stepper>
-			</Paper>
+				</Grid.Col>
+			</Grid>
 		</Container>
 	);
 }

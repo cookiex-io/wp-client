@@ -86,7 +86,7 @@ export function CookieBanner(props: any) {
 		setServerCountry(props?.consentConfig?.serverCountry);
 		setLanguagesAvailable(props?.consentConfig?.languagesAvailable);
 		setRegulation(props?.consentConfig?.regulation || regulations[0]);
-		setColorScheme(props?.consentConfig?.theme.type || 'Light');
+		setColorScheme(props?.consentConfig?.theme?.type || 'Light');
 	}, [props.consentConfig]);
 
 	const validateInputs = () => {

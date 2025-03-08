@@ -21,13 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return string|bool API server URL if successful, false on failure
  */
 function cookiex_cmp_fetch_api_server(): string|bool {
-	// Check if service url already exists
 	$api_server = get_option( 'cookiex_cmp_api_server' );
 	if ( $api_server ) {
 		return $api_server;
 	}
 
-	$response = wp_remote_get( COOKIEX_CMP_CDN_URL . '/region.json' );
+	$request_url = COOKIEX_CMP_CDN_URL . '/region.json';
+	
+	$response = wp_remote_get( $request_url );
 
 	if ( is_wp_error( $response ) ) {
 		return false;
@@ -73,36 +74,37 @@ function cookiex_cmp_register_domain(): bool {
 
 	$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
 
-	$response = wp_remote_post(
-		$api_server . '/auth/domain/register',
-		array(
-			'headers' => array(
-				'X-Domain-Name' => $domain,
-				'X-CKX-Passkey' => $passkey,
-				'Content-Type'  => 'application/json',
-			),
-			'body'    => wp_json_encode(
-				array(
-					'platform'        => 'wordpress',
-					'verificationUrl' => rest_url( 'cookiex/v1/authenticate' ),
-				)
-			),
-		)
+	$request_body = array(
+		'platform'        => 'wordpress',
+		'verificationUrl' => rest_url( 'cookiex/v1/authenticate' ),
 	);
+
+	$request_args = array(
+		'headers' => array(
+			'X-Domain-Name' => $domain,
+			'X-CKX-Passkey' => $passkey,
+			'Content-Type'  => 'application/json',
+		),
+		'body'    => wp_json_encode($request_body),
+	);
+
+	$response = wp_remote_post($api_server . '/auth/domain/connect', $request_args);
 
 	if ( is_wp_error( $response ) ) {
 		return false;
 	}
 
-	$body = wp_remote_retrieve_body( $response );
-	$data = json_decode( $body, true );
+	$response_body = wp_remote_retrieve_body($response);
+	
+	$data = json_decode( $response_body, true );
 
-	if ( ! is_array( $data ) || ! isset( $data['domainId'] ) || ! isset( $data['token'] ) ) {
+	if ( ! is_array( $data ) || ! isset( $data['domainId'] ) || ! isset( $data['token'] ) || ! isset( $data['tempToken'] )) {
 		return false;
 	}
 
 	update_option( 'cookiex_cmp_domain_id', $data['domainId'] );
 	update_option( 'cookiex_cmp_auth_token', $data['token'] );
+	update_option( 'cookiex_cmp_temp_token', $data['tempToken'] );
 
 	return true;
 }

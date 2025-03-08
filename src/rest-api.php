@@ -218,24 +218,47 @@ function cookiex_cmp_clear_welcome_status(): WP_REST_Response {
  * @return WP_REST_Response The authentication status
  */
 function cookiex_cmp_authenticate(): WP_REST_Response {
-	$request_passkey = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_CKX_PASSKEY'] ?? '' ) );
-	$stored_passkey  = get_option( 'cookiex_cmp_passkey' );
 
-	if ( $request_passkey !== $stored_passkey ) {
-		return new WP_REST_Response(
-			array(
-				'status' => 'invalid',
-			),
-			403
-		);
-	}
+    $request_passkey = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_CKX_PASSKEY'] ?? '' ) );
+    $stored_passkey  = get_option( 'cookiex_cmp_passkey' );
 
-	return new WP_REST_Response(
-		array(
-			'status' => 'verified',
-		),
-		200
-	);
+    if ( empty($request_passkey) ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'No passkey provided',
+            ),
+            400
+        );
+    }
+
+    if ( empty($stored_passkey) ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'No stored passkey found',
+            ),
+            500
+        );
+    }
+
+    if ( $request_passkey !== $stored_passkey ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'invalid',
+                'message' => 'Invalid passkey',
+            ),
+            403
+        );
+    }
+
+    return new WP_REST_Response(
+        array(
+            'status'  => 'verified',
+            'message' => 'Passkey verified successfully',
+        ),
+        200
+    );
 }
 
 /**
@@ -263,6 +286,7 @@ function cookiex_cmp_register(): WP_REST_Response|WP_Error {
 			'status'    => true,
 			'domainId'  => get_option( 'cookiex_cmp_domain_id' ),
 			'token'     => get_option( 'cookiex_cmp_auth_token' ),
+			'temp_token'     => get_option( 'cookiex_cmp_temp_token' ),
 			'apiServer' => get_option( 'cookiex_cmp_api_server' ),
 		),
 		200

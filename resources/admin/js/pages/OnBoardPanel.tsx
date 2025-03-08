@@ -15,38 +15,21 @@ import {
 	Box,
 	LoadingOverlay,
 } from '@mantine/core';
-import {
-	IconCheck,
-	IconX,
-	IconClock,
-	IconCircleFilled,
-} from '@tabler/icons-react';
+import { IconCheck, IconCircleFilled } from '@tabler/icons-react';
 import OverView from './OverView';
 import { CookieBanner } from './CookieBanner';
 import { runtimeConfig } from '../config';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { finalConsentConfig } from '../utils/utils';
-
-const onboardingSteps = [
-	{ id: 1, title: '1. Registering your domain', description: '' },
-	{ id: 2, title: '2. Scanning your site for cookies', description: '' },
-	{ id: 3, title: '3. Creating your banner', description: '' },
-	{ id: 4, title: '4. Activating consent management', description: '' },
-];
+import { Welcome } from './Welcome';
 
 function OnBoardPanel() {
 	const [loading, setLoading] = useState(true);
 	const [openedItems, setOpenedItems] = useState<string[]>(['description']);
-	const [currentStep, setCurrentStep] = useState(0);
 	const [consentConfig, setConsentConfig] = useState<any>(finalConsentConfig);
+	const [tempToken, setTempToken] = useState('');
 	const [isOnBoardCompleted, setIsOnBoardCompleted] =
 		useState<boolean>(false);
-	const [stepStatuses, setStepStatuses] = useState(
-		onboardingSteps.map(() => 'pending') // pending, success, failed
-	);
-	const [stepDescriptions, setStepDescriptions] = useState(
-		onboardingSteps.map(() => '')
-	);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedOption, setSelectedOption] = useState<
@@ -67,35 +50,19 @@ function OnBoardPanel() {
 	};
 
 	const openCMP = () => {
+		const currentUrl = window.location.href;
+		const urlObject = new URL(currentUrl);
+		const domainUrl = urlObject.origin;
+		const token = window.btoa(tempToken);
 		if (selectedOption) {
-			const url = `${runtimeConfig.cmpRedirectUrl}/connect?website=${consentConfig?.domainUrl}&mode=${selectedOption}`;
+			const url = `${runtimeConfig.cmpRedirectUrl}/connect?website=${consentConfig?.domainUrl || domainUrl}&mode=${selectedOption}&token=${token}`;
 			window.open(url, '_blank', 'noopener,noreferrer');
 		}
 	};
 
-	const updateStep = (stepIndex: any, status: any, description = '') => {
-		setStepStatuses((prev) => {
-			const updated = [...prev];
-			updated[stepIndex] = status;
-			return updated;
-		});
-
-		setStepDescriptions((prev) => {
-			const updated = [...prev];
-			updated[stepIndex] = description;
-			return updated;
-		});
-
-		if (status === 'failed') {
-			return;
-		}
-
-		// ✅ If last step succeeds, mark onboarding as complete
-		if (stepIndex === onboardingSteps.length - 1 && status === 'success') {
-			setTimeout(() => {
-				setIsOnBoardCompleted(false);
-			}, 1000);
-		}
+	const handleOnboardingComplete = (token: string) => {
+		setIsOnBoardCompleted(false);
+		setTempToken(token);
 	};
 
 	// ✅ Fetch onboarding status once
@@ -106,107 +73,6 @@ function OnBoardPanel() {
 				setIsOnBoardCompleted(response.show_welcome);
 			});
 	}, []);
-
-	// ✅ Process steps sequentially
-	const executeStep = useCallback(async () => {
-		if (!isOnBoardCompleted || currentStep >= onboardingSteps.length) {
-			return;
-		}
-
-		// ✅ Stop execution if any previous step has failed
-		if (
-			stepStatuses.some(
-				(status, index) => index < currentStep && status === 'failed'
-			)
-		) {
-			return;
-		}
-
-		try {
-			switch (currentStep) {
-				case 0: {
-					updateStep(0, 'pending', 'Registering your domain...');
-					const registerResponse = await runtimeConfig.apiFetch({
-						path: '/cookiex/v1/register',
-						method: 'POST',
-					});
-
-					if (registerResponse.status) {
-						updateStep(
-							0,
-							'success',
-							'Domain registered successfully!'
-						);
-						setCurrentStep(1);
-					} else {
-						updateStep(0, 'failed', 'Domain registration failed.');
-					}
-					break;
-				}
-
-				case 1: {
-					updateStep(
-						1,
-						'pending',
-						'Scanning your site for cookies...'
-					);
-					const scanResponse = await runtimeConfig.apiFetch({
-						path: '/cookiex/v1/quickscan',
-						method: 'POST',
-					});
-
-					if (scanResponse.status) {
-						updateStep(
-							1,
-							'success',
-							'Cookies scanned successfully.'
-						);
-						setCurrentStep(2);
-					} else {
-						updateStep(1, 'failed', 'Cookie scanning failed.');
-					}
-					break;
-				}
-
-				case 2: {
-					updateStep(2, 'pending', 'Creating your banner...');
-					await new Promise((resolve) => setTimeout(resolve, 1000));
-					updateStep(2, 'success', 'Banner created successfully.');
-					setCurrentStep(3);
-					break;
-				}
-
-				case 3: {
-					updateStep(
-						3,
-						'pending',
-						'Activating consent management...'
-					);
-					const consentResponse = await runtimeConfig.apiFetch({
-						path: '/cookiex/v1/enable-consent-management',
-						method: 'POST',
-					});
-
-					if (consentResponse.status) {
-						updateStep(
-							3,
-							'success',
-							'Consent management activated.'
-						);
-					} else {
-						updateStep(3, 'failed', 'Activation failed.');
-					}
-					break;
-				}
-			}
-		} catch (error) {
-			updateStep(currentStep, 'failed', 'An error occurred.');
-		}
-	}, [currentStep, isOnBoardCompleted, stepStatuses]);
-
-	useEffect(() => {
-		executeStep();
-	}, [currentStep, executeStep]);
 
 	useEffect(() => {
 		try {
@@ -224,28 +90,6 @@ function OnBoardPanel() {
 			setLoading(false);
 		}
 	}, []);
-
-	const getStepIcon = (status: string) => {
-		if (status === 'success') {
-			return (
-				<ThemeIcon color="blue" size={30} radius="xl">
-					<IconCheck size={20} />
-				</ThemeIcon>
-			);
-		}
-		if (status === 'failed') {
-			return (
-				<ThemeIcon color="red" size={30} radius="xl">
-					<IconX size={20} />
-				</ThemeIcon>
-			);
-		}
-		return (
-			<ThemeIcon color="gray" size={30} radius="xl">
-				<IconClock size={20} />
-			</ThemeIcon>
-		);
-	};
 
 	return (
 		<>
@@ -293,102 +137,11 @@ function OnBoardPanel() {
 									<Accordion.Panel>
 										<Divider />
 										{isOnBoardCompleted && (
-											<Timeline
-												active={currentStep}
-												lineWidth={5}
-												bulletSize={30}
-												pt={30}
-											>
-												{onboardingSteps.map(
-													(step, index) => {
-														// Determine line color based on step status
-														let lineColor = 'gray'; // Default
-
-														if (
-															stepStatuses[
-																index
-															] === 'failed'
-														) {
-															lineColor = 'red';
-														} else if (
-															stepStatuses[
-																index
-															] === 'success'
-														) {
-															lineColor = 'blue';
-														}
-
-														return (
-															<Timeline.Item
-																key={step.id}
-																bullet={getStepIcon(
-																	stepStatuses[
-																		index
-																	]
-																)}
-																title={
-																	step.title
-																}
-																style={{
-																	'&::before':
-																		{
-																			backgroundColor:
-																				lineColor,
-																		},
-																}}
-															>
-																<Text
-																	c={
-																		stepStatuses[
-																			index
-																		] ===
-																		'failed'
-																			? 'red'
-																			: 'dimmed'
-																	}
-																	size="sm"
-																>
-																	{stepDescriptions[
-																		index
-																	] ||
-																		'Pending...'}
-																</Text>
-															</Timeline.Item>
-														);
-													}
-												)}
-												{isOnBoardCompleted &&
-													stepStatuses.some(
-														(status) =>
-															status === 'failed'
-													) && (
-														<Group mt="md">
-															<Button
-																color="red"
-																onClick={() => {
-																	// ✅ Reset all statuses to "pending"
-																	setStepStatuses(
-																		onboardingSteps.map(
-																			() =>
-																				'pending'
-																		)
-																	);
-																	setStepDescriptions(
-																		onboardingSteps.map(
-																			() =>
-																				''
-																		)
-																	);
-																	setCurrentStep(
-																		0
-																	); // Restart from step 0
-																}}
-															>
-																Retry
-															</Button>
-														</Group>
-													)}
-											</Timeline>
+											<Welcome
+												handleOnboardingComplete={
+													handleOnboardingComplete
+												}
+											/>
 										)}
 										{!isOnBoardCompleted && (
 											<>

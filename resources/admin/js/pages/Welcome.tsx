@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { OnboardingPanel } from '../components/OnboardingPanel';
 import { runtimeConfig } from '../config';
 
@@ -9,123 +9,166 @@ const onboardingSteps = [
 	{ id: 4, title: '4. Activating consent management', description: '' },
 ];
 
+type StepStatus = 'completed' | 'failed' | 'pending';
+
 export function Welcome(props: any) {
 	const [currentStep, setCurrentStep] = useState(0);
+	const [tempToken, setTempToken] = useState('');
 	const [onboardNow, setOnboardNow] = useState(false);
 	const [stepDescriptions, setStepDescriptions] = useState(
 		onboardingSteps.map(() => '')
 	);
-	const progressValue = (currentStep / onboardingSteps.length) * 100;
+	const [stepStatuses, setStepStatuses] = useState<StepStatus[]>(
+		Array(onboardingSteps.length).fill('pending') as StepStatus[]
+	);
+
+	const prevStep = useRef<number | null>(null);
 
 	const handleOnboardingComplete = () => {
 		props.onComplete?.();
-		props.renderComponent('Dashboard');
+		props.handleOnboardingComplete(tempToken);
 	};
 
-	const updateStepDescription = (step: number, description: string) => {
+	const executeStep = async (step: number) => {
+		if (prevStep.current === step) {
+			return;
+		}
+		prevStep.current = step;
+
+		switch (step) {
+			case 0:
+				updateStep(0, 'Registering your domain', 'pending');
+				try {
+					const response = await runtimeConfig.apiFetch({
+						path: '/cookiex/v1/register',
+						method: 'POST',
+					});
+
+					if (response.status) {
+						setTempToken(response?.temp_token);
+						updateStep(
+							0,
+							`Domain registered with ID: ${response.domainId}`,
+							'completed'
+						);
+					} else {
+						updateStep(0, 'Registration failed', 'failed');
+					}
+				} catch (error) {
+					console.error('❌ Register API Error:', error);
+					updateStep(
+						0,
+						'Registration unsuccessful: ' + error,
+						'failed'
+					);
+				}
+				break;
+
+			case 1:
+				updateStep(1, 'Scanning your site for cookies', 'pending');
+				try {
+					const response = await runtimeConfig.apiFetch({
+						path: '/cookiex/v1/quickscan',
+						method: 'POST',
+					});
+
+					let description = 'Cookies scanned successfully';
+					if (response.type === 'existing') {
+						const scanDate = new Date(
+							response.last_scan
+						).toLocaleDateString();
+						description = `Last scan from ${scanDate}\nPages scanned: ${response.pages}\nCookies found: ${response.cookies_count}`;
+					} else if (response.type === 'quick') {
+						description = `Quick scan completed\nCookies found: ${response.cookies_count}`;
+					}
+					updateStep(
+						1,
+						description,
+						response.status ? 'completed' : 'failed'
+					);
+				} catch (error) {
+					console.error('❌ Scan API Error:', error);
+					updateStep(
+						1,
+						'Scanning failed, please try again: ' + error,
+						'failed'
+					);
+				}
+				break;
+
+			case 2:
+				updateStep(2, 'Creating your banner', 'pending');
+				setTimeout(() => {
+					updateStep(2, 'Banner created successfully', 'completed');
+				}, 2000);
+				break;
+
+			case 3:
+				updateStep(3, 'Activating consent management', 'pending');
+
+				try {
+					const response = await runtimeConfig.apiFetch({
+						path: '/cookiex/v1/enable-consent-management',
+						method: 'POST',
+					});
+
+					if (response.status === true) {
+						updateStep(
+							3,
+							'Consent management activated',
+							'completed'
+						);
+					} else {
+						updateStep(
+							3,
+							'Consent management activation failed (Invalid response)',
+							'failed'
+						);
+					}
+				} catch (error) {
+					console.error('❌ Consent API Error:', error);
+					updateStep(
+						3,
+						'Consent management activation failed: ' + error,
+						'failed'
+					);
+				}
+				break;
+		}
+	};
+
+	useEffect(() => {
+		if (onboardNow && stepStatuses[currentStep] !== 'completed') {
+			executeStep(currentStep);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [onboardNow, currentStep]);
+
+	const updateStep = (
+		step: number,
+		description: string,
+		status: StepStatus
+	) => {
 		setStepDescriptions((prev) => {
 			const newDescriptions = [...prev];
 			newDescriptions[step] = description;
 			return newDescriptions;
 		});
+
+		setStepStatuses((prevStatuses) => {
+			const newStatuses: StepStatus[] = [...prevStatuses];
+			newStatuses[step] = status;
+			return newStatuses;
+		});
+
+		if (status === 'completed' && step + 1 <= onboardingSteps.length) {
+			setTimeout(() => {
+				setCurrentStep((prevSp) => prevSp + 1);
+			}, 1000);
+		}
 	};
 
-	useEffect(() => {
-		if (onboardNow && currentStep < onboardingSteps.length) {
-			switch (currentStep) {
-				case 0:
-					updateStepDescription(0, 'Registering your domain');
-					runtimeConfig
-						.apiFetch({
-							path: '/cookiex/v1/register',
-							method: 'POST',
-						})
-						.then((response: any) => {
-							if (response.status) {
-								updateStepDescription(
-									0,
-									'Domain registered with ID: ' +
-										response.domainId
-								);
-								setCurrentStep((prevStep) => prevStep + 1);
-							}
-						})
-						.catch((error) => {
-							updateStepDescription(
-								0,
-								'Registration unsuccessful' + error
-							);
-						});
-					break;
-				case 1:
-					// Start cookie scanning
-					updateStepDescription(1, 'Scanning your site for cookies');
-					runtimeConfig
-						.apiFetch({
-							path: '/cookiex/v1/quickscan',
-							method: 'POST',
-						})
-						.then((response: any) => {
-							if (response.status) {
-								let description =
-									'Cookies scanned successfully';
-
-								// Add additional details if available
-								if (response.type === 'existing') {
-									const scanDate = new Date(
-										response.last_scan
-									).toLocaleDateString();
-									description =
-										`Last scan from ${scanDate}\n` +
-										`Pages scanned: ${response.pages}\n` +
-										`Cookies found: ${response.cookies_count}`;
-								} else if (response.type === 'quick') {
-									description =
-										`Quick scan completed\n` +
-										`Cookies found: ${response.cookies_count}`;
-								}
-
-								updateStepDescription(1, description);
-								setCurrentStep((prevStep) => prevStep + 1);
-							}
-						})
-						.catch((error) => {
-							updateStepDescription(
-								1,
-								'Scanning failed, please try again: ' + error
-							);
-						});
-					break;
-				case 2:
-					updateStepDescription(2, 'Creating your banner');
-					updateStepDescription(2, 'Banner created successfully');
-					setCurrentStep((prevStep) => prevStep + 1);
-					break;
-				case 3:
-					runtimeConfig
-						.apiFetch({
-							path: '/cookiex/v1/enable-consent-management',
-							method: 'POST',
-						})
-						.then((response: any) => {
-							if (response.status) {
-								updateStepDescription(
-									3,
-									'Consent management activated'
-								);
-								setCurrentStep((prevStep) => prevStep + 1);
-							}
-						})
-						.catch((error) => {
-							updateStepDescription(
-								3,
-								'Consent management activation failed' + error
-							);
-						});
-					break;
-			}
-		}
-	}, [currentStep, onboardNow]);
+	const progressValue = (currentStep / onboardingSteps.length) * 100;
 
 	return (
 		<OnboardingPanel
@@ -133,8 +176,8 @@ export function Welcome(props: any) {
 			onboardNow={onboardNow}
 			currentStep={currentStep}
 			stepDescriptions={stepDescriptions}
+			stepStatuses={stepStatuses}
 			onboardingSteps={onboardingSteps}
-			logoUrl={runtimeConfig.logoUrl}
 			onStartOnboarding={() => setOnboardNow(true)}
 			onComplete={handleOnboardingComplete}
 		/>
