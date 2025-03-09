@@ -19,9 +19,9 @@ function OverView() {
 		statistics: 0,
 	});
 
-	const openCMP = () => {
+	const openCMP = (link: string) => {
 		window.open(
-			runtimeConfig.cmpRedirectUrl,
+			`${runtimeConfig.cmpRedirectUrl}/${link}`,
 			'_blank',
 			'noopener,noreferrer'
 		);
@@ -136,7 +136,11 @@ function OverView() {
 						{analyticsData.leastConsentedCategory}
 					</Text>
 					<div style={{ flexGrow: 1 }}></div>
-					<Button mt="lg" color="#0078b4" onClick={openCMP}>
+					<Button
+						mt="lg"
+						color="#0078b4"
+						onClick={() => openCMP('analytics')}
+					>
 						View Report on CMP
 					</Button>
 				</Card>
@@ -174,7 +178,11 @@ function OverView() {
 						and trackers present.
 					</Text>
 					<div style={{ flexGrow: 1 }}></div>
-					<Button mt="lg" color="#0078b4" onClick={openCMP}>
+					<Button
+						mt="lg"
+						color="#0078b4"
+						onClick={() => openCMP('privacy-audits')}
+					>
 						Run Deep Scan
 					</Button>
 				</Card>
