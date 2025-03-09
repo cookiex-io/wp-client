@@ -122,6 +122,16 @@ function cookiex_cmp_register_api_routes(): void {
 			'permission_callback' => 'cookiex_cmp_permission_callback',
 		)
 	);	
+	//for now using regiter Api for Refresh the temp Token this should be new Api on BE for refresh the temp token
+	register_rest_route(
+		'cookiex/v1',
+		'/refresh-temp-token',
+		array(
+			'methods'             => 'POST',
+			'callback'            => 'cookiex_cmp_validate_temp_token',
+			'permission_callback' => 'cookiex_cmp_permission_callback',
+		)
+	);
 }
 
 add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
@@ -422,4 +432,57 @@ function cookiex_cmp_enable_consent_management(): WP_REST_Response {
 		),
 		200
 	);
+}
+
+/**
+ * Validate and refresh the temp token if needed.
+ *
+ * @return string|WP_Error The valid temp token or an error response
+ */
+function cookiex_cmp_validate_temp_token() {
+    $temp_token = get_option( 'cookiex_cmp_temp_token' );
+    $token_last_updated = get_option( 'cookiex_cmp_temp_token_last_updated', 0 );
+
+    // If token doesn't exist, refresh it
+    if ( empty( $temp_token ) || empty( $token_last_updated ) ) {
+        return cookiex_cmp_refresh_temp_token();
+    }
+
+    // Calculate token age
+    $token_age = time() - $token_last_updated;
+    $token_expiry_time = 900; // 15 minutes (900 seconds)
+
+    // If token is expired, refresh it
+    if ( $token_age >= $token_expiry_time ) {
+        return cookiex_cmp_refresh_temp_token();
+    }
+
+    // Return valid token
+    return $temp_token;
+}
+
+/**
+ * Refresh the temp token.
+ *
+ * @return string|WP_Error The new temp token or an error response
+ */
+function cookiex_cmp_refresh_temp_token() {
+    // Call existing `cookiex_cmp_register` to refresh the temp token
+    $register_result = cookiex_cmp_register();
+
+    if ( is_wp_error( $register_result ) ) {
+        return $register_result;
+    }
+
+    $response_data = $register_result->get_data();
+
+    if ( ! isset( $response_data['temp_token'] ) ) {
+        return new WP_Error( 'token_refresh_failed', 'Failed to refresh temp token', array( 'status' => 500 ) );
+    }
+
+    // Update token and timestamp
+    update_option( 'cookiex_cmp_temp_token', $response_data['temp_token'] );
+    update_option( 'cookiex_cmp_temp_token_last_updated', time() );
+
+    return $response_data['temp_token'];
 }
