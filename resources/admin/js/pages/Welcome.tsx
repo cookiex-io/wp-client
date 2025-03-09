@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { OnboardingPanel } from '../components/OnboardingPanel';
 import { runtimeConfig } from '../config';
+import { finalConsentConfig } from '../utils/utils';
 
 const onboardingSteps = [
 	{ id: 1, title: '1. Registering your domain', description: '' },
@@ -21,7 +22,7 @@ export function Welcome(props: any) {
 	const [stepStatuses, setStepStatuses] = useState<StepStatus[]>(
 		Array(onboardingSteps.length).fill('pending') as StepStatus[]
 	);
-
+	const [consentConfig] = useState<any>(finalConsentConfig);
 	const prevStep = useRef<number | null>(null);
 
 	const handleOnboardingComplete = () => {
@@ -98,9 +99,41 @@ export function Welcome(props: any) {
 
 			case 2:
 				updateStep(2, 'Creating your banner', 'pending');
-				setTimeout(() => {
-					updateStep(2, 'Banner created successfully', 'completed');
-				}, 2000);
+
+				setTimeout(async () => {
+					try {
+						const options = {
+							path: '/cookiex/v1/save-settings',
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								theme: consentConfig,
+							}),
+						};
+
+						const response: any =
+							await runtimeConfig.apiFetch(options);
+
+						if (response.status) {
+							updateStep(
+								2,
+								'Banner created successfully',
+								'completed'
+							);
+						} else {
+							updateStep(2, 'Banner creation failed', 'failed');
+						}
+					} catch (error: any) {
+						console.error('❌ Save Settings API Error:', error);
+						updateStep(
+							2,
+							'Banner creation failed: ' + error,
+							'failed'
+						);
+					}
+				}, 2000); // Keep the delay if needed
 				break;
 
 			case 3:

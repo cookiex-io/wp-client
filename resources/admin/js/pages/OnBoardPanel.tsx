@@ -54,6 +54,7 @@ function OnBoardPanel() {
 		const urlObject = new URL(currentUrl);
 		const domainUrl = urlObject.origin;
 		const token = window.btoa(tempToken);
+		sessionStorage.setItem('cmpAuthToken', token);
 		if (selectedOption) {
 			const url = `${runtimeConfig.cmpRedirectUrl}/connect?website=${consentConfig?.domainUrl || domainUrl}&mode=${selectedOption}&token=${token}`;
 			window.open(url, '_blank', 'noopener,noreferrer');
@@ -82,7 +83,17 @@ function OnBoardPanel() {
 					path: '/cookiex/v1/settings',
 				})
 				.then((res: any) => {
-					setConsentConfig(res);
+					if (res.status) {
+						setIsOnBoardCompleted(false);
+						const parsedData = {
+							...res.data,
+							theme:
+								typeof res.data.theme === 'string'
+									? JSON.parse(res.data.theme)
+									: res.data.theme,
+						};
+						setConsentConfig(parsedData);
+					}
 				});
 			setLoading(false);
 		} catch (error) {

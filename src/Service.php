@@ -198,3 +198,239 @@ function cookiex_cmp_quickscan_if_needed(): array {
 		'cookies_count' => $cookies_count,
 	);
 }
+
+/**
+ * Update CookieX Consent Configuration
+ *
+ * @return array<string, mixed> Response from the API
+ */
+function cookiex_cmp_update_consent_config(): array {
+    $api_server  = cookiex_cmp_fetch_api_server();
+    $domain_id   = get_option( 'cookiex_cmp_domain_id' );
+    $auth_token  = get_option( 'cookiex_cmp_auth_token' );
+    $theme       = get_option( 'cookiex_cmp_theme', '{}' ); // Stored as JSON string
+
+    if ( ! $api_server || ! $domain_id || ! $auth_token ) {
+        return array( 'status' => false, 'message' => 'Missing API server, domain ID, or auth token.' );
+    }
+
+    $update_url = $api_server . '/consent/config/' . $domain_id;
+
+    $request_body = array(
+        'consentExpire'             => '365d', // Example: 1-year consent expiry
+        'consentLog'                => true,
+        'domainUrl'                 => get_option( 'siteurl' ), // Use site URL
+        'geoLocations'              => array('US', 'EU'), // Example geolocations
+        'language'                  => get_option( 'cookiex_cmp_language', 'en' ),
+        'styles'                    => $theme, // Theme stored as JSON string
+        'subdomainConsentSharing'   => true,
+    );
+
+    $request_args = array(
+        'method'    => 'PUT',
+        'headers'   => array(
+            'Authorization' => 'Bearer ' . $auth_token,
+            'Content-Type'  => 'application/json',
+            'Accept'        => 'application/json',
+        ),
+        'body'      => wp_json_encode( $request_body ),
+    );
+
+    $response = wp_remote_request( $update_url, $request_args );
+
+    if ( is_wp_error( $response ) ) {
+        return array( 'status' => false, 'message' => 'API request failed.', 'error' => $response->get_error_message() );
+    }
+
+    $response_body = wp_remote_retrieve_body( $response );
+    $data = json_decode( $response_body, true );
+
+    if ( wp_remote_retrieve_response_code( $response ) === 200 ) {
+        return array( 'status' => true, 'message' => 'Consent settings updated successfully.', 'response' => $data );
+    } else {
+        return array( 'status' => false, 'message' => 'Failed to update consent settings.', 'response' => $data );
+    }
+}
+
+/**
+ * Fetch CookieX Analytics Data
+ *
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response The analytics data or an error response
+ */
+/**
+ * Fetch CookieX Analytics Data
+ *
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response The analytics data or an error response
+ */
+/**
+ * Fetch CookieX Analytics Data
+ *
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response The analytics data or an error response
+ */
+function cookiex_cmp_fetch_analytics( WP_REST_Request $request ): WP_REST_Response {
+    $api_server = cookiex_cmp_fetch_api_server();
+    $domain_id  = get_option( 'cookiex_cmp_domain_id' );
+    $auth_token = get_option( 'cookiex_cmp_auth_token' );
+
+    // ✅ Validate required values
+    if ( ! $api_server || ! $domain_id || ! $auth_token ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'Missing API server, domain ID, or authentication token.',
+            ),
+            400
+        );
+    }
+
+    // ✅ Get Start & End Date from request, default to NULL
+    $start_date = $request->get_param( 'startDate' ) ?? null;
+    $end_date   = $request->get_param( 'endDate' ) ?? null;
+
+    // ✅ Construct API URL with query parameters
+    $query_params = array();
+    if ($start_date) {
+        $query_params['startDate'] = $start_date;
+    }
+    if ($end_date) {
+        $query_params['endDate'] = $end_date;
+    }
+
+    // ✅ Append query parameters to URL
+    $analytics_url = "$api_server/domains/$domain_id/analytics";
+    if (!empty($query_params)) {
+        $analytics_url .= '?' . http_build_query($query_params);
+    }
+
+    // ✅ Prepare request headers
+    $request_args = array(
+        'method'  => 'GET',
+        'headers' => array(
+            'Authorization' => 'Bearer ' . $auth_token,
+            'Accept'        => 'application/json',
+            'Content-Type'  => 'application/json',
+        ),
+    );
+
+    // ✅ Make the API request
+    $response = wp_remote_get($analytics_url, $request_args);
+
+    // ✅ Handle response errors
+    if ( is_wp_error( $response ) ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'API request failed.',
+                'error'   => $response->get_error_message(),
+            ),
+            500
+        );
+    }
+
+    $response_body = wp_remote_retrieve_body( $response );
+    $data = json_decode( $response_body, true );
+
+    // ✅ Check API response
+    if ( wp_remote_retrieve_response_code( $response ) === 200 && is_array($data) ) {
+        return new WP_REST_Response(
+            array(
+                'status'   => 'success',
+                'message'  => 'Analytics data retrieved successfully.',
+                'data'     => $data,
+            ),
+            200
+        );
+    } else {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'Failed to retrieve analytics data.',
+                'response' => $data,
+            ),
+            400
+        );
+    }
+}
+
+/**
+ * Fetch CookieX Cookie Scan Data
+ *
+ * @return WP_REST_Response The cookie scan data or an error response
+ */
+/**
+ * Fetch CookieX Cookie Scan Data
+ *
+ * @return WP_REST_Response The cookie scan data or an error response
+ */
+function cookiex_cmp_fetch_cookie_data(): WP_REST_Response {
+    $api_server = cookiex_cmp_fetch_api_server();
+    $domain_id  = get_option( 'cookiex_cmp_domain_id' );
+    $auth_token = get_option( 'cookiex_cmp_auth_token' );
+
+    // ✅ Validate required values
+    if ( ! $api_server || ! $domain_id || ! $auth_token ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'Missing API server, domain ID, or authentication token.',
+            ),
+            400
+        );
+    }
+
+    // ✅ Construct API URL for fetching cookie data
+    $cookie_data_url = "$api_server/domains/$domain_id/scans/latest";
+
+    // ✅ Prepare request headers
+    $request_args = array(
+        'method'  => 'GET',
+        'headers' => array(
+            'Authorization' => 'Bearer ' . $auth_token,
+            'Accept'        => 'application/json',
+            'Content-Type'  => 'application/json',
+        ),
+    );
+
+    // ✅ Make the API request
+    $response = wp_remote_get( $cookie_data_url, $request_args );
+
+    // ✅ Handle response errors
+    if ( is_wp_error( $response ) ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'API request failed.',
+                'error'   => $response->get_error_message(),
+            ),
+            500
+        );
+    }
+
+    $response_body = wp_remote_retrieve_body( $response );
+    $data = json_decode( $response_body, true );
+
+    // ✅ Check API response
+    if ( wp_remote_retrieve_response_code( $response ) === 200 && is_array($data) ) {
+        return new WP_REST_Response(
+            array(
+                'status'   => 'success',
+                'message'  => 'Cookie scan data retrieved successfully.',
+                'data'     => $data,
+            ),
+            200
+        );
+    } else {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'Failed to retrieve cookie scan data.',
+                'response' => $data,
+            ),
+            400
+        );
+    }
+}
+
