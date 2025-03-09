@@ -49,24 +49,42 @@ function OnBoardPanel() {
 		setOpenedItems([]);
 	};
 
-	const openCMP = () => {
+	const openCMP = async () => {
 		const currentUrl = window.location.href;
 		const urlObject = new URL(currentUrl);
 		const domainUrl = urlObject.origin;
-		const token = window.btoa(tempToken);
-		sessionStorage.setItem('cmpAuthToken', token);
+		const tokenRes = (await validateTempToken()) || tempToken;
+		const token = window.btoa(tokenRes);
 		if (selectedOption) {
 			const url = `${runtimeConfig.cmpRedirectUrl}/connect?website=${consentConfig?.domainUrl || domainUrl}&mode=${selectedOption}&token=${token}`;
 			window.open(url, '_blank', 'noopener,noreferrer');
 		}
 	};
 
+	async function validateTempToken() {
+		try {
+			const response = await runtimeConfig.apiFetch({
+				path: '/cookiex/v1/validate-temp-token',
+				method: 'GET',
+			});
+
+			if (response) {
+				return response;
+			}
+
+			console.error('Token validation failed:', response);
+			return null;
+		} catch (error) {
+			console.error('Error validating temp token:', error);
+			return null;
+		}
+	}
+
 	const handleOnboardingComplete = (token: string) => {
 		setIsOnBoardCompleted(false);
 		setTempToken(token);
 	};
 
-	// ✅ Fetch onboarding status once
 	useEffect(() => {
 		runtimeConfig
 			.apiFetch({ path: '/cookiex/v1/welcome-status' })

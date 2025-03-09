@@ -53,6 +53,7 @@ export function CookieBanner(props: any) {
 	const [bannerPreview, setBannerPreview] = useState(false);
 	const [regulation, setRegulation] = useState<any>(regulations[0]);
 	const [consentConfig, setConsentConfig] = useState<any>(finalConsentConfig);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		if (bannerPreview) {
@@ -116,6 +117,7 @@ export function CookieBanner(props: any) {
 	};
 
 	const updateSettings = async () => {
+		setLoading(true);
 		if (!validateInputs()) {
 			return;
 		}
@@ -138,13 +140,20 @@ export function CookieBanner(props: any) {
 
 		try {
 			const response: any = await runtimeConfig.apiFetch(options);
-			setSuccessMessage(response);
+
+			if (response.status === 'success') {
+				setSuccessMessage(response.message); // ✅ Use only the string message
+			} else {
+				setErrorMessage(response.message || 'Could not save settings');
+			}
 		} catch (error: any) {
 			if ('code' in error && error.code === 'invalid_nonce') {
 				setErrorMessage('Security check failed.');
 			} else {
 				setErrorMessage('Could not save settings');
 			}
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -310,7 +319,12 @@ export function CookieBanner(props: any) {
 								}
 							/>
 						</Group>
-						<Button color="green" mt="md" onClick={updateSettings}>
+						<Button
+							color="green"
+							mt="md"
+							onClick={updateSettings}
+							loading={loading}
+						>
 							Publish Changes
 						</Button>
 					</Group>

@@ -16,6 +16,7 @@ function OverView() {
 		preferences: 0,
 		marketing: 0,
 		unclassified: 0,
+		statistics: 0,
 	});
 
 	const openCMP = () => {
@@ -33,16 +34,17 @@ function OverView() {
 				method: 'GET',
 			});
 
-			if (response.status === 'success' && response.data) {
+			if (response?.data?.status === 'success' && response?.data?.data) {
+				const analytics = response?.data?.data;
+
 				setAnalyticsData({
-					optIns: response.data.totalOptIns || 0,
-					optOuts: response.data.totalOptOuts || 0,
-					averageConsentTime:
-						response.data.averageConsentTime || 'N/A',
+					optIns: analytics.totalOptIns || 0,
+					optOuts: analytics.totalOptOuts || 0,
+					averageConsentTime: analytics.averageTimeToConsent || 'N/A',
 					mostConsentedCategory:
-						response.data.mostConsentedCategory || 'N/A',
+						analytics.mostAcceptedCookie || 'N/A',
 					leastConsentedCategory:
-						response.data.leastConsentedCategory || 'N/A',
+						analytics.leastAcceptedCookie || 'N/A',
 				});
 			}
 		} catch (error) {
@@ -52,18 +54,30 @@ function OverView() {
 
 	const fetchScanData = async () => {
 		try {
+			// ✅ Ensure apiFetch works correctly
 			const response = await runtimeConfig.apiFetch({
 				path: '/cookiex/v1/cookie-scan',
 				method: 'GET',
 			});
 
-			if (response.status === 'success' && response.data) {
+			if (
+				response?.data?.status === 'success' &&
+				response?.data?.data?.latestScanResult
+			) {
+				const latestScan = response?.data?.data?.latestScanResult;
+
 				setScanData({
-					necessary: response.data.necessary || 0,
-					preferences: response.data.preferences || 0,
-					marketing: response.data.marketing || 0,
-					unclassified: response.data.unclassified || 0,
+					necessary: latestScan?.necessaryCookies ?? 0,
+					preferences: latestScan?.preferenceCookies ?? 0,
+					marketing: latestScan?.marketingCookies ?? 0, // ✅ Fixed wrong property
+					statistics: latestScan?.statisticsCookies ?? 0,
+					unclassified: latestScan?.unclassifiedCookies ?? 0,
 				});
+			} else {
+				console.error(
+					'Scan data retrieval failed:',
+					response?.data?.message
+				);
 			}
 		} catch (error) {
 			console.error('Error fetching scan data:', error);

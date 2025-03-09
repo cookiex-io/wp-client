@@ -125,9 +125,9 @@ function cookiex_cmp_register_api_routes(): void {
 	//for now using regiter Api for Refresh the temp Token this should be new Api on BE for refresh the temp token
 	register_rest_route(
 		'cookiex/v1',
-		'/refresh-temp-token',
+		'/validate-temp-token',
 		array(
-			'methods'             => 'POST',
+			'methods'             => 'GET',
 			'callback'            => 'cookiex_cmp_validate_temp_token',
 			'permission_callback' => 'cookiex_cmp_permission_callback',
 		)
@@ -338,31 +338,35 @@ function cookiex_cmp_authenticate(): WP_REST_Response {
  * @return WP_REST_Response|WP_Error The registration status
  */
 function cookiex_cmp_register(): WP_REST_Response|WP_Error {
-	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
+    require_once plugin_dir_path(__FILE__) . 'Service.php';
 
-	$result = cookiex_cmp_register_domain();
+    $result = cookiex_cmp_register_domain();
 
-	if ( ! $result ) {
-		return new WP_Error(
-			'registration_failed',
-			'Domain registration failed',
-			array(
-				'status' => 400,
-			)
-		);
-	}
+    if (!$result['status']) {
+        return new WP_Error(
+            'registration_failed',
+            $result['message'],
+            array(
+                'status'  => 400,
+                'error'   => isset($result['error']) ? $result['error'] : null,
+                'details' => isset($result['response']) ? $result['response'] : null,
+            )
+        );
+    }
 
-	return new WP_REST_Response(
-		array(
-			'status'    => true,
-			'domainId'  => get_option( 'cookiex_cmp_domain_id' ),
-			'token'     => get_option( 'cookiex_cmp_auth_token' ),
-			'temp_token'     => get_option( 'cookiex_cmp_temp_token' ),
-			'apiServer' => get_option( 'cookiex_cmp_api_server' ),
-		),
-		200
-	);
+    return new WP_REST_Response(
+        array(
+            'status'    => true,
+            'message'   => $result['message'],
+            'domainId'  => get_option('cookiex_cmp_domain_id'),
+            'token'     => get_option('cookiex_cmp_auth_token'),
+            'temp_token' => get_option('cookiex_cmp_temp_token'),
+            'apiServer' => get_option('cookiex_cmp_api_server'),
+        ),
+        200
+    );
 }
+
 
 /**
  * Handle quickscan request
