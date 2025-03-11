@@ -132,6 +132,34 @@ function cookiex_cmp_register_api_routes(): void {
 			'permission_callback' => 'cookiex_cmp_permission_callback',
 		)
 	);
+    register_rest_route(
+        'cookiex/v1',
+        '/confirm-connection',
+        array(
+            'methods'             => 'POST',
+            'callback'            => 'cookiex_cmp_confirm_connection',
+            'permission_callback' => 'cookiex_cmp_permission_callback',
+        )
+    );
+    register_rest_route(
+        'cookiex/v1',
+        '/connection-status',
+        array(
+            'methods'             => 'GET',
+            'callback'            => 'cookiex_cmp_get_connection_status',
+            'permission_callback' => 'cookiex_cmp_permission_callback',
+        )
+    );
+    register_rest_route(
+        'cookiex/v1',
+        '/disconnect',
+        array(
+            'methods'             => 'POST',
+            'callback'            => 'cookiex_cmp_disconnect',
+            'permission_callback' => 'cookiex_cmp_permission_callback',
+        )
+    );
+    
 }
 
 add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
@@ -489,4 +517,59 @@ function cookiex_cmp_refresh_temp_token() {
     update_option( 'cookiex_cmp_temp_token_last_updated', time() );
 
     return $response_data['temp_token'];
+}
+
+/**
+ * Handle connection success from admin site
+ *
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response
+ */
+function cookiex_cmp_confirm_connection( WP_REST_Request $request ): WP_REST_Response {
+    
+    update_option( 'cookiex_cmp_connection_status', true );
+
+    return new WP_REST_Response(
+        array(
+            'status'  => 'success',
+            'message' => 'Plugin successfully connected.',
+        ),
+        200
+    );
+}
+
+/**
+ * Get the connection status of the plugin
+ *
+ * @return WP_REST_Response The connection status
+ */
+function cookiex_cmp_get_connection_status(): WP_REST_Response {
+    $is_connected = get_option( 'cookiex_cmp_connection_status', false );
+
+    return new WP_REST_Response(
+        array(
+            'status'  => 'success',
+            'message' => $is_connected ? 'Plugin is connected.' : 'Plugin is not connected.',
+            'connected' => (bool) $is_connected,
+        ),
+        200
+    );
+}
+
+/**
+ * Disconnect the CookieX Web App connection
+ *
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response The disconnection status
+ */
+function cookiex_cmp_disconnect( WP_REST_Request $request ): WP_REST_Response {
+    delete_option( 'cookiex_cmp_connection_status' );
+
+    return new WP_REST_Response(
+        array(
+            'status'  => 'success',
+            'message' => 'Plugin successfully disconnected.',
+        ),
+        200
+    );
 }

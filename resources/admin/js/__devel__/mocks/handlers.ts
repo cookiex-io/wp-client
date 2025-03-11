@@ -2,6 +2,23 @@ import { delay, http, HttpResponse } from 'msw';
 
 // Add state variable to track welcome status
 let showWelcome = true;
+let isPluginConnected = true;
+
+let tempToken = 'mocked-initial-token';
+let tokenLastUpdated = Date.now();
+
+/**
+ * Helper function to refresh the temp token.
+ */
+const refreshTempToken = () => {
+	tempToken = `mocked-token-${Date.now()}`;
+	tokenLastUpdated = Date.now();
+	return {
+		status: 'refreshed',
+		message: 'Temp token refreshed successfully.',
+		token: tempToken,
+	};
+};
 
 export const handlers = [
 	http.post('/cookiex/v1/clear-welcome', async () => {
@@ -289,5 +306,60 @@ export const handlers = [
 			headers: [],
 			status: 200,
 		});
+	}),
+
+	http.get('/cookiex/v1/connection-status', () => {
+		return HttpResponse.json(
+			{
+				status: 'success',
+				message: isPluginConnected
+					? 'Plugin is connected.'
+					: 'Plugin is not connected.',
+				connected: isPluginConnected,
+			},
+			{ status: 200 }
+		);
+	}),
+
+	// Confirm Plugin Connection (to simulate user acknowledgment)
+	http.post('/cookiex/v1/confirm-connection', async () => {
+		await delay(50);
+		isPluginConnected = true; // Set connection state
+		return HttpResponse.json(
+			{
+				connected: true,
+			},
+			{ status: 200 }
+		);
+	}),
+	http.get('/cookiex/v1/validate-temp-token', async () => {
+		await delay(50); // Simulate network latency
+
+		const tokenExpiryTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+		const tokenAge = Date.now() - tokenLastUpdated;
+
+		if (!tempToken || tokenAge >= tokenExpiryTime) {
+			return HttpResponse.json(refreshTempToken(), { status: 200 });
+		}
+
+		return HttpResponse.json(
+			{
+				status: 'success',
+				message: 'Valid temp token.',
+				token: tempToken,
+			},
+			{ status: 200 }
+		);
+	}),
+	http.post('/cookiex/v1/disconnect', async () => {
+		await delay(50); // Simulate network delay
+
+		return HttpResponse.json(
+			{
+				status: 'success',
+				message: 'Plugin successfully disconnected.',
+			},
+			{ status: 200 }
+		);
 	}),
 ];

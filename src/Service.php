@@ -56,6 +56,7 @@ function cookiex_cmp_register_domain(): array {
     // Check if domain is already registered
     $domain_id  = get_option('cookiex_cmp_domain_id');
     $auth_token = get_option('cookiex_cmp_auth_token');
+
     if ($domain_id && $auth_token) {
         return array('status' => true, 'message' => 'Domain already registered.');
     }
@@ -101,14 +102,24 @@ function cookiex_cmp_register_domain(): array {
         return array('status' => false, 'message' => 'Invalid API response.');
     }
 
-    if (!isset($data['domainId'], $data['token'], $data['tempToken'])) {
+    // Ensure required keys exist (either tempToken or connected)
+    if (!isset($data['domainId'], $data['token'])) {
         return array('status' => false, 'message' => 'Missing required data in API response.', 'response' => $data);
     }
 
     // Store retrieved values
     update_option('cookiex_cmp_domain_id', $data['domainId']);
     update_option('cookiex_cmp_auth_token', $data['token']);
-    update_option('cookiex_cmp_temp_token', $data['tempToken']);
+
+    // If tempToken exists, store it
+    if (isset($data['tempToken']) && !isset($data['connected'])) {
+        update_option('cookiex_cmp_temp_token', $data['tempToken']);
+    }
+
+    // If connected is true, update connection status
+    if (isset($data['connected']) && $data['connected'] === true && !isset($data['tempToken'])) {
+        update_option('cookiex_cmp_connection_status', true);
+    }
 
     return array('status' => true, 'message' => 'Domain registered successfully.');
 }
