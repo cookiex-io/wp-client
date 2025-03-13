@@ -35,5 +35,7 @@ class Uninstaller {
 		delete_option( 'cookiex_cmp_api_server' );
 		delete_option( 'cookiex_cmp_server_country' );
 		delete_option( 'cookiex_cmp_languages_available' );
+		delete_option( 'cookiex_cmp_banner_preview' );
+		delete_option( 'cookiex_cmp_connection_status' );
 	}
 }

@@ -69,7 +69,7 @@ function OnBoardPanel() {
 					method: 'GET',
 				});
 
-				if (response.status === 'connected') {
+				if (response.connected) {
 					setIsConnected(true);
 					setShowFirstTimeScreen(false);
 				} else {
@@ -84,7 +84,7 @@ function OnBoardPanel() {
 
 		// Check connection status once when the component loads
 		checkConnectionStatus();
-	}, []);
+	}, [isConnected, showFirstTimeScreen]);
 
 	const openCMP = async () => {
 		setIsWebsiteConnecting(true);
@@ -291,7 +291,7 @@ function OnBoardPanel() {
 								<Card p="lg" mt={20}>
 									<Group align="center">
 										<IconCircleCheckFilled
-											size={20}
+											size={30}
 											color="green"
 										/>
 										<Title order={4}>

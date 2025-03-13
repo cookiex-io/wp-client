@@ -134,15 +134,6 @@ function cookiex_cmp_register_api_routes(): void {
 	);
     register_rest_route(
         'cookiex/v1',
-        '/confirm-connection',
-        array(
-            'methods'             => 'POST',
-            'callback'            => 'cookiex_cmp_confirm_connection',
-            'permission_callback' => 'cookiex_cmp_permission_callback',
-        )
-    );
-    register_rest_route(
-        'cookiex/v1',
         '/connection-status',
         array(
             'methods'             => 'GET',
@@ -155,11 +146,29 @@ function cookiex_cmp_register_api_routes(): void {
         '/disconnect',
         array(
             'methods'             => 'POST',
-            'callback'            => 'cookiex_cmp_disconnect',
+            'callback'            => 'cookiex_cmp_disconnect_api',
             'permission_callback' => 'cookiex_cmp_permission_callback',
         )
     );
-    
+    register_rest_route(
+        'cookiex/v1',
+        '/save-banner-preview',
+        array(
+            'methods'             => 'POST',
+            'callback'            => 'cookiex_cmp_save_banner_preview',
+            'permission_callback' => 'cookiex_cmp_permission_callback',
+        )
+    );
+
+    register_rest_route(
+        'cookiex/v1',
+        '/fetch-banner-preview',
+        array(
+            'methods'             => 'GET',
+            'callback'            => 'cookiex_cmp_fetch_banner_preview',
+            'permission_callback' => '__return_true',
+        )
+    );
 }
 
 add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
@@ -389,7 +398,7 @@ function cookiex_cmp_register(): WP_REST_Response|WP_Error {
             'domainId'  => get_option('cookiex_cmp_domain_id'),
             'token'     => get_option('cookiex_cmp_auth_token'),
             'temp_token' => get_option('cookiex_cmp_temp_token'),
-            'apiServer' => get_option('cookiex_cmp_api_server'),
+            'apiServer' => get_option('cookiex_cmp_api_server')
         ),
         200
     );
@@ -472,24 +481,34 @@ function cookiex_cmp_enable_consent_management(): WP_REST_Response {
  * @return string|WP_Error The valid temp token or an error response
  */
 function cookiex_cmp_validate_temp_token() {
-    $temp_token = get_option( 'cookiex_cmp_temp_token' );
-    $token_last_updated = get_option( 'cookiex_cmp_temp_token_last_updated', 0 );
+    $temp_token = get_option('cookiex_cmp_temp_token');
 
-    // If token doesn't exist, refresh it
-    if ( empty( $temp_token ) || empty( $token_last_updated ) ) {
+    // If token doesn't exist, generate a new one
+    if (empty($temp_token)) {
         return cookiex_cmp_refresh_temp_token();
     }
 
-    // Calculate token age
-    $token_age = time() - $token_last_updated;
-    $token_expiry_time = 900; // 15 minutes (900 seconds)
-
-    // If token is expired, refresh it
-    if ( $token_age >= $token_expiry_time ) {
+    // Decode JWT token and check expiry
+    $token_parts = explode('.', $temp_token);
+    if (count($token_parts) !== 3) {
         return cookiex_cmp_refresh_temp_token();
     }
 
-    // Return valid token
+    // Decode payload (base64 decoding)
+    $payload = json_decode(base64_decode(str_replace(['-', '_'], ['+', '/'], $token_parts[1])), true);
+
+    if (!isset($payload['exp'])) {
+        return cookiex_cmp_refresh_temp_token();
+    }
+
+    // Get current time and compare with `exp` field
+    $current_time = time();
+    if ($current_time >= $payload['exp']) {
+        // Token expired → Refresh and return a new one
+        return cookiex_cmp_refresh_temp_token();
+    }
+
+    // Token is valid, return it
     return $temp_token;
 }
 
@@ -499,6 +518,7 @@ function cookiex_cmp_validate_temp_token() {
  * @return string|WP_Error The new temp token or an error response
  */
 function cookiex_cmp_refresh_temp_token() {
+    require_once plugin_dir_path( __FILE__ ) . 'Service.php';
     // Call existing `cookiex_cmp_register` to refresh the temp token
     $register_result = cookiex_cmp_register();
 
@@ -512,30 +532,10 @@ function cookiex_cmp_refresh_temp_token() {
         return new WP_Error( 'token_refresh_failed', 'Failed to refresh temp token', array( 'status' => 500 ) );
     }
 
-    // Update token and timestamp
+    // Update token
     update_option( 'cookiex_cmp_temp_token', $response_data['temp_token'] );
-    update_option( 'cookiex_cmp_temp_token_last_updated', time() );
 
     return $response_data['temp_token'];
-}
-
-/**
- * Handle connection success from admin site
- *
- * @param WP_REST_Request $request The request object.
- * @return WP_REST_Response
- */
-function cookiex_cmp_confirm_connection( WP_REST_Request $request ): WP_REST_Response {
-    
-    update_option( 'cookiex_cmp_connection_status', true );
-
-    return new WP_REST_Response(
-        array(
-            'status'  => 'success',
-            'message' => 'Plugin successfully connected.',
-        ),
-        200
-    );
 }
 
 /**
@@ -544,12 +544,25 @@ function cookiex_cmp_confirm_connection( WP_REST_Request $request ): WP_REST_Res
  * @return WP_REST_Response The connection status
  */
 function cookiex_cmp_get_connection_status(): WP_REST_Response {
+    require_once plugin_dir_path( __FILE__ ) . 'Service.php';
+    $register_result = cookiex_cmp_register();
+
+    if ( is_wp_error( $register_result ) ) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => $register_result->get_error_message(),
+            ),
+            500
+        );
+    }
+
     $is_connected = get_option( 'cookiex_cmp_connection_status', false );
 
     return new WP_REST_Response(
         array(
-            'status'  => 'success',
-            'message' => $is_connected ? 'Plugin is connected.' : 'Plugin is not connected.',
+            'status'    => 'success',
+            'message'   => $is_connected ? 'Plugin is connected.' : 'Plugin is not connected.',
             'connected' => (bool) $is_connected,
         ),
         200
@@ -562,13 +575,68 @@ function cookiex_cmp_get_connection_status(): WP_REST_Response {
  * @param WP_REST_Request $request The request object.
  * @return WP_REST_Response The disconnection status
  */
-function cookiex_cmp_disconnect( WP_REST_Request $request ): WP_REST_Response {
-    delete_option( 'cookiex_cmp_connection_status' );
+function cookiex_cmp_disconnect_api( WP_REST_Request $request ): WP_REST_Response {
+    require_once plugin_dir_path( __FILE__ ) . 'Service.php';
+
+    $disconnect_result = cookiex_cmp_disconnect();
+
+    if ( is_wp_error( $disconnect_result ) ) {
+        return $disconnect_result;
+    }
+
+    $response_data = $disconnect_result->get_data();
+
+    return new WP_REST_Response(
+        array(
+            'response' => $response_data,
+        ),
+        200
+    );
+}
+
+/**
+ * Save Banner Preview Settings
+ *
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response Success response when saved, else error
+ */
+function cookiex_cmp_save_banner_preview(WP_REST_Request $request): WP_REST_Response {
+    $banner_preview = $request->get_param('bannerPreview');
+
+    if (!is_bool($banner_preview)) {
+        return new WP_REST_Response(
+            array(
+                'status'  => 'error',
+                'message' => 'Invalid input. Banner preview must be true or false.',
+                'value' => $banner_preview,
+            ),
+            400
+        );
+    }
+
+    update_option('cookiex_cmp_banner_preview', $banner_preview);
 
     return new WP_REST_Response(
         array(
             'status'  => 'success',
-            'message' => 'Plugin successfully disconnected.',
+            'message' => 'Banner preview setting saved successfully.',
+        ),
+        200
+    );
+}
+
+/**
+ * Fetch Banner Preview Settings
+ *
+ * @return WP_REST_Response The banner preview setting
+ */
+function cookiex_cmp_fetch_banner_preview(): WP_REST_Response {
+    $banner_preview = get_option('cookiex_cmp_banner_preview', false);
+
+    return new WP_REST_Response(
+        array(
+            'status'         => 'success',
+            'bannerPreview'  => (bool) $banner_preview,
         ),
         200
     );

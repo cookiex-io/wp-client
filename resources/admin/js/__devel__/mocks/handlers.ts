@@ -2,10 +2,11 @@ import { delay, http, HttpResponse } from 'msw';
 
 // Add state variable to track welcome status
 let showWelcome = true;
-let isPluginConnected = true;
+const isPluginConnected = true;
 
 let tempToken = 'mocked-initial-token';
 let tokenLastUpdated = Date.now();
+let bannerPreview = false; // Default state for banner preview
 
 /**
  * Helper function to refresh the temp token.
@@ -321,17 +322,6 @@ export const handlers = [
 		);
 	}),
 
-	// Confirm Plugin Connection (to simulate user acknowledgment)
-	http.post('/cookiex/v1/confirm-connection', async () => {
-		await delay(50);
-		isPluginConnected = true; // Set connection state
-		return HttpResponse.json(
-			{
-				connected: true,
-			},
-			{ status: 200 }
-		);
-	}),
 	http.get('/cookiex/v1/validate-temp-token', async () => {
 		await delay(50); // Simulate network latency
 
@@ -351,6 +341,7 @@ export const handlers = [
 			{ status: 200 }
 		);
 	}),
+
 	http.post('/cookiex/v1/disconnect', async () => {
 		await delay(50); // Simulate network delay
 
@@ -358,6 +349,30 @@ export const handlers = [
 			{
 				status: 'success',
 				message: 'Plugin successfully disconnected.',
+			},
+			{ status: 200 }
+		);
+	}),
+
+	http.get('/cookiex/v1/fetch-banner-preview', async () => {
+		await delay(50); // Simulate network delay
+		return HttpResponse.json(
+			{
+				status: 'success',
+				bannerPreview,
+			},
+			{ status: 200 }
+		);
+	}),
+
+	http.post('/cookiex/v1/save-banner-preview', async () => {
+		await delay(50);
+		bannerPreview = true;
+
+		return HttpResponse.json(
+			{
+				status: 'success',
+				message: 'Banner preview setting saved successfully.',
 			},
 			{ status: 200 }
 		);

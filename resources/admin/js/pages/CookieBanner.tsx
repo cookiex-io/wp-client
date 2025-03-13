@@ -15,7 +15,7 @@ import {
 	Paper,
 	SegmentedControl,
 } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { runtimeConfig } from '../config';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { ConsentBannerScreen } from '../components/Consent/ConsentBannerScreen';
@@ -50,19 +50,39 @@ export function CookieBanner(props: any) {
 		ar: 'العربية',
 	});
 	const [colorScheme, setColorScheme] = useState('Light');
-	const [bannerPreview, setBannerPreview] = useState(false);
+	const [bannerPreview, setBannerPreview] = useState<any>(null);
 	const [regulation, setRegulation] = useState<any>(regulations[0]);
 	const [consentConfig, setConsentConfig] = useState<any>(finalConsentConfig);
 	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		if (bannerPreview) {
-			generatePreview(regulation, false);
-		} else {
-			document.querySelector('#cookiex-cc-div')?.remove();
+	const userInteracted = useRef(false);
+
+	const saveBannerPreview = async () => {
+		try {
+			const payload = {
+				bannerPreview: bannerPreview ?? false,
+			};
+
+			const response = await runtimeConfig.apiFetch({
+				path: '/cookiex/v1/save-banner-preview',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			});
+
+			if (response.status === 'success') {
+				setSuccessMessage(response.message);
+			} else {
+				setErrorMessage(
+					response.message || 'Could not save banner preview setting'
+				);
+			}
+		} catch (error) {
+			setErrorMessage('Error saving banner preview setting.');
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [bannerPreview]);
+	};
 
 	useEffect(() => {
 		const filteredTheme = themesConfig.filter(
@@ -89,6 +109,46 @@ export function CookieBanner(props: any) {
 		setRegulation(props?.consentConfig?.regulation || regulations[0]);
 		setColorScheme(props?.consentConfig?.theme?.type || 'Light');
 	}, [props.consentConfig]);
+
+	const handleBannerToggle = (checked: boolean) => {
+		setBannerPreview(checked);
+		userInteracted.current = true; // Mark as user interaction
+	};
+
+	useEffect(() => {
+		if (!userInteracted.current) {
+			return;
+		}
+
+		if (bannerPreview) {
+			generatePreview(regulation, false);
+		} else {
+			document.querySelector('#cookiex-cc-div')?.remove();
+		}
+
+		// ✅ Save the banner preview state even when turning off
+		saveBannerPreview();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [bannerPreview]);
+
+	useEffect(() => {
+		const fetchBannerPreview = async () => {
+			try {
+				const response: any = await runtimeConfig.apiFetch({
+					path: '/cookiex/v1/fetch-banner-preview',
+					method: 'GET',
+				});
+
+				if (response.status === 'success') {
+					setBannerPreview(response.bannerPreview);
+				}
+			} catch (error) {
+				console.error('Error fetching banner preview setting:', error);
+			}
+		};
+
+		fetchBannerPreview();
+	}, []);
 
 	const validateInputs = () => {
 		setErrorMessage('');
@@ -198,10 +258,15 @@ export function CookieBanner(props: any) {
 						domainId,
 						selectorId: 'coookiex-comp-banner-preview',
 						theme: {
-							layout: consentConfig.layout,
-							alignment: consentConfig.alignment,
-							theme: consentConfig?.theme,
-							bannerContent: consentConfig.bannerContent,
+							layout: consentConfig.layout || 'Box',
+							alignment:
+								consentConfig.alignment || 'leftBottomPopUp',
+							theme:
+								consentConfig?.theme ||
+								finalConsentConfig.theme,
+							bannerContent:
+								consentConfig.bannerContent ||
+								finalConsentConfig.bannerContent,
 							type: consentConfig.type,
 							regulation: regulationType,
 						},
@@ -313,7 +378,7 @@ export function CookieBanner(props: any) {
 								label="Banner Preview"
 								checked={bannerPreview}
 								onChange={(event) =>
-									setBannerPreview(
+									handleBannerToggle(
 										event.currentTarget.checked
 									)
 								}
