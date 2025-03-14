@@ -169,6 +169,15 @@ function cookiex_cmp_register_api_routes(): void {
             'permission_callback' => '__return_true',
         )
     );
+    register_rest_route(
+        'cookiex/v1',
+        '/user-details',
+        array(
+            'methods'             => 'GET',
+            'callback'            => 'cookiex_cmp_fetch_user_details',
+            'permission_callback' => '__return_true',
+        )
+    );
 }
 
 add_action( 'rest_api_init', 'cookiex_cmp_register_api_routes' );
@@ -638,6 +647,17 @@ function cookiex_cmp_fetch_banner_preview(): WP_REST_Response {
             'status'         => 'success',
             'bannerPreview'  => (bool) $banner_preview,
         ),
+        200
+    );
+}
+
+function cookiex_cmp_fetch_user_details(): WP_REST_Response {
+    require_once plugin_dir_path(__FILE__) . 'Service.php';
+
+    $result = cookiex_cmp_fetch_user_data(); // Calls function from Service.php
+
+    return new WP_REST_Response(
+        $result,
         200
     );
 }

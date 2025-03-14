@@ -38,7 +38,7 @@ function OnBoardPanel() {
 		useState<boolean>(false);
 	const [showFirstTimeScreen, setShowFirstTimeScreen] = useState(false);
 	const [isConnected, setIsConnected] = useState(false);
-
+	const [userDetails, setUserDetails] = useState<any>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isWebsiteConnecting, setIsWebsiteConnecting] = useState(false);
 	const [disconnectMessage, setDisconnectMessage] = useState<string | null>(
@@ -85,6 +85,28 @@ function OnBoardPanel() {
 		// Check connection status once when the component loads
 		checkConnectionStatus();
 	}, [isConnected, showFirstTimeScreen]);
+
+	useEffect(() => {
+		const fetchUserDetails = async () => {
+			try {
+				const response = await runtimeConfig.apiFetch({
+					path: '/cookiex/v1/user-details',
+					method: 'GET',
+					headers: { accept: 'application/json' },
+				});
+
+				if (response) {
+					setUserDetails(response);
+				}
+			} catch (error) {
+				console.error('Error fetching user details:', error);
+			}
+		};
+
+		if (isConnected) {
+			fetchUserDetails();
+		}
+	}, [isConnected]);
 
 	const openCMP = async () => {
 		setIsWebsiteConnecting(true);
@@ -309,19 +331,28 @@ function OnBoardPanel() {
 
 									<Divider my="md" />
 
-									<Stack p="xs">
-										<Text size="sm">
-											<strong>Email:</strong>{' '}
-											sqs@eefef.com
-										</Text>
-										<Text size="sm">
-											<strong>Site Key:</strong>{' '}
-											37fbc26b38391d2f7322dd82
-										</Text>
-										<Text size="sm">
-											<strong>Plan:</strong> Free
-										</Text>
-									</Stack>
+									{userDetails && (
+										<Stack p="xs">
+											<Text size="sm">
+												<strong>Name:</strong>{' '}
+												{userDetails.name || 'N/A'}
+											</Text>
+											<Text size="sm">
+												<strong>Email:</strong>{' '}
+												{userDetails.email || 'N/A'}
+											</Text>
+											<Text size="sm">
+												<strong>Email Verified:</strong>{' '}
+												{userDetails.emailVerified
+													? 'Yes'
+													: 'No'}
+											</Text>
+											<Text size="sm">
+												<strong>Joined On:</strong>{' '}
+												{userDetails.joinedOn || 'N/A'}
+											</Text>
+										</Stack>
+									)}
 
 									<Group mt="md">
 										<Button

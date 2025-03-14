@@ -8,6 +8,13 @@ let tempToken = 'mocked-initial-token';
 let tokenLastUpdated = Date.now();
 let bannerPreview = false; // Default state for banner preview
 
+let userDetails = {
+	email: 'user@example.com',
+	emailVerified: true,
+	joinedOn: '2025-03-09T12:34:56.789Z',
+	name: 'John Doe',
+};
+
 /**
  * Helper function to refresh the temp token.
  */
@@ -373,6 +380,18 @@ export const handlers = [
 			{
 				status: 'success',
 				message: 'Banner preview setting saved successfully.',
+			},
+			{ status: 200 }
+		);
+	}),
+
+	http.get('/cookiex/v1/user-details', async () => {
+		await delay(50);
+		return HttpResponse.json(
+			{
+				status: 'success',
+				message: 'User details retrieved successfully.',
+				data: userDetails,
 			},
 			{ status: 200 }
 		);

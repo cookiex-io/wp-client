@@ -491,3 +491,57 @@ function cookiex_cmp_disconnect(): WP_REST_Response {
         );
     }
 }
+
+/**
+ * Fetch user details from CookieX API
+ *
+ * @return array User details or an error response
+ */
+function cookiex_cmp_fetch_user_data(): array {
+    $api_server = cookiex_cmp_fetch_api_server();
+    $auth_token = get_option('cookiex_cmp_auth_token');
+
+    if (!$api_server || !$auth_token) {
+        return array(
+            'status'  => 'error',
+            'message' => 'Missing API server or authentication token.',
+        );
+    }
+
+    $user_details_url = "$api_server/auth/user/details";
+
+    $request_args = array(
+        'method'  => 'GET',
+        'headers' => array(
+            'Authorization' => 'Bearer ' . $auth_token,
+            'Accept'        => 'application/json',
+        ),
+    );
+
+    $response = wp_remote_get($user_details_url, $request_args);
+
+    if (is_wp_error($response)) {
+        return array(
+            'status'  => 'error',
+            'message' => 'API request failed.',
+            'error'   => $response->get_error_message(),
+        );
+    }
+
+    $response_body = wp_remote_retrieve_body($response);
+    $data = json_decode($response_body, true);
+
+    if (wp_remote_retrieve_response_code($response) === 200) {
+        return array(
+            'status'   => 'success',
+            'message'  => 'User details retrieved successfully.',
+            'data'     => $data,
+        );
+    } else {
+        return array(
+            'status'  => 'error',
+            'message' => 'Failed to retrieve user details.',
+            'response' => $data,
+        );
+    }
+}
