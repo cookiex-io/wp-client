@@ -122,7 +122,6 @@ function cookiex_cmp_register_api_routes(): void {
 			'permission_callback' => 'cookiex_cmp_permission_callback',
 		)
 	);	
-	//for now using regiter Api for Refresh the temp Token this should be new Api on BE for refresh the temp token
 	register_rest_route(
 		'cookiex/v1',
 		'/validate-temp-token',
