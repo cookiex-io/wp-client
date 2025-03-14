@@ -151,30 +151,38 @@ class Cookiex_CMP {
 	 */
 	private function enqueue_bud_entrypoint( string $entry, array $localize_data = array() ): void {
 		$entrypoints_manifest = COOKIEX_CMP_PLUGIN_PATH . '/dist/entrypoints.json';
-
+	
 		// Try to get WordPress filesystem. If not possible load it.
 		global $wp_filesystem;
 		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/file.php';
 			WP_Filesystem();
 		}
-
+	
 		$filesystem = new \WP_Filesystem_Direct( false );
 		if ( ! $filesystem->exists( $entrypoints_manifest ) ) {
 			return;
 		}
-
-		// parse json file
-		$entrypoints = json_decode( $filesystem->get_contents( $entrypoints_manifest ) );
-
+	
+		// Read the file contents
+		$file_contents = $filesystem->get_contents( $entrypoints_manifest );
+		if ( $file_contents === false ) {
+			return;
+		}
+	
+		// Parse JSON
+		$entrypoints = json_decode( $file_contents, true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return;
+		}
+	
 		// Iterate entrypoint groups
 		foreach ( $entrypoints as $key => $bundle ) {
-
 			// Only process the entrypoint that should be enqueued per call
 			if ( $key !== $entry ) {
 				continue;
 			}
-
+	
 			// Iterate js and css files
 			foreach ( $bundle as $type => $files ) {
 				foreach ( $files as $file ) {
@@ -182,30 +190,28 @@ class Cookiex_CMP {
 						wp_enqueue_script(
 							self::PLUGIN_NAME . "/$file",
 							COOKIEX_CMP_PLUGIN_URL . 'dist/' . $file,
-							$bundle->dependencies ?? array(),
+							$bundle['dependencies'] ?? array(),
 							self::PLUGIN_VERSION,
-							true,
+							true
 						);
-
+	
 						// Maybe localize js
 						if ( ! empty( $localize_data ) ) {
 							wp_localize_script( self::PLUGIN_NAME . "/$file", str_replace( '-', '_', self::PLUGIN_NAME ), $localize_data );
-
-							// Unset after localize since we only need to localize one script per bundle so on next iteration will be skipped
-							unset( $localize_data );
+							unset( $localize_data ); // Unset to avoid duplicating for multiple scripts
 						}
 					}
-
+	
 					if ( 'css' === $type ) {
 						wp_enqueue_style(
 							self::PLUGIN_NAME . "/$file",
 							COOKIEX_CMP_PLUGIN_URL . 'dist/' . $file,
 							array(),
-							self::PLUGIN_VERSION,
+							self::PLUGIN_VERSION
 						);
 					}
 				}
 			}
 		}
-	}
+	}	
 }

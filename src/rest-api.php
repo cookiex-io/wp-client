@@ -194,71 +194,68 @@ function cookiex_cmp_permission_callback(): bool {
 /**
  * Save settings details
  *
- * @param WP_REST_Request $request The request object.
- * @return WP_REST_Response|WP_Error Success response when saved, else error
- *
- * @phpstan-param WP_REST_Request<array{domainId?: string, language?: string, autoBlockCookies?: bool, gtmEnabled?: bool, gtmId?: string, cookiePreference?: array<string, mixed>}> $request
+ * @param WP_REST_Request<array{
+ *     domainId?: string,
+ *     language?: string,
+ *     autoBlockCookies?: bool,
+ *     gtmEnabled?: bool,
+ *     gtmId?: string,
+ *     cookiePreference?: array<string, mixed>,
+ *     theme?: string|array<string, mixed>
+ * }> $request The request object.
+ * @return WP_REST_Response Success response when saved
  */
-function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-    // ✅ Use existing values if request parameters are empty
-    $domain_id = ! empty( $request->get_param( 'domainId' ) ) 
-        ? sanitize_text_field( $request->get_param( 'domainId' ) ) 
-        : get_option( 'cookiex_cmp_domain_id', '' );
+function cookiex_cmp_save_settings(WP_REST_Request $request): WP_REST_Response {
+    // Ensure all values are properly sanitized and have defaults
+    $domain_id = sanitize_text_field($request->get_param('domainId') ?? get_option('cookiex_cmp_domain_id', ''));
+    $language = sanitize_text_field($request->get_param('language') ?? get_option('cookiex_cmp_language', 'en'));
 
-    $language = ! empty( $request->get_param( 'language' ) ) 
-        ? sanitize_text_field( $request->get_param( 'language' ) ) 
-        : get_option( 'cookiex_cmp_language', 'en' );
+    $auto_block_cookies = filter_var($request->get_param('autoBlockCookies'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+    $gtm_enabled = filter_var($request->get_param('gtmEnabled'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+    $gtm_id = sanitize_text_field($request->get_param('gtmId') ?? get_option('cookiex_cmp_gtm_id', ''));
+    $cookie_preferences = $request->get_param('cookiePreference') ?? get_option('cookiex_cmp_cookie_preferences', []);
 
-    $auto_block_cookies = filter_var( $request->get_param( 'autoBlockCookies' ), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
-    $gtm_enabled        = filter_var( $request->get_param( 'gtmEnabled' ), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
-    $gtm_id             = sanitize_text_field( $request->get_param( 'gtmId' ) );
-    $cookie_preferences = $request->get_param( 'cookiePreference' ); // Array
-    $theme              = $request->get_param( 'theme' );
-
-    if ( ! empty( $theme ) ) {
-        if ( is_array( $theme ) ) {
-            $theme = wp_json_encode( $theme ); // Convert array to JSON
+    // Ensure the theme is properly handled
+    $theme = $request->get_param('theme');
+    if (!empty($theme)) {
+        if (is_array($theme)) {
+            $theme = wp_json_encode($theme);
         }
-        update_option( 'cookiex_cmp_theme', $theme ); // Store as JSON string
-    } elseif ( empty( $theme ) ) {
-        $theme = get_option( 'cookiex_cmp_theme', '{}' ); // Use stored value if missing
+        update_option('cookiex_cmp_theme', $theme);
+    } else {
+        $theme = get_option('cookiex_cmp_theme', '{}');
     }
 
-    // ✅ Save settings
-    update_option( 'cookiex_cmp_domain_id', $domain_id );
-    update_option( 'cookiex_cmp_language', $language );
-    update_option( 'cookiex_cmp_auto_block_cookies', $auto_block_cookies );
-    update_option( 'cookiex_cmp_gtm_enabled', $gtm_enabled );
-    update_option( 'cookiex_cmp_theme', $theme );
-	update_option( 'cookiex_cmp_show_welcome', false );
+    // Save settings
+    update_option('cookiex_cmp_domain_id', $domain_id);
+    update_option('cookiex_cmp_language', $language);
+    update_option('cookiex_cmp_auto_block_cookies', $auto_block_cookies);
+    update_option('cookiex_cmp_gtm_enabled', $gtm_enabled);
+    update_option('cookiex_cmp_theme', $theme);
+    update_option('cookiex_cmp_show_welcome', false);
 
-    if ( $gtm_enabled && ! empty( $gtm_id ) ) {
-        update_option( 'cookiex_cmp_gtm_id', $gtm_id );
+    if ($gtm_enabled && !empty($gtm_id)) {
+        update_option('cookiex_cmp_gtm_id', $gtm_id);
+    }
+    if ($gtm_enabled && !empty($cookie_preferences)) {
+        update_option('cookiex_cmp_cookie_preferences', $cookie_preferences);
     }
 
-    if ( $gtm_enabled && ! empty( $cookie_preferences ) ) {
-        update_option( 'cookiex_cmp_cookie_preferences', $cookie_preferences );
-    }
+    require_once plugin_dir_path(__FILE__) . 'Service.php';
+    cookiex_cmp_update_consent_config();
 
-	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
-
-	cookiex_cmp_update_consent_config();
-
-    return new WP_REST_Response(
-        array(
-            'status'  => 'success',
-            'message' => 'Settings saved successfully',
-            'data'    => array(
-                'domainId'         => $domain_id,
-                'language'         => $language,
-                'autoBlockCookies' => $auto_block_cookies,
-                'gtmEnabled'       => $gtm_enabled,
-                'gtmId'            => $gtm_id,
-                'theme'            => get_option( 'cookiex_cmp_theme', '{}' ),
-            ),
-        ),
-        200
-    );
+    return new WP_REST_Response([
+        'status'  => 'success',
+        'message' => 'Settings saved successfully',
+        'data'    => [
+            'domainId'         => $domain_id,
+            'language'         => $language,
+            'autoBlockCookies' => $auto_block_cookies,
+            'gtmEnabled'       => $gtm_enabled,
+            'gtmId'            => $gtm_id,
+            'theme'            => $theme,
+        ],
+    ], 200);
 }
 
 /**
@@ -267,20 +264,18 @@ function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response
  * @return WP_REST_Response The settings details
  */
 function cookiex_cmp_fetch_settings(): WP_REST_Response {
-    // ✅ Fetch stored values (fallback to default if missing)
-    $domain_id           = get_option( 'cookiex_cmp_domain_id', '' );
-    $language            = get_option( 'cookiex_cmp_language', 'en' );
-    $auto_block_cookies  = filter_var( get_option( 'cookiex_cmp_auto_block_cookies', false ), FILTER_VALIDATE_BOOLEAN );
-    $gtm_enabled         = filter_var( get_option( 'cookiex_cmp_gtm_enabled', false ), FILTER_VALIDATE_BOOLEAN );
-    $gtm_id              = get_option( 'cookiex_cmp_gtm_id', '' );
-    $cookie_preferences  = get_option( 'cookiex_cmp_cookie_preferences', array() );
-    $server_country      = get_option( 'cookiex_cmp_server_country', '' );
+    $domain_id = get_option( 'cookiex_cmp_domain_id', '' );
+    $language = get_option( 'cookiex_cmp_language', 'en' );
+    $auto_block_cookies = filter_var( get_option( 'cookiex_cmp_auto_block_cookies', false ), FILTER_VALIDATE_BOOLEAN );
+    $gtm_enabled = filter_var( get_option( 'cookiex_cmp_gtm_enabled', false ), FILTER_VALIDATE_BOOLEAN );
+    $gtm_id = get_option( 'cookiex_cmp_gtm_id', '' );
+    $cookie_preferences = get_option( 'cookiex_cmp_cookie_preferences', array() );
+    $server_country = get_option( 'cookiex_cmp_server_country', '' );
     $languages_available = get_option( 'cookiex_cmp_languages_available', array() );
 
-	$theme = get_option( 'cookiex_cmp_theme', '{}' );
-
-    if ( is_array( $theme ) ) {
-        $theme = wp_json_encode( $theme );
+    $theme = get_option( 'cookiex_cmp_theme', '{}' );
+    if (is_array($theme)) {
+        $theme = wp_json_encode($theme);
     }
 
     return new WP_REST_Response( array(
@@ -381,38 +376,30 @@ function cookiex_cmp_authenticate(): WP_REST_Response {
 /**
  * Handle registration request
  *
- * @return WP_REST_Response|WP_Error The registration status
+ * @return WP_REST_Response The registration status
  */
-function cookiex_cmp_register(): WP_REST_Response|WP_Error {
+function cookiex_cmp_register(): WP_REST_Response {
     require_once plugin_dir_path(__FILE__) . 'Service.php';
 
     $result = cookiex_cmp_register_domain();
 
     if (!$result['status']) {
-        return new WP_Error(
-            'registration_failed',
-            $result['message'],
-            array(
-                'status'  => 400,
-                'error'   => isset($result['error']) ? $result['error'] : null,
-                'details' => isset($result['response']) ? $result['response'] : null,
-            )
-        );
+        return new WP_REST_Response([
+            'status'  => 'error',
+            'message' => $result['message'],
+            'error'   => $result['error'] ?? 'Unknown error',
+        ], 400);
     }
 
-    return new WP_REST_Response(
-        array(
-            'status'    => true,
-            'message'   => $result['message'],
-            'domainId'  => get_option('cookiex_cmp_domain_id'),
-            'token'     => get_option('cookiex_cmp_auth_token'),
-            'temp_token' => get_option('cookiex_cmp_temp_token'),
-            'apiServer' => get_option('cookiex_cmp_api_server')
-        ),
-        200
-    );
+    return new WP_REST_Response([
+        'status'    => true,
+        'message'   => $result['message'],
+        'domainId'  => get_option('cookiex_cmp_domain_id'),
+        'token'     => get_option('cookiex_cmp_auth_token'),
+        'temp_token' => get_option('cookiex_cmp_temp_token'),
+        'apiServer' => get_option('cookiex_cmp_api_server'),
+    ], 200);
 }
-
 
 /**
  * Handle quickscan request
@@ -431,18 +418,13 @@ function cookiex_cmp_quickscan(): WP_REST_Response {
 }
 
 /**
- * Handle analytics request
+ * Fetch consent analytics data
  *
- * @return WP_REST_Response The analytics data
+ * @param WP_REST_Request<array{startDate?: string, endDate?: string}> $request The request object.
+ * @return WP_REST_Response The analytics data.
  */
-/**
- * Handle analytics request
- *
- * @param WP_REST_Request $request The request object.
- * @return WP_REST_Response The analytics data
- */
-function cookiex_cmp_fetch_consent_analytics( WP_REST_Request $request ): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
+function cookiex_cmp_fetch_consent_analytics(WP_REST_Request $request): WP_REST_Response {
+    require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$result = cookiex_cmp_fetch_analytics($request);
 
@@ -531,10 +513,6 @@ function cookiex_cmp_refresh_temp_token() {
     // Call existing `cookiex_cmp_register` to refresh the temp token
     $register_result = cookiex_cmp_register();
 
-    if ( is_wp_error( $register_result ) ) {
-        return $register_result;
-    }
-
     $response_data = $register_result->get_data();
 
     if ( ! isset( $response_data['temp_token'] ) ) {
@@ -556,16 +534,6 @@ function cookiex_cmp_get_connection_status(): WP_REST_Response {
     require_once plugin_dir_path( __FILE__ ) . 'Service.php';
     $register_result = cookiex_cmp_register();
 
-    if ( is_wp_error( $register_result ) ) {
-        return new WP_REST_Response(
-            array(
-                'status'  => 'error',
-                'message' => $register_result->get_error_message(),
-            ),
-            500
-        );
-    }
-
     $is_connected = get_option( 'cookiex_cmp_connection_status', false );
 
     return new WP_REST_Response(
@@ -581,57 +549,49 @@ function cookiex_cmp_get_connection_status(): WP_REST_Response {
 /**
  * Disconnect the CookieX Web App connection
  *
- * @param WP_REST_Request $request The request object.
- * @return WP_REST_Response The disconnection status
+ * @param WP_REST_Request<array<string, mixed>> $request The request object.
+ * @return WP_REST_Response The disconnection status.
  */
-function cookiex_cmp_disconnect_api( WP_REST_Request $request ): WP_REST_Response {
-    require_once plugin_dir_path( __FILE__ ) . 'Service.php';
+function cookiex_cmp_disconnect_api(WP_REST_Request $request): WP_REST_Response {
+    require_once plugin_dir_path(__FILE__) . 'Service.php';
 
     $disconnect_result = cookiex_cmp_disconnect();
 
-    if ( is_wp_error( $disconnect_result ) ) {
-        return $disconnect_result;
+    if (!isset($disconnect_result['status'])) {
+        return new WP_REST_Response([
+            'status'  => 'error',
+            'message' => 'Failed to disconnect. Unexpected response format.',
+        ], 400);
     }
 
-    $response_data = $disconnect_result->get_data();
-
-    return new WP_REST_Response(
-        array(
-            'response' => $response_data,
-        ),
-        200
-    );
+    return new WP_REST_Response([
+        'status'  => $disconnect_result['status'] ? 'success' : 'error',
+        'message' => $disconnect_result['message'] ?? 'Unknown error occurred',
+    ], $disconnect_result['status'] ? 200 : 400);
 }
 
 /**
  * Save Banner Preview Settings
  *
- * @param WP_REST_Request $request The request object.
- * @return WP_REST_Response Success response when saved, else error
+ * @param WP_REST_Request<array{bannerPreview?: bool}> $request The request object.
+ * @return WP_REST_Response Success response when saved, else error.
  */
 function cookiex_cmp_save_banner_preview(WP_REST_Request $request): WP_REST_Response {
     $banner_preview = $request->get_param('bannerPreview');
 
     if (!is_bool($banner_preview)) {
-        return new WP_REST_Response(
-            array(
-                'status'  => 'error',
-                'message' => 'Invalid input. Banner preview must be true or false.',
-                'value' => $banner_preview,
-            ),
-            400
-        );
+        return new WP_REST_Response([
+            'status'  => 'error',
+            'message' => 'Invalid input. Banner preview must be true or false.',
+        ], 400);
     }
 
     update_option('cookiex_cmp_banner_preview', $banner_preview);
 
-    return new WP_REST_Response(
-        array(
-            'status'  => 'success',
-            'message' => 'Banner preview setting saved successfully.',
-        ),
-        200
-    );
+    return new WP_REST_Response([
+        'status'  => 'success',
+        'message' => 'Banner preview setting saved successfully.',
+    ], 200);
 }
 
 /**
@@ -642,22 +602,24 @@ function cookiex_cmp_save_banner_preview(WP_REST_Request $request): WP_REST_Resp
 function cookiex_cmp_fetch_banner_preview(): WP_REST_Response {
     $banner_preview = get_option('cookiex_cmp_banner_preview', false);
 
-    return new WP_REST_Response(
-        array(
-            'status'         => 'success',
-            'bannerPreview'  => (bool) $banner_preview,
-        ),
-        200
-    );
+    return new WP_REST_Response([
+        'status'        => 'success',
+        'bannerPreview' => (bool) $banner_preview,
+    ], 200);
 }
 
+/**
+ * Fetch user details from CookieX API.
+ *
+ * @return WP_REST_Response The user details
+ */
 function cookiex_cmp_fetch_user_details(): WP_REST_Response {
     require_once plugin_dir_path(__FILE__) . 'Service.php';
 
-    $result = cookiex_cmp_fetch_user_data(); // Calls function from Service.php
+    $result = cookiex_cmp_fetch_user_data();
 
-    return new WP_REST_Response(
-        $result,
-        200
-    );
+    return new WP_REST_Response([
+        'status'  => $result['status'] ? 'success' : 'error',
+        'data'    => $result['data'] ?? [],
+    ], $result['status'] ? 200 : 400);
 }

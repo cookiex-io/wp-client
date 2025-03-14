@@ -8,7 +8,7 @@ let tempToken = 'mocked-initial-token';
 let tokenLastUpdated = Date.now();
 let bannerPreview = false; // Default state for banner preview
 
-let userDetails = {
+const userDetails = {
 	email: 'user@example.com',
 	emailVerified: true,
 	joinedOn: '2025-03-09T12:34:56.789Z',

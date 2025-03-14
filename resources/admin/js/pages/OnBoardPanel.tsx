@@ -96,7 +96,7 @@ function OnBoardPanel() {
 				});
 
 				if (response) {
-					setUserDetails(response);
+					setUserDetails(response.data);
 				}
 			} catch (error) {
 				console.error('Error fetching user details:', error);
