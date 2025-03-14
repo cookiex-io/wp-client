@@ -159,8 +159,6 @@ class Loader {
 					$hook['priority'],
 					$hook['accepted_args']
 				);
-			} else {
-				error_log("Error: Method {$hook['callback']} not found in " . get_class($hook['component']));
 			}
 		}
 	
@@ -173,8 +171,6 @@ class Loader {
 					$hook['priority'],
 					$hook['accepted_args']
 				);
-			} else {
-				error_log("Error: Method {$hook['callback']} not found in " . get_class($hook['component']));
 			}
 		}
 	
@@ -185,8 +181,6 @@ class Loader {
 					$hook['hook'],
 					$callback
 				);
-			} else {
-				error_log("Error: Method {$hook['callback']} not found in " . get_class($hook['component']));
 			}
 		}
 	
@@ -194,8 +188,6 @@ class Loader {
 			foreach ($this->cli as $name => $data) {
 				if (is_callable([$data['instance'], '__invoke'])) {
 					\WP_CLI::add_command($name, $data['instance'], $data['args']);
-				} else {
-					error_log("Error: WP-CLI command {$name} is not callable.");
 				}
 			}
 		}
