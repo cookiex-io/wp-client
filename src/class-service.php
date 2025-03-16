@@ -555,7 +555,6 @@ function cookiex_cmp_fetch_user_data(): array {
 	$api_server = cookiex_cmp_fetch_api_server();
 	$auth_token = get_option( 'cookiex_cmp_auth_token' );
 
-	// Check for missing API server or authentication token.
 	if ( ! $api_server || ! $auth_token ) {
 		return array(
 			'status'  => false,
@@ -575,7 +574,6 @@ function cookiex_cmp_fetch_user_data(): array {
 
 	$response = wp_remote_get( $user_details_url, $request_args );
 
-	// Handle request errors.
 	if ( is_wp_error( $response ) ) {
 		return array(
 			'status'  => false,
@@ -588,7 +586,6 @@ function cookiex_cmp_fetch_user_data(): array {
 	$response_body = wp_remote_retrieve_body( $response );
 	$data          = json_decode( $response_body, true );
 
-	// Validate API response.
 	if ( 200 !== $status_code || ! is_array( $data ) ) {
 		return array(
 			'status'   => false,

@@ -567,25 +567,7 @@ function cookiex_cmp_get_connection_status(): WP_REST_Response {
 function cookiex_cmp_disconnect_api(): WP_REST_Response {
 	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
 
-	$disconnect_result = cookiex_cmp_disconnect();
-
-	if ( ! isset( $disconnect_result['status'] ) ) {
-		return new WP_REST_Response(
-			array(
-				'status'  => 'error',
-				'message' => 'Failed to disconnect. Unexpected response format.',
-			),
-			400
-		);
-	}
-
-	return new WP_REST_Response(
-		array(
-			'status'  => $disconnect_result['status'] ? 'success' : 'error',
-			'message' => $disconnect_result['message'] ?? 'Unknown error occurred',
-		),
-		$disconnect_result['status'] ? 200 : 400
-	);
+	return cookiex_cmp_disconnect();
 }
 
 /**
