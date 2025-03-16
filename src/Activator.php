@@ -25,7 +25,6 @@ class Activator {
 	public static function activate(): void {
 		update_option( 'cookiex_cmp_show_welcome', true );
 
-		// Add activation redirect
 		add_option( 'cookiex_cmp_do_activation_redirect', true );
 	}
 }

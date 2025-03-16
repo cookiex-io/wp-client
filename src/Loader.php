@@ -43,8 +43,12 @@ class Loader {
 	 */
 	protected $shortcodes;
 
-	/** @var array<string, array{'instance': object|string, 'args': array<mixed>}> $cli */
-	protected array $cli = [];
+	/**
+	 * Stores CLI instances and their arguments.
+	 *
+	 * @var array<string, array{'instance': object|string, 'args': array<mixed>}> $cli
+	 */
+	protected array $cli = array();
 
 	/**
 	 * Initialize the collections used to maintain the actions and filters.
@@ -148,11 +152,11 @@ class Loader {
 	 * Register the filters and actions with WordPress.
 	 *
 	 * @since    1.0.0
-	*/
+	 */
 	public function run(): void {
-		foreach ($this->filters as $hook) {
-			$callback = [$hook['component'], $hook['callback']];
-			if (is_callable($callback)) {
+		foreach ( $this->filters as $hook ) {
+			$callback = array( $hook['component'], $hook['callback'] );
+			if ( is_callable( $callback ) ) {
 				add_filter(
 					$hook['hook'],
 					$callback,
@@ -161,10 +165,10 @@ class Loader {
 				);
 			}
 		}
-	
-		foreach ($this->actions as $hook) {
-			$callback = [$hook['component'], $hook['callback']];
-			if (is_callable($callback)) {
+
+		foreach ( $this->actions as $hook ) {
+			$callback = array( $hook['component'], $hook['callback'] );
+			if ( is_callable( $callback ) ) {
 				add_action(
 					$hook['hook'],
 					$callback,
@@ -173,23 +177,23 @@ class Loader {
 				);
 			}
 		}
-	
-		foreach ($this->shortcodes as $hook) {
-			$callback = [$hook['component'], $hook['callback']];
-			if (is_callable($callback)) {
+
+		foreach ( $this->shortcodes as $hook ) {
+			$callback = array( $hook['component'], $hook['callback'] );
+			if ( is_callable( $callback ) ) {
 				add_shortcode(
 					$hook['hook'],
 					$callback
 				);
 			}
 		}
-	
-		if (!empty($this->cli) && class_exists('WP_CLI')) {
-			foreach ($this->cli as $name => $data) {
-				if (is_callable([$data['instance'], '__invoke'])) {
-					\WP_CLI::add_command($name, $data['instance'], $data['args']);
+
+		if ( ! empty( $this->cli ) && class_exists( 'WP_CLI' ) ) {
+			foreach ( $this->cli as $name => $data ) {
+				if ( is_callable( array( $data['instance'], '__invoke' ) ) ) {
+					\WP_CLI::add_command( $name, $data['instance'], $data['args'] );
 				}
 			}
 		}
-	}		
+	}
 }

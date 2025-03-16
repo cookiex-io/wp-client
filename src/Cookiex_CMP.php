@@ -5,7 +5,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       http://example.com
+ * @link       http://example.com.
  * @since      0.9.0
  *
  * @package    Cookiex_CMP
@@ -14,7 +14,7 @@
 namespace Cookiex_CMP;
 
 require_once plugin_dir_path( __FILE__ ) . '/banner.php';
-require_once plugin_dir_path( __FILE__ ) . '/Redirect.php';
+require_once plugin_dir_path( __FILE__ ) . '/class-redirect.php';
 
 /**
  * The core plugin class.
@@ -97,7 +97,7 @@ class Cookiex_CMP {
 	private function define_admin_hooks(): void {
 		add_action( 'admin_menu', array( Admin_Menu::class, 'add_menu_pages' ) );
 
-		// Initialize the redirect functionality
+		// Initialize the redirect functionality.
 		$redirect = new Redirect();
 		$redirect->init();
 
@@ -151,39 +151,39 @@ class Cookiex_CMP {
 	 */
 	private function enqueue_bud_entrypoint( string $entry, array $localize_data = array() ): void {
 		$entrypoints_manifest = COOKIEX_CMP_PLUGIN_PATH . '/dist/entrypoints.json';
-	
+
 		// Try to get WordPress filesystem. If not possible load it.
 		global $wp_filesystem;
 		if ( ! is_a( $wp_filesystem, 'WP_Filesystem_Base' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/file.php';
 			WP_Filesystem();
 		}
-	
+
 		$filesystem = new \WP_Filesystem_Direct( false );
 		if ( ! $filesystem->exists( $entrypoints_manifest ) ) {
 			return;
 		}
-	
-		// Read the file contents
+
+		// Read the file contents.
 		$file_contents = $filesystem->get_contents( $entrypoints_manifest );
-		if ( $file_contents === false ) {
+		if ( false === $file_contents ) {
 			return;
 		}
-	
-		// Parse JSON
+
+		// Parse JSON.
 		$entrypoints = json_decode( $file_contents, true );
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			return;
 		}
-	
-		// Iterate entrypoint groups
+
+		// Iterate entrypoint groups.
 		foreach ( $entrypoints as $key => $bundle ) {
-			// Only process the entrypoint that should be enqueued per call
+			// Only process the entrypoint that should be enqueued per call.
 			if ( $key !== $entry ) {
 				continue;
 			}
-	
-			// Iterate js and css files
+
+			// Iterate js and css files.
 			foreach ( $bundle as $type => $files ) {
 				foreach ( $files as $file ) {
 					if ( 'js' === $type ) {
@@ -194,14 +194,14 @@ class Cookiex_CMP {
 							self::PLUGIN_VERSION,
 							true
 						);
-	
-						// Maybe localize js
+
+						// Maybe localize js.
 						if ( ! empty( $localize_data ) ) {
 							wp_localize_script( self::PLUGIN_NAME . "/$file", str_replace( '-', '_', self::PLUGIN_NAME ), $localize_data );
-							unset( $localize_data ); // Unset to avoid duplicating for multiple scripts
+							unset( $localize_data ); // Unset to avoid duplicating for multiple scripts.
 						}
 					}
-	
+
 					if ( 'css' === $type ) {
 						wp_enqueue_style(
 							self::PLUGIN_NAME . "/$file",
@@ -213,5 +213,5 @@ class Cookiex_CMP {
 				}
 			}
 		}
-	}	
+	}
 }

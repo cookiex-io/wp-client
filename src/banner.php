@@ -12,14 +12,14 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
+	exit; // Exit if accessed directly.
 }
 
 /**
  * Add the CookieX banner to the website
  */
 function cookiex_cmp_add_banner(): void {
-	// Get all the options
+	// Get all the options.
 	$domain_id          = get_option( 'cookiex_cmp_domain_id' );
 	$language           = get_option( 'cookiex_cmp_language' );
 	$auto_block_cookies = get_option( 'cookiex_cmp_auto_block_cookies' );
@@ -29,7 +29,7 @@ function cookiex_cmp_add_banner(): void {
 	$domain_name        = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
 
 	if ( $domain_id ) {
-		// Register and enqueue the CookieX script
+		// Register and enqueue the CookieX script.
 		wp_register_script(
 			'cookiex-cmp-banner',
 			'https://cdn.cookiex.io/banner/cookiex.min.js',
@@ -38,7 +38,7 @@ function cookiex_cmp_add_banner(): void {
 			true
 		);
 		wp_enqueue_script( 'cookiex-cmp-banner' );
-		// Prepare the initialization script
+		// Prepare the initialization script.
 		$init_script = sprintf(
 			'document.addEventListener("DOMContentLoaded", function() { 
 				const theme = { 
@@ -62,7 +62,7 @@ function cookiex_cmp_add_banner(): void {
 			wp_json_encode( $cookie_preferences )
 		);
 
-		// Add the initialization code as inline script
+		// Add the initialization code as inline script.
 		wp_add_inline_script( 'cookiex-cmp-banner', $init_script );
 	}
 }

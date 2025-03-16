@@ -40,12 +40,9 @@ class Redirect {
 	 * @access   public
 	 */
 	public function activation_redirect(): void {
-		// Check if we should redirect
 		if ( get_option( 'cookiex_cmp_do_activation_redirect', false ) ) {
-			// Delete the redirect option
 			delete_option( 'cookiex_cmp_do_activation_redirect' );
 
-			// Redirect to the plugin settings page
 			wp_safe_redirect( admin_url( 'admin.php?page=cookiex' ) );
 			exit;
 		}
