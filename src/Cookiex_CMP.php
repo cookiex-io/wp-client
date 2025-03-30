@@ -164,13 +164,21 @@ class Cookiex_CMP {
 			return;
 		}
 
-		// parse json file
-		$entrypoints = json_decode( $filesystem->get_contents( $entrypoints_manifest ) );
+		// Read the file contents.
+		$file_contents = $filesystem->get_contents( $entrypoints_manifest );
+		if ( false === $file_contents ) {
+			return;
+		}
 
-		// Iterate entrypoint groups
+		// Parse JSON.
+		$entrypoints = json_decode( $file_contents, true );
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			return;
+		}
+
+		// Iterate entrypoint groups.
 		foreach ( $entrypoints as $key => $bundle ) {
-
-			// Only process the entrypoint that should be enqueued per call
+			// Only process the entrypoint that should be enqueued per call.
 			if ( $key !== $entry ) {
 				continue;
 			}
@@ -182,7 +190,7 @@ class Cookiex_CMP {
 						wp_enqueue_script(
 							self::PLUGIN_NAME . "/$file",
 							COOKIEX_CMP_PLUGIN_URL . 'dist/' . $file,
-							$bundle->dependencies ?? array(),
+							$bundle['dependencies'] ?? array(),
 							self::PLUGIN_VERSION,
 							true,
 						);

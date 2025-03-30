@@ -12,8 +12,12 @@ import React, { useState } from 'react';
 
 function ConsentBannerScreen(props: any) {
 	const theme = useMantineTheme();
-	const [layoutType, setLayoutType] = useState('Box');
-	const [bannerValue, setBannerValue] = useState('leftBottomPopUp');
+	const [layoutType, setLayoutType] = useState(
+		props?.consentConfig?.layout || 'Box'
+	);
+	const [bannerValue, setBannerValue] = useState(
+		props?.consentConfig?.alignment || 'leftBottomPopUp'
+	);
 
 	const layouts = [
 		{
@@ -91,7 +95,7 @@ function ConsentBannerScreen(props: any) {
 						style={{ borderRadius: '8px' }}
 					>
 						<div>
-							<Paper withBorder shadow="0" p="sm">
+							<Paper shadow="0" p="sm">
 								<Text size="xs" mb="lg" fw={500}>
 									Banner Layout{' '}
 								</Text>
@@ -110,6 +114,7 @@ function ConsentBannerScreen(props: any) {
 												<Paper
 													shadow="0px"
 													withBorder
+													bg="#fafafa"
 													p="lg"
 													style={{
 														position: 'relative',

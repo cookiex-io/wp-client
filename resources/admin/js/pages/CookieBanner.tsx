@@ -10,13 +10,12 @@ import {
 	Switch,
 	MultiSelect,
 	Alert,
-	LoadingOverlay,
 	Tabs,
 	Grid,
 	Paper,
 	SegmentedControl,
 } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { runtimeConfig } from '../config';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { ConsentBannerScreen } from '../components/Consent/ConsentBannerScreen';
@@ -31,12 +30,11 @@ declare let Cookiex: {
 	};
 };
 
-export function CookieBanner() {
+export function CookieBanner(props: any) {
 	const [domainId, setDomainId] = useState('');
 	const [gtmId, setGtmId] = useState('');
 	const [gtmEnabled, setGtmEnabled] = useState(false);
 	const [language, setLanguage] = useState<any>('en');
-	const [loading, setLoading] = useState(true);
 	const [autoBlockCookies, setAutoBlockCookies] = useState(false);
 	const [cookiePreference, setCookiePreference] = useState<any[]>([]);
 	const [errorMessage, setErrorMessage] = useState('');
@@ -52,18 +50,39 @@ export function CookieBanner() {
 		ar: 'العربية',
 	});
 	const [colorScheme, setColorScheme] = useState('Light');
-	const [bannerPreview, setBannerPreview] = useState(false);
+	const [bannerPreview, setBannerPreview] = useState<any>(null);
 	const [regulation, setRegulation] = useState<any>(regulations[0]);
 	const [consentConfig, setConsentConfig] = useState<any>(finalConsentConfig);
+	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		if (bannerPreview) {
-			generatePreview(regulation, false);
-		} else {
-			document.querySelector('#cookiex-cc-div')?.remove();
+	const userInteracted = useRef(false);
+
+	const saveBannerPreview = async () => {
+		try {
+			const payload = {
+				bannerPreview: bannerPreview ?? false,
+			};
+
+			const response = await runtimeConfig.apiFetch({
+				path: '/cookiex/v1/save-banner-preview',
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(payload),
+			});
+
+			if (response.status === 'success') {
+				setSuccessMessage(response.message);
+			} else {
+				setErrorMessage(
+					response.message || 'Could not save banner preview setting'
+				);
+			}
+		} catch (error) {
+			setErrorMessage('Error saving banner preview setting.');
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [bannerPreview]);
+	};
 
 	useEffect(() => {
 		const filteredTheme = themesConfig.filter(
@@ -78,31 +97,57 @@ export function CookieBanner() {
 	}, [colorScheme]);
 
 	useEffect(() => {
-		try {
-			setLoading(true);
-			runtimeConfig
-				.apiFetch({
-					path: '/cookiex/v1/settings',
-				})
-				.then((res: any) => {
-					setConsentConfig(res?.theme || finalConsentConfig);
-					setDomainId(res.domainId);
-					setGtmId(res.gtmId);
-					setGtmEnabled(res.gtmEnabled);
-					setAutoBlockCookies(res.autoBlockCookies);
-					setLanguage(res.language);
-					setCookiePreference(res.cookiePreference);
-					setServerCountry(res.serverCountry);
-					setLanguagesAvailable(res.languagesAvailable);
-					setRegulation(res.regulation || regulations[0]);
-					setColorScheme(res?.theme.type || 'Light');
+		setConsentConfig(props?.consentConfig?.theme || finalConsentConfig);
+		setDomainId(props?.consentConfig?.domainId);
+		setGtmId(props?.consentConfig?.gtmId);
+		setGtmEnabled(props?.consentConfig?.gtmEnabled);
+		setAutoBlockCookies(props?.consentConfig?.autoBlockCookies);
+		setLanguage(props?.consentConfig?.language);
+		setCookiePreference(props?.consentConfig?.cookiePreference);
+		setServerCountry(props?.consentConfig?.serverCountry);
+		setLanguagesAvailable(props?.consentConfig?.languagesAvailable);
+		setRegulation(props?.consentConfig?.regulation || regulations[0]);
+		setColorScheme(props?.consentConfig?.theme?.type || 'Light');
+	}, [props.consentConfig]);
+
+	const handleBannerToggle = (checked: boolean) => {
+		setBannerPreview(checked);
+		userInteracted.current = true; // Mark as user interaction
+	};
+
+	useEffect(() => {
+		if (!userInteracted.current) {
+			return;
+		}
+
+		if (bannerPreview) {
+			generatePreview(regulation, false);
+		} else {
+			document.querySelector('#cookiex-cc-div')?.remove();
+		}
+
+		// ✅ Save the banner preview state even when turning off
+		saveBannerPreview();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [bannerPreview]);
+
+	useEffect(() => {
+		const fetchBannerPreview = async () => {
+			try {
+				const response: any = await runtimeConfig.apiFetch({
+					path: '/cookiex/v1/fetch-banner-preview',
+					method: 'GET',
 				});
 
-			setLoading(false);
-		} catch (error) {
-			console.error('Failed to fetch settings:', error);
-			setLoading(false);
-		}
+				if (response.status === 'success') {
+					setBannerPreview(response.bannerPreview);
+				}
+			} catch (error) {
+				console.error('Error fetching banner preview setting:', error);
+			}
+		};
+
+		fetchBannerPreview();
 	}, []);
 
 	const validateInputs = () => {
@@ -132,6 +177,7 @@ export function CookieBanner() {
 	};
 
 	const updateSettings = async () => {
+		setLoading(true);
 		if (!validateInputs()) {
 			return;
 		}
@@ -154,13 +200,20 @@ export function CookieBanner() {
 
 		try {
 			const response: any = await runtimeConfig.apiFetch(options);
-			setSuccessMessage(response);
+
+			if (response.status === 'success') {
+				setSuccessMessage(response.message); // ✅ Use only the string message
+			} else {
+				setErrorMessage(response.message || 'Could not save settings');
+			}
 		} catch (error: any) {
 			if ('code' in error && error.code === 'invalid_nonce') {
 				setErrorMessage('Security check failed.');
 			} else {
 				setErrorMessage('Could not save settings');
 			}
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -205,10 +258,15 @@ export function CookieBanner() {
 						domainId,
 						selectorId: 'coookiex-comp-banner-preview',
 						theme: {
-							layout: consentConfig.layout,
-							alignment: consentConfig.alignment,
-							theme: consentConfig?.theme,
-							bannerContent: consentConfig.bannerContent,
+							layout: consentConfig.layout || 'Box',
+							alignment:
+								consentConfig.alignment || 'leftBottomPopUp',
+							theme:
+								consentConfig?.theme ||
+								finalConsentConfig.theme,
+							bannerContent:
+								consentConfig.bannerContent ||
+								finalConsentConfig.bannerContent,
 							type: consentConfig.type,
 							regulation: regulationType,
 						},
@@ -242,14 +300,6 @@ export function CookieBanner() {
 
 	return (
 		<>
-			{loading && (
-				<LoadingOverlay
-					visible={true}
-					zIndex={1000}
-					overlayProps={{ radius: 'sm', blur: 2 }}
-					loaderProps={{ color: 'green', type: 'bars' }}
-				/>
-			)}
 			{errorMessage && (
 				<Alert
 					variant="light"
@@ -272,7 +322,7 @@ export function CookieBanner() {
 				</Alert>
 			)}
 			<Tabs
-				color="#fafafa"
+				color="#f1f3f5"
 				variant="pills"
 				defaultValue="general"
 				orientation="vertical"
@@ -298,10 +348,10 @@ export function CookieBanner() {
 						style={{ color: '#000', borderRadius: '0px' }}
 						value="content&Colours"
 					>
-						Content & Colours
+						Color Schemes
 					</Tabs.Tab>
 				</Tabs.List>
-				<div style={{ flex: 1, padding: '20px' }}>
+				<div style={{ padding: '20px' }}>
 					<Group justify="space-between" mb="lg">
 						<Group>
 							<Select
@@ -328,20 +378,25 @@ export function CookieBanner() {
 								label="Banner Preview"
 								checked={bannerPreview}
 								onChange={(event) =>
-									setBannerPreview(
+									handleBannerToggle(
 										event.currentTarget.checked
 									)
 								}
 							/>
 						</Group>
-						<Button color="green" mt="md" onClick={updateSettings}>
+						<Button
+							color="green"
+							mt="md"
+							onClick={updateSettings}
+							loading={loading}
+						>
 							Publish Changes
 						</Button>
 					</Group>
-					<Text size="sm" mb={20}>
-						{regulation?.description}
-					</Text>
-					<Tabs.Panel value="general" bg="#fafafa">
+					<Alert variant="light" color="blue" mb={20}>
+						<Text size="sm">{regulation?.description}</Text>
+					</Alert>
+					<Tabs.Panel value="general" bg="#f1f3f5" p={20}>
 						<Grid gutter="lg">
 							{/* General Settings */}
 							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
@@ -353,7 +408,8 @@ export function CookieBanner() {
 										minHeight: '300px',
 										height: '100%',
 									}}
-									bg="#fafafa"
+									radius="md"
+									withBorder
 								>
 									<Title order={3}>General Settings</Title>
 									<input
@@ -362,12 +418,12 @@ export function CookieBanner() {
 										value={serverCountry}
 									/>
 									<Divider my="md" />
-									<Paper withBorder p={20}>
+									<Paper p={20}>
 										<Group gap="sm" grow>
 											<Text size="sm">
 												Connect domain ID (UUID)
 											</Text>
-											<Group>
+											<Group grow>
 												<TextInput
 													value={domainId}
 													onChange={(e) =>
@@ -398,16 +454,18 @@ export function CookieBanner() {
 										</Group>
 										<Group gap="sm" grow mt="sm">
 											<Text size="sm">Language</Text>
-											<Select
-												value={language}
-												onChange={setLanguage}
-												data={Object.entries(
-													languagesAvailable
-												).map(([code, name]) => ({
-													value: code,
-													label: name,
-												}))}
-											/>
+											{languagesAvailable && (
+												<Select
+													value={language}
+													onChange={setLanguage}
+													data={Object.entries(
+														languagesAvailable
+													).map(([code, name]) => ({
+														value: code,
+														label: name,
+													}))}
+												/>
+											)}
 										</Group>
 										<Divider my="md" />
 										<Title order={4}>
@@ -472,7 +530,7 @@ export function CookieBanner() {
 							</Grid.Col>
 						</Grid>
 					</Tabs.Panel>
-					<Tabs.Panel value="layout" bg="#fafafa">
+					<Tabs.Panel value="layout" bg="#f1f3f5" p={20}>
 						<Grid gutter="lg">
 							{/* General Settings */}
 							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
@@ -484,13 +542,15 @@ export function CookieBanner() {
 										minHeight: '300px',
 										height: '100%',
 									}}
-									bg="#fafafa"
+									radius="md"
+									withBorder
 								>
 									<Title order={3}>
 										Consent Banner Settings
 									</Title>
 									<Divider my="md" />
 									<ConsentBannerScreen
+										consentConfig={consentConfig}
 										handleLayout={handleLayout}
 									/>
 									<div style={{ flexGrow: 1 }}></div>
@@ -498,23 +558,23 @@ export function CookieBanner() {
 							</Grid.Col>
 						</Grid>
 					</Tabs.Panel>
-					<Tabs.Panel value="content&Colours" bg="#fafafa">
-						<Grid gutter="lg">
+					<Tabs.Panel value="content&Colours" bg="#f1f3f5" p={20}>
+						<Grid>
 							{/* General Settings */}
 							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 								<Card
 									padding="lg"
 									style={{
-										display: 'flex',
-										flexDirection: 'column',
 										minHeight: '300px',
 										height: '100%',
 									}}
-									bg="#fafafa"
+									radius="md"
+									withBorder
 								>
 									<Title order={3}>Colour scheme</Title>
 									<Divider my="md" />
 									<SegmentedControl
+										color="blue"
 										fullWidth
 										value={colorScheme}
 										onChange={setColorScheme}
@@ -529,247 +589,280 @@ export function CookieBanner() {
 										mb="md"
 									/>
 									<Divider my="md" />
-									{colorScheme === 'Custom' && (
-										<div>
-											<BannerTheme
-												customStyles={
-													handleCustomStyles
-												}
-												background={
-													consentConfig?.theme
-														?.background || '#fff'
-												}
-												name="background"
-												label="Background"
-												description=""
-											/>
-											<BannerTheme
-												customStyles={
-													handleCustomStyles
-												}
-												background={
-													consentConfig?.theme
-														?.textColor || '#000'
-												}
-												name="textColor"
-												label="Text Color"
-												description="Choose the color of all texts within the banner"
-											/>
-											<BannerTheme
-												customStyles={
-													handleCustomStyles
-												}
-												background={
-													consentConfig?.theme
-														?.highlight || '#fff'
-												}
-												name="highlight"
-												label="Highlight"
-												description="Choose your highlight color that will impact all links and active toggles in your banner"
-											/>
-											<Divider my="sm" />
-											{regulation.value === 'gdpr' && (
-												<>
-													<Group justify="left">
-														<Text size="xs">
-															{' '}
-															Button 1 (Reject
-															All){' '}
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonReject"
-														description=""
-													/>
-													<Divider my="sm" />
-													<Group justify="left">
-														<Text size="xs">
-															Button 2 (Accept){' '}
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonAcceptBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonAccept"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonAcceptTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonAccept"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonAcceptBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonAccept"
-														description=""
-													/>
-													<Divider my="sm" />
-													<Group justify="left">
-														<Text size="xs">
-															Button 3 (Customize)
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonCustomizeBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonCustomize"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonCustomizeTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonCustomize"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonCustomizeBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonCustomize"
-														description=""
-													/>
-												</>
-											)}
-											{regulation.value === 'us' && (
-												<>
-													<Group
-														justify="left"
-														mt={20}
-													>
-														<Text size="xs">
-															{' '}
-															Button 1 (Do Not
-															Sell My Info){' '}
-														</Text>
-													</Group>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBackGround ||
-															'#fff'
-														}
-														label="BackGround"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectTextColor ||
-															'#000'
-														}
-														label="TextColor"
-														type="buttonReject"
-														description=""
-													/>
-													<ButtonTheme
-														customStyles={
-															handleCustomButtonStyles
-														}
-														background={
-															consentConfig?.theme
-																?.buttonRejectBorder ||
-															'#fff'
-														}
-														label="Border"
-														type="buttonReject"
-														description=""
-													/>
-												</>
-											)}
-										</div>
-									)}
-									<div style={{ flexGrow: 1 }}></div>
 								</Card>
 							</Grid.Col>
 							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 								<UpgradeCard />
 							</Grid.Col>
 						</Grid>
+						{colorScheme === 'Custom' && (
+							<Grid>
+								<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+									<Card
+										padding="lg"
+										style={{
+											minHeight: '300px',
+											height: '100%',
+										}}
+										radius="md"
+										withBorder
+									>
+										{colorScheme === 'Custom' && (
+											<div>
+												<BannerTheme
+													customStyles={
+														handleCustomStyles
+													}
+													background={
+														consentConfig?.theme
+															?.background ||
+														'#fff'
+													}
+													name="background"
+													label="Background"
+													description=""
+												/>
+												<BannerTheme
+													customStyles={
+														handleCustomStyles
+													}
+													background={
+														consentConfig?.theme
+															?.textColor ||
+														'#000'
+													}
+													name="textColor"
+													label="Text Color"
+													description="Choose the color of all texts within the banner"
+												/>
+												<BannerTheme
+													customStyles={
+														handleCustomStyles
+													}
+													background={
+														consentConfig?.theme
+															?.highlight ||
+														'#fff'
+													}
+													name="highlight"
+													label="Highlight"
+													description="Choose your highlight color that will impact all links and active toggles in your banner"
+												/>
+												<Divider my="sm" />
+												{regulation.value ===
+													'gdpr' && (
+													<>
+														<Group justify="left">
+															<Text size="xs">
+																{' '}
+																Button 1 (Reject
+																All){' '}
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonReject"
+															description=""
+														/>
+														<Divider my="sm" />
+														<Group justify="left">
+															<Text size="xs">
+																Button 2
+																(Accept){' '}
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonAcceptBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonAccept"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonAcceptTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonAccept"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonAcceptBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonAccept"
+															description=""
+														/>
+														<Divider my="sm" />
+														<Group justify="left">
+															<Text size="xs">
+																Button 3
+																(Customize)
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonCustomizeBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonCustomize"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonCustomizeTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonCustomize"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonCustomizeBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonCustomize"
+															description=""
+														/>
+													</>
+												)}
+												{regulation.value === 'us' && (
+													<>
+														<Group
+															justify="left"
+															mt={20}
+														>
+															<Text size="xs">
+																{' '}
+																Button 1 (Do Not
+																Sell My Info){' '}
+															</Text>
+														</Group>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBackGround ||
+																'#fff'
+															}
+															label="BackGround"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectTextColor ||
+																'#000'
+															}
+															label="TextColor"
+															type="buttonReject"
+															description=""
+														/>
+														<ButtonTheme
+															customStyles={
+																handleCustomButtonStyles
+															}
+															background={
+																consentConfig
+																	?.theme
+																	?.buttonRejectBorder ||
+																'#fff'
+															}
+															label="Border"
+															type="buttonReject"
+															description=""
+														/>
+													</>
+												)}
+											</div>
+										)}
+									</Card>
+								</Grid.Col>
+							</Grid>
+						)}
 					</Tabs.Panel>
 				</div>
 			</Tabs>

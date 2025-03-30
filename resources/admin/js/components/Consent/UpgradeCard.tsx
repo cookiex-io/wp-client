@@ -1,4 +1,12 @@
-import { Card, Title, Text, Button, Anchor } from '@mantine/core';
+import {
+	Card,
+	Title,
+	Text,
+	Button,
+	Anchor,
+	Center,
+	Space,
+} from '@mantine/core';
 import { runtimeConfig } from '../../config';
 
 function UpgradeCard() {
@@ -12,11 +20,14 @@ function UpgradeCard() {
 
 	return (
 		<Card
-			shadow="sm"
 			padding="lg"
 			radius="md"
 			withBorder
-			style={{ textAlign: 'center' }}
+			style={{
+				minHeight: '300px',
+				height: '100%',
+				textAlign: 'center',
+			}}
 		>
 			<Title order={4} mt="xs">
 				Upgrade to unlock custom CSS and other advanced features
@@ -28,17 +39,19 @@ function UpgradeCard() {
 				you can manage all your settings from the web app.
 			</Text>
 
-			<Button fullWidth mt="md" color="green" onClick={openCMP}>
-				New? Create an Account
-			</Button>
-
+			<Space h="md" />
+			<Center>
+				<Button w={200} mt="md" color="green" onClick={openCMP}>
+					New? Create an Account
+				</Button>
+			</Center>
+			<Space h="md" />
 			<Text size="sm" mt="xs" onClick={openCMP}>
 				Already have an account?{' '}
 				<Anchor href="#" size="sm" color="blue">
 					Connect your existing account
 				</Anchor>
 			</Text>
-			<div style={{ flexGrow: 1 }}></div>
 		</Card>
 	);
 }
