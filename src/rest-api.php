@@ -241,7 +241,7 @@ function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response
 		update_option( 'cookiex_cmp_cookie_preferences', $cookie_preferences );
 	}
 
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 	cookiex_cmp_update_consent_config();
 
 	return new WP_REST_Response(
@@ -385,7 +385,7 @@ function cookiex_cmp_authenticate(): WP_REST_Response {
  * @return WP_REST_Response The registration status
  */
 function cookiex_cmp_register(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$result = cookiex_cmp_register_domain();
 
@@ -420,7 +420,7 @@ function cookiex_cmp_register(): WP_REST_Response {
  * @return WP_REST_Response The quickscan status
  */
 function cookiex_cmp_quickscan(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$result = cookiex_cmp_quickscan_if_needed();
 
@@ -441,7 +441,7 @@ function cookiex_cmp_quickscan(): WP_REST_Response {
  * @return WP_REST_Response The analytics data response.
  */
 function cookiex_cmp_fetch_consent_analytics( WP_REST_Request $request ): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$result = cookiex_cmp_fetch_analytics( $request );
 
@@ -457,7 +457,7 @@ function cookiex_cmp_fetch_consent_analytics( WP_REST_Request $request ): WP_RES
  * @return WP_REST_Response The cookies data
  */
 function cookiex_cmp_fetch_cookie_result(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$result = cookiex_cmp_fetch_cookie_data();
 
@@ -526,7 +526,7 @@ function cookiex_cmp_validate_temp_token() {
  * @return string|WP_Error The new temp token or an error response
  */
 function cookiex_cmp_refresh_temp_token() {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 	// Call existing `cookiex_cmp_register` to refresh the temp token.
 	$register_result = cookiex_cmp_register();
 
@@ -548,7 +548,7 @@ function cookiex_cmp_refresh_temp_token() {
  * @return WP_REST_Response The connection status
  */
 function cookiex_cmp_get_connection_status(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 	$register_result = cookiex_cmp_register();
 
 	$is_connected = get_option( 'cookiex_cmp_connection_status', false );
@@ -569,7 +569,7 @@ function cookiex_cmp_get_connection_status(): WP_REST_Response {
  * @return WP_REST_Response The disconnection status.
  */
 function cookiex_cmp_disconnect_api(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	return cookiex_cmp_disconnect();
 }
@@ -630,7 +630,7 @@ function cookiex_cmp_fetch_banner_preview(): WP_REST_Response {
  * @return WP_REST_Response The user details
  */
 function cookiex_cmp_fetch_user_details(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$result = cookiex_cmp_fetch_user_data();
 
