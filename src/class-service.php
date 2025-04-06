@@ -251,7 +251,7 @@ function cookiex_cmp_update_consent_config(): array {
 	$update_url = "$api_server/consent/config/$domain_id";
 
 	$request_body = array(
-		'consentExpire'           => '365d',
+		'consentExpire'           => '1 year',
 		'consentLog'              => true,
 		'domainUrl'               => get_option( 'siteurl' ),
 		'geoLocations'            => array( 'US', 'EU' ),
@@ -598,5 +598,74 @@ function cookiex_cmp_fetch_user_data(): array {
 		'status'  => true,
 		'message' => 'User details retrieved successfully.',
 		'data'    => $data,
+	);
+}
+
+
+/**
+ * Fetch Consent Configuration from CookieX API
+ *
+ * @return WP_REST_Response Consent configuration or error.
+ */
+function cookiex_cmp_fetch_consent_config(): WP_REST_Response {
+	$api_server = cookiex_cmp_fetch_api_server();
+	$domain_id  = get_option( 'cookiex_cmp_domain_id' );
+	$auth_token = get_option( 'cookiex_cmp_auth_token' );
+
+	if ( ! $api_server || ! $domain_id || ! $auth_token ) {
+		return new WP_REST_Response(
+			array(
+				'status'  => 'error',
+				'message' => 'Missing API server, domain ID, or auth token.',
+			),
+			400
+		);
+	}
+
+	$request_url = "$api_server/consent/config/$domain_id";
+
+	$response = wp_remote_get(
+		$request_url,
+		array(
+			'headers' => array(
+				'Authorization' => 'Bearer ' . $auth_token,
+				'Accept'        => 'application/json',
+			),
+		)
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return new WP_REST_Response(
+			array(
+				'status'  => 'error',
+				'message' => 'API request failed.',
+				'error'   => $response->get_error_message(),
+			),
+			500
+		);
+	}
+
+	$status_code = wp_remote_retrieve_response_code( $response );
+	$body        = wp_remote_retrieve_body( $response );
+	$data        = json_decode( $body, true );
+
+	if ( 200 === $status_code && is_array( $data ) ) {
+		return new WP_REST_Response(
+			array(
+				'status'  => 'success',
+				'message' => 'Consent config fetched successfully.',
+				'data'    => $data,
+			),
+			200
+		);
+	}
+
+	return new WP_REST_Response(
+		array(
+			'status'   => 'error',
+			'message'  => 'Failed to retrieve consent configuration.',
+			'response' => $data,
+		),
+		$status_code
 	);
 }

@@ -265,6 +265,8 @@ function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response
  * @return WP_REST_Response The settings details
  */
 function cookiex_cmp_fetch_settings(): WP_REST_Response {
+	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+
 	$domain_id           = get_option( 'cookiex_cmp_domain_id', '' );
 	$language            = get_option( 'cookiex_cmp_language', 'en' );
 	$auto_block_cookies  = filter_var( get_option( 'cookiex_cmp_auto_block_cookies', false ), FILTER_VALIDATE_BOOLEAN );
@@ -274,10 +276,12 @@ function cookiex_cmp_fetch_settings(): WP_REST_Response {
 	$server_country      = get_option( 'cookiex_cmp_server_country', '' );
 	$languages_available = get_option( 'cookiex_cmp_languages_available', array() );
 
-	$theme = get_option( 'cookiex_cmp_theme', '{}' );
-	if ( is_array( $theme ) ) {
-		$theme = wp_json_encode( $theme );
-	}
+	// Fetch and extract data from API response
+	$api_result = cookiex_cmp_fetch_consent_config();
+	$api_data = method_exists($api_result, 'get_data') ? $api_result->get_data() : [];
+
+	// Use theme from API response or fallback to local
+	$theme = isset($api_data['data']['theme']) ? $api_data['data']['theme'] : get_option('cookiex_cmp_theme', '{}');
 
 	return new WP_REST_Response(
 		array(
@@ -292,7 +296,7 @@ function cookiex_cmp_fetch_settings(): WP_REST_Response {
 				'cookiePreference'   => $cookie_preferences,
 				'serverCountry'      => $server_country,
 				'languagesAvailable' => $languages_available,
-				'theme'              => $theme,
+				'theme'              => $theme
 			),
 		),
 		200
@@ -636,3 +640,4 @@ function cookiex_cmp_fetch_user_details(): WP_REST_Response {
 		$result['status'] ? 200 : 400
 	);
 }
+
