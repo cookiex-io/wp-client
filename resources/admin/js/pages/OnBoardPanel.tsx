@@ -596,7 +596,11 @@ function OnBoardPanel() {
 													py="xs"
 													bg="#f1f3f5"
 												>
-													<OverView />
+													<OverView
+														isConnected={
+															isConnected
+														}
+													/>
 												</Card.Section>
 											</Card>
 											<Divider />

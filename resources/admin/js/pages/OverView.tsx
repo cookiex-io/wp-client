@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Grid, Card, Title, Text, Button, Divider } from '@mantine/core';
 import { runtimeConfig } from '../config';
 
-function OverView() {
+function OverView(props: any) {
 	const [analyticsData, setAnalyticsData] = useState({
 		optIns: 0,
 		optOuts: 0,
@@ -140,6 +140,7 @@ function OverView() {
 						mt="lg"
 						color="#0078b4"
 						onClick={() => openCMP('analytics')}
+						disabled={!props.isConnected}
 					>
 						View Report on CMP
 					</Button>
@@ -182,6 +183,7 @@ function OverView() {
 						mt="lg"
 						color="#0078b4"
 						onClick={() => openCMP('privacy-audits')}
+						disabled={!props.isConnected}
 					>
 						Run Deep Scan
 					</Button>

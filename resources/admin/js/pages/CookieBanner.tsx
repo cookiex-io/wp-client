@@ -116,18 +116,16 @@ export function CookieBanner(props: any) {
 	};
 
 	useEffect(() => {
-		if (!userInteracted.current) {
-			return;
-		}
-
 		if (bannerPreview) {
 			generatePreview(regulation, false);
 		} else {
 			document.querySelector('#cookiex-cc-div')?.remove();
 		}
 
-		// ✅ Save the banner preview state even when turning off
-		saveBannerPreview();
+		if (userInteracted.current) {
+			saveBannerPreview();
+		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [bannerPreview]);
 
@@ -810,7 +808,8 @@ export function CookieBanner(props: any) {
 															<Text size="xs">
 																{' '}
 																Button 1 (Do Not
-																Sell My Info){' '}
+																Sell My
+																Info){' '}
 															</Text>
 														</Group>
 														<ButtonTheme
