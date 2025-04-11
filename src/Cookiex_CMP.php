@@ -33,7 +33,7 @@ class Cookiex_CMP {
 
 
 	const PLUGIN_NAME    = 'cookiex-consent-management-platform';
-	const PLUGIN_VERSION = '1.0.4';
+	const PLUGIN_VERSION = '1.1.0';
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power

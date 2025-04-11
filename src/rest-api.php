@@ -242,7 +242,20 @@ function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response
 	}
 
 	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
-	cookiex_cmp_update_consent_config();
+
+	$update_result = cookiex_cmp_update_consent_config();
+
+	if ( ! $update_result['status'] ) {
+		return new WP_REST_Response(
+			array(
+				'status'   => 'error',
+				'message'  => empty( $update_result['message'] ) ? 'Failed to update consent config.' : $update_result['message'],
+				'error'    => $update_result['error'] ?? '',
+				'response' => $update_result['response'] ?? null,
+			),
+			400
+		);
+	}
 
 	return new WP_REST_Response(
 		array(
