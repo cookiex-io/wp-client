@@ -44,10 +44,35 @@ export function CookieBanner(props: any) {
 		Record<string, string>
 	>({
 		en: 'English',
-		fr: 'Français',
-		es: 'Español',
-		pt: 'Português',
-		ar: 'العربية',
+		ar: 'Arabic',
+		bg: 'Bulgarian',
+		zh: 'Chinese',
+		cs: 'Czech',
+		da: 'Danish',
+		nl: 'Dutch',
+		fi: 'Finnish',
+		fr: 'French',
+		de: 'German',
+		el: 'Greek',
+		he: 'Hebrew',
+		hi: 'Hindi',
+		hu: 'Hungarian',
+		id: 'Indonesian',
+		it: 'Italian',
+		ja: 'Japanese',
+		ko: 'Korean',
+		ms: 'Malay',
+		no: 'Norwegian',
+		pl: 'Polish',
+		pt: 'Portuguese',
+		ro: 'Romanian',
+		ru: 'Russian',
+		es: 'Spanish',
+		sv: 'Swedish',
+		th: 'Thai',
+		tr: 'Turkish',
+		uk: 'Ukrainian',
+		vi: 'Vietnamese',
 	});
 	const [colorScheme, setColorScheme] = useState('Light');
 	const [bannerPreview, setBannerPreview] = useState<any>(null);
@@ -92,7 +117,10 @@ export function CookieBanner(props: any) {
 			consentConfig.theme = filteredTheme[0];
 		}
 		consentConfig.type = colorScheme;
-		generatePreview(regulation, false);
+		generatePreview(regulation, false, {
+			theme: filteredTheme[0],
+			type: colorScheme,
+		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [colorScheme]);
 
@@ -108,6 +136,11 @@ export function CookieBanner(props: any) {
 		setLanguagesAvailable(props?.consentConfig?.languagesAvailable);
 		setRegulation(props?.consentConfig?.regulation || regulations[0]);
 		setColorScheme(props?.consentConfig?.theme?.type || 'Light');
+
+		if (bannerPreview) {
+			generatePreview(regulation, false, props?.consentConfig?.theme);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [props.consentConfig]);
 
 	const handleBannerToggle = (checked: boolean) => {
@@ -117,7 +150,7 @@ export function CookieBanner(props: any) {
 
 	useEffect(() => {
 		if (bannerPreview) {
-			generatePreview(regulation, false);
+			generatePreview(regulation, false, props?.consentConfig?.theme);
 		} else {
 			document.querySelector('#cookiex-cc-div')?.remove();
 		}
@@ -215,22 +248,30 @@ export function CookieBanner(props: any) {
 		}
 	};
 
-	const generatePreview = (regulationType: any, initialPreview: boolean) => {
+	const generatePreview = (
+		regulationType: any,
+		initialPreview: boolean,
+		themeObj: any
+	) => {
 		if (consentConfig.regulation) {
 			consentConfig.regulation = regulationType;
 		}
 
 		if (bannerPreview) {
-			generateHTML(regulationType, initialPreview);
+			generateHTML(regulationType, initialPreview, themeObj);
 		}
 	};
 
 	const handleLayout = (fieldName: any, value: any) => {
 		consentConfig[fieldName] = value;
-		generatePreview(regulation, false);
+		generatePreview(regulation, false, null);
 	};
 
-	const generateHTML = (regulationType: any, initialPreview: boolean) => {
+	const generateHTML = (
+		regulationType: any,
+		initialPreview: boolean,
+		themeObj: any
+	) => {
 		const loadExternalScript = (src: any) => {
 			return new Promise<void>((resolve, reject) => {
 				const script = document.createElement('script');
@@ -260,12 +301,13 @@ export function CookieBanner(props: any) {
 							alignment:
 								consentConfig.alignment || 'leftBottomPopUp',
 							theme:
+								themeObj?.theme ||
 								consentConfig?.theme ||
 								finalConsentConfig.theme,
 							bannerContent:
 								consentConfig.bannerContent ||
 								finalConsentConfig.bannerContent,
-							type: consentConfig.type,
+							type: themeObj?.type || consentConfig.type,
 							regulation: regulationType,
 						},
 						initialPreview,
@@ -283,7 +325,7 @@ export function CookieBanner(props: any) {
 	const handleCustomStyles = (colorValue: any, type: any) => {
 		const style = `${type}`;
 		consentConfig.theme[style] = colorValue;
-		generatePreview(regulation, false);
+		generatePreview(regulation, false, null);
 	};
 
 	const handleCustomButtonStyles = (
@@ -293,7 +335,7 @@ export function CookieBanner(props: any) {
 	) => {
 		const style = `${buttonType}${type}`;
 		consentConfig.theme[style] = colorValue;
-		generatePreview(regulation, false);
+		generatePreview(regulation, false, null);
 	};
 
 	return (
@@ -368,7 +410,11 @@ export function CookieBanner(props: any) {
 										(reg) => reg.value === value
 									);
 									setRegulation(selectedRegulation);
-									generatePreview(selectedRegulation, false);
+									generatePreview(
+										selectedRegulation,
+										false,
+										null
+									);
 								}}
 							/>
 							<Switch

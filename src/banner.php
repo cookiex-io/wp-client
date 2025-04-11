@@ -32,7 +32,7 @@ function cookiex_cmp_add_banner(): void {
 		// Register and enqueue the CookieX script.
 		wp_register_script(
 			'cookiex-cmp-banner',
-			'https://cdn.cookiex.io/banner/cookiex.min.js',
+			'https://cdn.cookiex.io/staging/banner/cookiex.min.js',
 			array(),
 			'1.0.0',
 			true

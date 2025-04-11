@@ -169,11 +169,24 @@ function OnBoardPanel() {
 		runtimeConfig
 			.apiFetch({ path: '/cookiex/v1/welcome-status' })
 			.then((response) => {
-				setIsOnBoardCompleted(response.show_welcome);
+				// Convert string "1"/"0" or "true"/"false" to boolean
+				const isCompleted =
+					response.show_welcome === '1' ||
+					response.show_welcome === 1 ||
+					response.show_welcome === true;
+
+				setIsOnBoardCompleted(isCompleted);
+			})
+			.catch((error) => {
+				console.error('Failed to fetch welcome status', error);
 			});
-	}, []);
+	}, [isOnBoardCompleted]);
 
 	useEffect(() => {
+		fetchSettings();
+	}, []);
+
+	const fetchSettings = async () => {
 		try {
 			setLoading(true);
 			runtimeConfig
@@ -198,7 +211,7 @@ function OnBoardPanel() {
 			console.error('Failed to fetch settings:', error);
 			setLoading(false);
 		}
-	}, []);
+	};
 
 	const handleUserAcknowledgement = async () => {
 		setShowFirstTimeScreen(false);
@@ -284,7 +297,10 @@ function OnBoardPanel() {
 							<Tabs.List style={{ fontSize: '1.2rem' }}>
 								<Tabs.Tab value="dashboard">Dashboard</Tabs.Tab>
 								{!isOnBoardCompleted && (
-									<Tabs.Tab value="settings">
+									<Tabs.Tab
+										value="settings"
+										onClick={fetchSettings}
+									>
 										Cookie Banner
 									</Tabs.Tab>
 								)}
