@@ -280,7 +280,7 @@ function cookiex_cmp_save_settings( WP_REST_Request $request ): WP_REST_Response
  * @return WP_REST_Response The settings details
  */
 function cookiex_cmp_fetch_settings(): WP_REST_Response {
-	require_once plugin_dir_path( __FILE__ ) . 'class-service.php';
+	require_once plugin_dir_path( __FILE__ ) . 'Service.php';
 
 	$domain_id           = get_option( 'cookiex_cmp_domain_id', '' );
 	$language            = get_option( 'cookiex_cmp_language', 'en' );
