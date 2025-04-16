@@ -854,8 +854,7 @@ export function CookieBanner(props: any) {
 															<Text size="xs">
 																{' '}
 																Button 1 (Do Not
-																Sell My
-																Info){' '}
+																Sell My Info){' '}
 															</Text>
 														</Group>
 														<ButtonTheme
