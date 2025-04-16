@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Grid, Card, Title, Text, Button, Divider } from '@mantine/core';
+import {
+	Grid,
+	Card,
+	Title,
+	Text,
+	Button,
+	Divider,
+	Tooltip,
+} from '@mantine/core';
 import { runtimeConfig } from '../config';
 
 function OverView(props: any) {
@@ -136,14 +144,21 @@ function OverView(props: any) {
 						{analyticsData.leastConsentedCategory}
 					</Text>
 					<div style={{ flexGrow: 1 }}></div>
-					<Button
-						mt="lg"
-						color="#0078b4"
-						onClick={() => openCMP('analytics')}
-						disabled={!props.isConnected}
+					<Tooltip
+						label="Please connect to the web app to view detailed analytics report on CMP"
+						disabled={props.isConnected}
+						position="top"
+						withArrow
 					>
-						View Report on CMP
-					</Button>
+						<Button
+							mt="lg"
+							color="#0078b4"
+							onClick={() => openCMP('analytics')}
+							disabled={!props.isConnected}
+						>
+							View Report on CMP
+						</Button>
+					</Tooltip>
 				</Card>
 			</Grid.Col>
 
@@ -179,14 +194,21 @@ function OverView(props: any) {
 						and trackers present.
 					</Text>
 					<div style={{ flexGrow: 1 }}></div>
-					<Button
-						mt="lg"
-						color="#0078b4"
-						onClick={() => openCMP('privacy-audits')}
-						disabled={!props.isConnected}
+					<Tooltip
+						label="Please connect to the web app to run a deep scan of your domain"
+						disabled={props.isConnected}
+						position="top"
+						withArrow
 					>
-						Run Deep Scan
-					</Button>
+						<Button
+							mt="lg"
+							color="#0078b4"
+							onClick={() => openCMP('privacy-audits')}
+							disabled={!props.isConnected}
+						>
+							Run Deep Scan
+						</Button>
+					</Tooltip>
 				</Card>
 			</Grid.Col>
 		</Grid>

@@ -217,7 +217,7 @@ export function OnboardingPanel({
 						{retryNeeded && (
 							<div style={stepperStyles.retryButton}>
 								<Button
-									color="red"
+									color="blue"
 									size="md"
 									onClick={onStartOnboarding}
 								>
