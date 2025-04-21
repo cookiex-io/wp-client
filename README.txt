@@ -2,7 +2,7 @@
 Contributors: cookiexcmp
 Tags: Cookie Consent, privacy, DPDPA, Privacy compliance, PDPL
 Tested up to: 6.8
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -117,7 +117,7 @@ For more information about how CookieX handles your data:
 
 == Changelog ==
 
-= 1.1.0 =
+= 1.1.2 =
 * Completely revamped plugin UI
 * Consent configuration is now completely in sync with the portal on app.cookiex.io
 
@@ -129,5 +129,5 @@ For more information about how CookieX handles your data:
 
 == Upgrade Notice ==
 
-= 1.1.0 =
+= 1.1.2 =
 Upgrade to the latest version for enhanced performance, usability improvements, and bug fixes.
