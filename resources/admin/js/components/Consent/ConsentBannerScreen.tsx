@@ -184,7 +184,8 @@ function ConsentBannerScreen(props: any) {
 									))}
 								</Grid>
 								<Divider my="sm" />
-								{layoutType === 'Box' && (
+								{(layoutType === 'Box' ||
+									layoutType === 'Banner') && (
 									<Radio.Group
 										mt={15}
 										mb={15}
@@ -198,34 +199,56 @@ function ConsentBannerScreen(props: any) {
 										}}
 									>
 										<Grid>
-											<Grid.Col span={6}>
-												<Radio
-													size="xs"
-													value="leftBottomPopUp"
-													label="Bottom Left"
-												/>
-											</Grid.Col>
-											<Grid.Col span={6}>
-												<Radio
-													size="xs"
-													value="rightBottomPopUp"
-													label="Bottom Right"
-												/>
-											</Grid.Col>
-											<Grid.Col span={6}>
-												<Radio
-													size="xs"
-													value="leftTopPopUp"
-													label="Top Left"
-												/>
-											</Grid.Col>
-											<Grid.Col span={6}>
-												<Radio
-													size="xs"
-													value="rightTopPopUp"
-													label="Top Right"
-												/>
-											</Grid.Col>
+											{layoutType === 'Box' && (
+												<>
+													<Grid.Col span={6}>
+														<Radio
+															size="xs"
+															value="leftBottomPopUp"
+															label="Bottom Left"
+														/>
+													</Grid.Col>
+													<Grid.Col span={6}>
+														<Radio
+															size="xs"
+															value="rightBottomPopUp"
+															label="Bottom Right"
+														/>
+													</Grid.Col>
+													<Grid.Col span={6}>
+														<Radio
+															size="xs"
+															value="leftTopPopUp"
+															label="Top Left"
+														/>
+													</Grid.Col>
+													<Grid.Col span={6}>
+														<Radio
+															size="xs"
+															value="rightTopPopUp"
+															label="Top Right"
+														/>
+													</Grid.Col>
+												</>
+											)}
+											{layoutType === 'Banner' && (
+												<>
+													<Grid.Col span={6}>
+														<Radio
+															size="xs"
+															value="bannerTop"
+															label="Top"
+														/>
+													</Grid.Col>
+													<Grid.Col span={6}>
+														<Radio
+															size="xs"
+															value="bannerBottom"
+															label="Bottom"
+														/>
+													</Grid.Col>
+												</>
+											)}
 										</Grid>
 									</Radio.Group>
 								)}
