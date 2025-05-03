@@ -13,8 +13,8 @@
 
 namespace Cookiex_CMP;
 
-require_once plugin_dir_path( __FILE__ ) . '/banner.php';
-require_once plugin_dir_path( __FILE__ ) . '/Redirect.php';
+require_once plugin_dir_path( __FILE__ ) . 'banner.php';
+require_once plugin_dir_path( __FILE__ ) . 'Redirect.php';
 
 /**
  * The core plugin class.
@@ -33,7 +33,7 @@ class Cookiex_CMP {
 
 
 	const PLUGIN_NAME    = 'cookiex-consent-management-platform';
-	const PLUGIN_VERSION = '1.1.2';
+	const PLUGIN_VERSION = '1.1.3';
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
