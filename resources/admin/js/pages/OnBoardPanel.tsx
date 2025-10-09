@@ -684,7 +684,11 @@ function OnBoardPanel() {
 											Connect to Web App
 										</Text>
 									</Group>
-									<IconX size={18} color={COLORS.brand} />
+									<IconX
+										onClick={handleCloseModal}
+										size={18}
+										color={COLORS.brand}
+									/>
 								</Group>
 
 								<Paper
