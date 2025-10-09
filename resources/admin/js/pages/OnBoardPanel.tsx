@@ -14,12 +14,16 @@ import {
 	Modal,
 	Box,
 	LoadingOverlay,
+	rem,
+	Paper,
+	Image,
 } from '@mantine/core';
 import {
 	IconCheck,
 	IconCircleCheckFilled,
 	IconCircleFilled,
 	IconExternalLink,
+	IconX,
 } from '@tabler/icons-react';
 import OverView from './OverView';
 import { CookieBanner } from './CookieBanner';
@@ -27,6 +31,15 @@ import { runtimeConfig } from '../config';
 import { useState, useEffect } from 'react';
 import { finalConsentConfig } from '../utils/utils';
 import { Welcome } from './Welcome';
+
+const COLORS = {
+	lightBlueBorder: '#D7EEF5',
+	lightBlueBg: '#F0FBFF',
+	brand: '#0078B4',
+	page: '#FFFFFF',
+	textMuted: '#899098',
+	textBlack: '#000000',
+};
 
 function OnBoardPanel() {
 	const [loading, setLoading] = useState(true);
@@ -108,7 +121,7 @@ function OnBoardPanel() {
 		}
 	}, [isConnected]);
 
-	const openCMP = async () => {
+	const openCMP = async (selectedOpt: 'login' | 'register' | null) => {
 		setIsWebsiteConnecting(true);
 		const currentUrl = window.location.href;
 		const urlObject = new URL(currentUrl);
@@ -116,8 +129,8 @@ function OnBoardPanel() {
 		const tokenRes = (await validateTempToken()) || tempToken;
 		const token = window.btoa(tokenRes);
 
-		if (selectedOption) {
-			const url = `${runtimeConfig.cmpRedirectUrl}/connect?website=${consentConfig?.domainUrl || domainUrl}&mode=${selectedOption}&token=${token}`;
+		if (selectedOpt) {
+			const url = `${runtimeConfig.cmpRedirectUrl}/connect?website=${consentConfig?.domainUrl || domainUrl}&mode=${selectedOpt}&token=${token}`;
 			window.open(url, '_blank', 'noopener,noreferrer');
 			setIsModalOpen(false);
 			// Poll for connection status every 15 seconds
@@ -641,75 +654,112 @@ function OnBoardPanel() {
 						<Modal
 							opened={isModalOpen}
 							onClose={handleCloseModal}
-							title="Connect to Web App"
+							withCloseButton={false}
 							centered
-							size="md"
+							size={rem(500)}
+							radius="md"
+							padding="xl"
 						>
 							<Box
-								p="md"
-								mt="sm"
-								style={(theme) => ({
-									border: `2px solid ${selectedOption === 'login' ? theme.colors.blue[6] : theme.colors.gray[4]}`,
-									borderRadius: theme.radius.sm,
-									backgroundColor: theme.colors.gray[1],
-									cursor: 'pointer',
-									transition: 'border-color 0.2s',
-									'&:hover': {
-										borderColor: theme.colors.blue[6],
-									},
-								})}
-								onClick={() => setSelectedOption('login')}
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: 19,
+									background: COLORS.page,
+								}}
 							>
-								<Text fw={600}>
-									Already have a CookieX account?
-								</Text>
-								<Text size="sm" color="dimmed">
-									If you have an existing web app account,
-									simply log in and connect to get started
-									seamlessly.
-								</Text>
-							</Box>
+								<Group
+									justify="space-between"
+									align="center"
+									w="100%"
+								>
+									<Group gap={4}>
+										<Image
+											src={runtimeConfig.cookiexIconUrl}
+											alt="Logo"
+											w={30}
+											h={28}
+										/>
+										<Text c={COLORS.brand} fw={700} fz={14}>
+											Connect to Web App
+										</Text>
+									</Group>
+									<IconX size={18} color={COLORS.brand} />
+								</Group>
 
-							{/* Divider */}
-							<Divider
-								label="OR"
-								labelPosition="center"
-								my="md"
-							/>
-
-							{/* Don't have an account Box */}
-							<Box
-								p="md"
-								style={(theme) => ({
-									border: `2px solid ${selectedOption === 'register' ? theme.colors.blue[6] : theme.colors.gray[4]}`,
-									borderRadius: theme.radius.sm,
-									backgroundColor: theme.colors.gray[1],
-									cursor: 'pointer',
-									transition: 'border-color 0.2s',
-									'&:hover': {
-										borderColor: theme.colors.blue[6],
-									},
-								})}
-								onClick={() => setSelectedOption('register')}
-							>
-								<Text fw={600}>
-									{"Don't have a CookieX account?"}
-								</Text>
-								<Text size="sm" color="dimmed">
-									{
-										'Join CookieX to take control of your website’s compliance effortlessly. Register now to get started with consent management.'
-									}
-								</Text>
-							</Box>
-							<Group mt="md">
-								{selectedOption && (
-									<Button color="blue" onClick={openCMP}>
-										{selectedOption === 'login'
-											? 'Login & Connect'
-											: 'Register & Connect'}
+								<Paper
+									withBorder
+									p={16}
+									bg={COLORS.lightBlueBg}
+									style={{
+										border: `1px solid ${COLORS.lightBlueBorder}`,
+										borderRadius: 4,
+										gap: 10,
+										display: 'flex',
+										flexDirection: 'column',
+									}}
+								>
+									<Text fw={700} fz={14}>
+										Already have a CookieX account ?
+									</Text>
+									<Text c={COLORS.textMuted} fz={16}>
+										If you have an existing web app account,
+										simply login and connect to get started
+										seamlessly
+									</Text>
+									<Button
+										w={109}
+										h={36}
+										radius={9}
+										bg={COLORS.brand}
+										onClick={() => openCMP('login')}
+									>
+										<Text c="#FFF" fz={16}>
+											Sign In
+										</Text>
 									</Button>
-								)}
-							</Group>
+								</Paper>
+
+								<Divider
+									size="sm"
+									label="OR"
+									labelPosition="center"
+								/>
+
+								<Paper
+									withBorder
+									p={16}
+									bg={COLORS.lightBlueBg}
+									style={{
+										border: `1px solid ${COLORS.lightBlueBorder}`,
+										borderRadius: 4,
+										gap: 10,
+										display: 'flex',
+										flexDirection: 'column',
+									}}
+								>
+									<Text fw={700} fz={14}>
+										Don’t have CookieX account ?
+									</Text>
+									<Text c={COLORS.textMuted} fz={16}>
+										Join Cookiex to take control of your
+										website’s compliance effortlessly.
+										Register now to get started with consent
+										management.
+									</Text>
+									<Button
+										w={109}
+										h={36}
+										radius={9}
+										bg={COLORS.brand}
+										onClick={() => openCMP('register')}
+									>
+										<Text c="#FFF" fz={16}>
+											Sign Up
+										</Text>
+									</Button>
+								</Paper>
+							</Box>
 						</Modal>
 					</>
 				)}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { OnboardingPanel } from '../components/OnboardingPanel';
 import { runtimeConfig } from '../config';
 import { finalConsentConfig } from '../utils/utils';

@@ -12,6 +12,7 @@ export async function prepare() {
 	const productionConfig = {
 		logoUrl:
 			'/wp-content/plugins/cookiex-consent-management-platform/dist/static/logo.svg',
+		cookiexIconUrl:'/wp-content/plugins/cookiex-consent-management-platform/dist/static/cookiex-icon.svg',
 		previewUrl: 'https://cdn.cookiex.io/banner/cookiex.min.js',
 		cmpRedirectUrl: 'https://app.cookiex.io',
 		apiFetch,
@@ -23,6 +24,7 @@ export async function prepare() {
 
 export const runtimeConfig = {
 	logoUrl: '',
+	cookiexIconUrl: '',
 	previewUrl: '',
 	cmpRedirectUrl: '',
 	apiFetch: <T = any>(options?: APIFetchOptions) =>
