@@ -57,17 +57,12 @@ function OnBoardPanel() {
 	const [disconnectMessage, setDisconnectMessage] = useState<string | null>(
 		null
 	);
-	const [selectedOption, setSelectedOption] = useState<
-		'login' | 'register' | null
-	>(null);
-
 	const handleOpenModal = () => {
 		setIsModalOpen(true);
 	};
 
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
-		setSelectedOption(null); // Reset selection when modal closes
 	};
 
 	const handleCloseAccordion = () => {
