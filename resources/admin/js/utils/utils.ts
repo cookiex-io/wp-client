@@ -320,3 +320,23 @@ export const finalConsentConfig: any = {
 	baseUrl: window.location.hostname,
 	bannerContent: defaultBannerContent,
 };
+
+export const COLORS = {
+	lightBlueBorder: '#D7EEF5',
+	lightBlueBg: '#F0FBFF',
+	textMuted: '#899098',
+	textBlack: '#000000',
+	brand: '#0078B4',
+	textSecondary: '#718096',
+	textPrimary: '#1A1A1A',
+	textDarkSecondary: '#A0AEC0',
+	stroke: '#000000',
+	page: '#FFFFFF',
+	gray700: '#2D3748',
+	secondary: '#0BA565',
+	divider: '#E6EBF0',
+	successDark: '#027A48',
+	successLight: '#D1FADF',
+	cardShadow1: 'rgba(0, 0, 0, 0.30)',
+	cardShadow2: 'rgba(0, 0, 0, 0.15)',
+};

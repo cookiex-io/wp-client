@@ -7,61 +7,21 @@ import {
 	Grid,
 	Button,
 	Loader,
+	Group,
+	Text,
+	ThemeIcon,
+	Badge,
+	Box,
+	Alert,
 	rem,
 } from '@mantine/core';
-import { IconX, IconClock } from '@tabler/icons-react';
-
-// ✅ Define inline styles for Mantine v7
-const stepperStyles = {
-	root: {
-		backgroundColor: '#fff',
-	},
-	progress: {
-		height: rem(8),
-		borderRadius: rem(6),
-		backgroundColor: '#f1f3f5',
-	},
-	stepLabel: {
-		fontSize: rem(16),
-		color: '#000',
-	},
-	stepDescription: {
-		fontSize: rem(16),
-		color: '#000',
-	},
-	stepIcon: {
-		width: rem(15),
-		height: rem(15),
-		borderRadius: '50%',
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		fontSize: rem(16),
-	},
-	stepCompletedIcon: {
-		color: '#228be6',
-		backgroundColor: '#e7f5ff',
-		padding: rem(4),
-		borderRadius: rem(20),
-	},
-	stepFailedIcon: {
-		color: '#fa5252',
-		backgroundColor: '#ffe3e3',
-		padding: rem(4),
-		borderRadius: rem(20),
-	},
-	stepPendingIcon: {
-		color: '#228be6',
-		border: '1px solid',
-		backgroundColor: '#f8f9fa',
-		padding: rem(4),
-		borderRadius: rem(20),
-	},
-	retryButton: {
-		marginTop: rem(16),
-		display: 'flex',
-	},
-};
+import {
+	IconX,
+	IconClock,
+	IconCheck,
+	IconRefresh,
+	IconInfoCircle,
+} from '@tabler/icons-react';
 
 interface OnboardingPanelProps {
 	progressValue: number;
@@ -69,11 +29,7 @@ interface OnboardingPanelProps {
 	currentStep: number;
 	stepDescriptions: string[];
 	stepStatuses: ('completed' | 'failed' | 'pending')[];
-	onboardingSteps: Array<{
-		id: number;
-		title: string;
-		description: string;
-	}>;
+	onboardingSteps: Array<{ id: number; title: string; description: string }>;
 	onStartOnboarding: () => void;
 	onComplete: () => void;
 }
@@ -86,144 +42,195 @@ export function OnboardingPanel({
 	stepStatuses,
 	onboardingSteps,
 	onStartOnboarding,
-	onComplete,
 }: OnboardingPanelProps) {
 	useEffect(() => {
 		onStartOnboarding();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	// ✅ Auto-call onComplete when last step is completed
-	useEffect(() => {
-		if (
-			currentStep === onboardingSteps.length &&
-			stepStatuses[onboardingSteps.length - 1] === 'completed'
-		) {
-			onComplete();
-		}
-	}, [currentStep, stepStatuses, onboardingSteps.length, onComplete]);
+	const retryNeeded = stepStatuses.some((s) => s === 'failed');
+	const completedCount = stepStatuses.filter((s) => s === 'completed').length;
 
-	// ✅ Check if any step has failed
-	const retryNeeded = stepStatuses.some((status) => status === 'failed');
-
-	const getStepIcon = (
-		index: number,
-		status: 'completed' | 'failed' | 'pending'
-	) => {
-		if (index === currentStep && status === 'pending') {
-			return <Loader color="blue" size="xs" />;
-		}
-
+	const getStepColor = (status: 'completed' | 'failed' | 'pending') => {
 		switch (status) {
 			case 'failed':
-				return <IconX style={stepperStyles.stepFailedIcon} size={18} />;
-			case 'pending':
-				return (
-					<IconClock
-						style={stepperStyles.stepPendingIcon}
-						size={30}
-					/>
-				);
+				return 'red';
+			case 'completed':
+				return 'teal';
 			default:
-				return null;
+				return 'gray';
 		}
 	};
 
-	const getStepColor = (status: 'completed' | 'failed' | 'pending') => {
+	const StepStatusIcon = ({
+		index,
+		status,
+	}: {
+		index: number;
+		status: 'completed' | 'failed' | 'pending';
+	}) => {
 		if (status === 'failed') {
-			return 'red';
+			return (
+				<ThemeIcon size={30} radius="xl" variant="light" color="red">
+					<IconX size={16} />
+				</ThemeIcon>
+			);
 		}
 		if (status === 'completed') {
-			return 'blue';
+			return (
+				<ThemeIcon size={30} radius="xl" variant="light" color="teal">
+					<IconCheck size={16} />
+				</ThemeIcon>
+			);
 		}
-		return 'gray';
+		if (index === currentStep) {
+			return (
+				<ThemeIcon size={30} radius="xl" variant="light" color="blue">
+					<Loader size="xs" />
+				</ThemeIcon>
+			);
+		}
+		return (
+			<ThemeIcon size={30} radius="xl" variant="light" color="gray">
+				<IconClock size={16} />
+			</ThemeIcon>
+		);
 	};
 
 	return (
-		<Container size="responsive" style={stepperStyles.root} mt="md">
-			<Grid>
-				<Grid.Col span={6}>
+		<Container size="lg" px="md" py="lg">
+			{/* Header Section */}
+			<Box
+				mb="lg"
+				p="md"
+				style={{
+					borderRadius: rem(12),
+					background:
+						'linear-gradient(90deg, rgba(0,120,180,0.08) 0%, rgba(32,201,151,0.05) 100%)',
+					border: '1px solid var(--mantine-color-gray-3)',
+				}}
+			>
+				<Group justify="space-between" wrap="wrap">
+					<Group gap="xs">
+						<Text fw={700} fz="lg" c="blue.7">
+							Onboarding Progress
+						</Text>
+						<Badge variant="light" color="teal">
+							{completedCount}/{onboardingSteps.length} Completed
+						</Badge>
+					</Group>
+
 					{onboardNow && (
-						<Progress
-							style={stepperStyles.progress}
-							striped
-							animated
-							value={progressValue}
-							size="md"
-							radius="xs"
-							mb="md"
-							color="blue"
-						/>
+						<Group gap="xs" style={{ minWidth: 220 }}>
+							<Text fz="sm" c="dimmed">
+								{Math.round(progressValue)}%
+							</Text>
+							<Progress
+								value={progressValue}
+								striped
+								animated
+								radius="xl"
+								size="lg"
+								color="blue"
+								style={{ flex: 1 }}
+							/>
+						</Group>
 					)}
-					<Paper>
+				</Group>
+			</Box>
+
+			<Grid gutter="lg" justify="center">
+				<Grid.Col span={{ base: 12, md: 10, lg: 8 }}>
+					<Paper
+						shadow="md"
+						radius="lg"
+						p="xl"
+						withBorder
+						style={{
+							borderColor: 'var(--mantine-color-gray-3)',
+							background: '#fff',
+						}}
+					>
+						{/* Stepper */}
 						<Stepper
 							active={currentStep}
-							size="xs"
 							orientation="vertical"
+							size="sm"
+							color="blue"
+							allowNextStepsSelect={false}
 							styles={{
+								stepBody: { paddingLeft: rem(8), gap: rem(2) },
 								stepLabel: {
-									fontWeight: 700,
-									color: '#0078b4',
+									fontFamily: 'Inter, sans-serif',
+									fontStyle: 'normal',
+									fontWeight: 600,
+									fontSize: rem(20),
+									color: 'var(--mantine-color-dark-9)',
 								},
 								stepDescription: {
-									fontSize: rem(12),
-									color: '#868e96',
+									fontFamily: 'Inter, sans-serif',
+									fontStyle: 'normal',
+									fontSize: rem(16),
+									lineHeight: rem(40),
+									fontWeight: 500,
+									color: 'var(--mantine-color-dimmed)',
+									marginTop: rem(2),
 								},
 								separator: {
-									borderWidth: rem(4),
-									borderColor: '#0078b4',
-								},
-								stepIcon: {
-									width: rem(10),
-									height: rem(10),
-									borderRadius: '50%',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									fontSize: rem(16),
+									borderLeft:
+										'2px dashed var(--mantine-color-gray-4)',
+									marginLeft: rem(14),
+									height: rem(24),
 								},
 							}}
 						>
 							{onboardingSteps.map((step, index) => {
 								const status = stepStatuses[index];
-
 								return (
 									<Stepper.Step
 										key={step.id}
-										label={
-											<span
-												style={stepperStyles.stepLabel}
-											>
-												{step.title}
-											</span>
-										}
+										label={step.title}
 										description={
-											<span
-												style={
-													stepperStyles.stepDescription
-												}
-											>
-												{stepDescriptions[index]}
-											</span>
+											stepDescriptions[index] ??
+											step.description
 										}
 										color={getStepColor(status)}
-										icon={getStepIcon(index, status)}
+										icon={
+											<StepStatusIcon
+												index={index}
+												status={status}
+											/>
+										}
 									/>
 								);
 							})}
 						</Stepper>
 
-						{/* ✅ Show "Retry" button when any step fails */}
+						{/* Retry Section */}
 						{retryNeeded && (
-							<div style={stepperStyles.retryButton}>
-								<Button
-									color="blue"
-									size="md"
-									onClick={onStartOnboarding}
+							<>
+								<Alert
+									mt="xl"
+									color="red"
+									variant="light"
+									radius="md"
+									icon={<IconInfoCircle size={18} />}
+									title="Some steps need your attention"
 								>
-									Retry
-								</Button>
-							</div>
+									A few onboarding steps failed. Please retry
+									to fix them.
+								</Alert>
+
+								<Group justify="center" mt="xl">
+									<Button
+										leftSection={<IconRefresh size={16} />}
+										color="blue"
+										variant="filled"
+										onClick={onStartOnboarding}
+									>
+										Retry Setup
+									</Button>
+								</Group>
+							</>
 						)}
 					</Paper>
 				</Grid.Col>

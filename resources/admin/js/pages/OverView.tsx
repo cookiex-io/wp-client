@@ -2,13 +2,20 @@ import { useEffect, useState } from 'react';
 import {
 	Grid,
 	Card,
-	Title,
 	Text,
 	Button,
 	Divider,
 	Tooltip,
+	Paper,
+	Image,
+	Stack,
 } from '@mantine/core';
 import { runtimeConfig } from '../config';
+import { IconRefresh, IconWorld } from '@tabler/icons-react';
+import classes from './OverView.module.css';
+import cookieIcon from '../assets/ic_outline-cookie.svg';
+import cutCookieIcon from '../assets/ic_outline-cut-cookie.svg';
+import { COLORS } from '../utils/utils';
 
 function OverView(props: any) {
 	const [analyticsData, setAnalyticsData] = useState({
@@ -108,41 +115,132 @@ function OverView(props: any) {
 		<Grid gutter="lg" mt="md">
 			<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 				<Card
-					withBorder
 					shadow="sm"
-					radius="md"
 					padding="lg"
+					radius="md"
+					withBorder
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
 						minHeight: '300px',
 						height: '100%',
+						margin: 'auto',
+						fontFamily: 'Inter, sans-serif',
 					}}
 				>
-					<Title order={3}>Consent Analytics</Title>
-					<Divider my="md" />
-					<Text mt="sm" size="sm">
+					{/* Header */}
+					<Text className={classes.overViewCardTitle} fw={600}>
+						Consent Analytics
+					</Text>
+					<Text
+						className={classes.overViewCardDescription}
+						fw={500}
+						mb="md"
+					>
 						Consent analytics shows the data of consents given by
 						users on the consent banner present on your domain.
 					</Text>
-					<Text mt="sm" size="sm">
-						Opt-in Consent - {analyticsData.optIns}
-					</Text>
-					<Text mt="sm" size="sm">
-						Opt-out Consent - {analyticsData.optOuts}
-					</Text>
-					<Text mt="sm" size="sm">
-						Average time to Consent -{' '}
-						{analyticsData.averageConsentTime}
-					</Text>
-					<Text mt="sm" size="sm">
-						Most Consented Cookie Category -{' '}
-						{analyticsData.mostConsentedCategory}
-					</Text>
-					<Text mt="sm" size="sm">
-						Least Consented Cookie Category -{' '}
-						{analyticsData.leastConsentedCategory}
-					</Text>
+					<Divider mb="md" />
+
+					<Grid gutter="md">
+						<Grid.Col span={{ base: 12, md: 6, lg: 5 }}>
+							<Stack>
+								<div>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Opt-in Consent
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{analyticsData.optIns}
+									</Text>
+								</div>
+
+								<div>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Opt-out Consent
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{analyticsData.optOuts}
+									</Text>
+								</div>
+								<div>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Average time to Consent
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+										fw={600}
+										c={COLORS.brand}
+									>
+										{analyticsData.averageConsentTime}
+									</Text>
+								</div>
+							</Stack>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, md: 6, lg: 7 }}>
+							<Stack>
+								<div>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Most Consented Cookie Category
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{analyticsData.mostConsentedCategory}
+									</Text>
+								</div>
+
+								<div>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Least Consented Cookie Category
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{analyticsData.leastConsentedCategory}
+									</Text>
+								</div>
+							</Stack>
+						</Grid.Col>
+					</Grid>
 					<div style={{ flexGrow: 1 }}></div>
 					<Tooltip
 						label="Please connect to the web app to view detailed analytics report on CMP"
@@ -151,12 +249,16 @@ function OverView(props: any) {
 						withArrow
 					>
 						<Button
-							mt="lg"
-							color="#0078b4"
+							variant="outline"
+							fullWidth
+							radius="16px"
+							h={56}
 							onClick={() => openCMP('analytics')}
 							disabled={!props.isConnected}
+							mt="lg"
+							leftSection={<IconWorld size={16} />}
 						>
-							View Report on CMP
+							View Report On CMP
 						</Button>
 					</Tooltip>
 				</Card>
@@ -164,35 +266,201 @@ function OverView(props: any) {
 
 			<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 				<Card
-					withBorder
 					shadow="sm"
-					radius="md"
 					padding="lg"
+					radius="md"
+					withBorder
 					style={{
 						display: 'flex',
 						flexDirection: 'column',
 						minHeight: '300px',
 						height: '100%',
+						margin: 'auto',
+						fontFamily: 'Inter, sans-serif',
 					}}
 				>
-					<Title order={3}>Cookie Scan Status</Title>
-					<Divider my="md" />
-					<Text size="sm">Necessary - {scanData.necessary}</Text>
-					<Text size="sm" mt={10}>
-						Preferences - {scanData.preferences}
+					{/* Header */}
+					<Text className={classes.overViewCardTitle} fw={600}>
+						Cookie Scan Status
 					</Text>
-					<Text size="sm" mt={10}>
-						Marketing - {scanData.marketing}
+					<Text
+						className={classes.overViewCardDescription}
+						mb="md"
+						fw={500}
+					>
+						Here you can see the current status of your cookie
+						banner.
 					</Text>
-					<Text size="sm" mt={10}>
-						Unclassified - {scanData.unclassified}
-					</Text>
-					<Divider my="md" />
-					<Title order={5}>Deep Scan</Title>
-					<Text mt="xs" size="sm">
-						Please run a deep scan of your domain to get all cookies
-						and trackers present.
-					</Text>
+					<Divider mb="md" />
+					<Grid gutter="md" style={{ width: '100%' }}>
+						<Grid.Col span={{ base: 12, sm: 7 }}>
+							<Paper
+								shadow="xs"
+								p="md"
+								radius="md"
+								style={{
+									position: 'relative',
+									backgroundColor: '#D1FADF',
+									overflow: 'hidden',
+									textAlign: 'center',
+									minHeight: '230px',
+									maxHeight: '230px',
+									display: 'flex',
+									flexDirection: 'column',
+									justifyContent: 'center',
+									background: '#D1FADF',
+									boxShadow:
+										'0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.30)',
+								}}
+							>
+								<div
+									style={{
+										position: 'absolute',
+										top: '0px',
+										left: '0px',
+									}}
+								>
+									<Image
+										src={cutCookieIcon}
+										alt="Cookie"
+										style={{
+											height: '91px',
+										}}
+									/>
+								</div>
+
+								<div
+									style={{
+										position: 'absolute',
+										bottom: '10px',
+										right: '10px',
+									}}
+								>
+									<Image
+										src={cookieIcon}
+										alt="Cookie"
+										style={{
+											width: '91px',
+											height: '91px',
+											aspectRatio: '1/1',
+										}}
+									/>
+								</div>
+								<Stack
+									gap={1}
+									align="center"
+									justify="center"
+									style={{
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'center',
+										justifyContent: 'center',
+										position: 'relative',
+										zIndex: 2,
+										height: '100%',
+										textAlign: 'center',
+									}}
+								>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										c="#027A48"
+										fw={700}
+									>
+										Banner Status
+									</Text>
+									<Text fw={500} c="#027A48" fz="sm">
+										Active
+									</Text>
+									<Text
+										className={classes.overViewCardSubDesc}
+										mt={4}
+										mb="sm"
+										c="#027A48"
+									>
+										Consent banner is running smoothly and
+										tracking user preferences properly.
+									</Text>
+									<Button
+										size="xs"
+										variant="filled"
+										color="#027A48"
+										style={{ padding: '5px 12px' }}
+										leftSection={<IconRefresh size={14} />}
+									>
+										Scan Now
+									</Button>
+								</Stack>
+							</Paper>
+						</Grid.Col>
+						<Grid.Col span={{ base: 12, sm: 5 }}>
+							<div>
+								<Stack gap={7}>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Necessary
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{scanData.necessary}
+									</Text>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Preferences
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{scanData.preferences}
+									</Text>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Marketing
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{scanData.marketing}
+									</Text>
+									<Text
+										className={
+											classes.overViewCardDescription
+										}
+										fw={700}
+									>
+										Unclassified
+									</Text>
+									<Text
+										className={
+											classes.overViewCardValueDesc
+										}
+									>
+										{scanData.unclassified}
+									</Text>
+								</Stack>
+							</div>
+						</Grid.Col>
+					</Grid>
 					<div style={{ flexGrow: 1 }}></div>
 					<Tooltip
 						label="Please connect to the web app to run a deep scan of your domain"
@@ -201,10 +469,14 @@ function OverView(props: any) {
 						withArrow
 					>
 						<Button
-							mt="lg"
-							color="#0078b4"
 							onClick={() => openCMP('privacy-audits')}
 							disabled={!props.isConnected}
+							variant="outline"
+							fullWidth
+							radius="16px"
+							h={56}
+							mt="lg"
+							leftSection={<IconRefresh size={16} />}
 						>
 							Run Deep Scan
 						</Button>

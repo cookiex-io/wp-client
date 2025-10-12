@@ -20,26 +20,21 @@ import {
 } from '@mantine/core';
 import {
 	IconCheck,
-	IconCircleCheckFilled,
 	IconCircleFilled,
-	IconExternalLink,
+	IconLayoutGrid,
+	IconPencilBolt,
+	IconSettings,
+	IconWorld,
 	IconX,
 } from '@tabler/icons-react';
 import OverView from './OverView';
 import { CookieBanner } from './CookieBanner';
 import { runtimeConfig } from '../config';
 import { useState, useEffect } from 'react';
-import { finalConsentConfig } from '../utils/utils';
+import { finalConsentConfig, COLORS } from '../utils/utils';
 import { Welcome } from './Welcome';
-
-const COLORS = {
-	lightBlueBorder: '#D7EEF5',
-	lightBlueBg: '#F0FBFF',
-	brand: '#0078B4',
-	page: '#FFFFFF',
-	textMuted: '#899098',
-	textBlack: '#000000',
-};
+import classes from './OnBoardPanel.module.css';
+import CookieIcon from '../assets/logo-icon.svg';
 
 function OnBoardPanel() {
 	const [loading, setLoading] = useState(true);
@@ -249,6 +244,37 @@ function OnBoardPanel() {
 		}
 	};
 
+	const RenderConntectedSection = () => {
+		return (
+			<Card mt={20} p="md" withBorder>
+				<Group>
+					<Text className={classes.dashboardGetStarted} fw={600}>
+						Your website is connected to CookieX Web App
+					</Text>
+				</Group>
+				<Text className={classes.dashboardGetStartedDesc} mt="xs">
+					You can access all the plugin settings (Cookie Banner,
+					Cookie Manager, Languages, and Policy Generators) on the web
+					app and unlock new features like Cookie Scanner and Consent
+					Log.
+				</Text>
+				<Group mt="md">
+					<Button
+						className={classes.dashboardGetStartedButton}
+						radius="16px"
+						color="blue"
+						component="a"
+						href={`${runtimeConfig.cmpRedirectUrl}/dashboard`}
+						target="_blank"
+						leftSection={<IconWorld />}
+					>
+						Go to Web App
+					</Button>
+				</Group>
+			</Card>
+		);
+	};
+
 	return (
 		<>
 			{loading && (
@@ -271,381 +297,437 @@ function OnBoardPanel() {
 							width: '100%', // Full width
 						}}
 					>
-						<Card p="xl">
-							<Group justify="center">
-								<IconCircleCheckFilled
-									size={50}
-									color="green"
-								/>
-							</Group>
-							<Title ta="center" order={4} mt="md">
-								Your website is connected to CookieX Web App
-							</Title>
-							<Text ta="center" size="sm" mt="sm">
-								You can now continue to manage all settings from
-								your web app account.
-							</Text>
-							<Group justify="center" mt="md">
-								<Button
-									color="blue"
-									component="a"
-									href={`${runtimeConfig.cmpRedirectUrl}/dashboard`}
-									target="_blank"
-									onClick={handleUserAcknowledgement}
-									rightSection={<IconExternalLink />}
-								>
-									Go to Web App
-								</Button>
-							</Group>
-						</Card>
+						<RenderConntectedSection />
 					</div>
 				) : (
 					<>
-						<Tabs value={activeTab} onChange={setActiveTab}>
-							<Tabs.List style={{ fontSize: '1.2rem' }}>
-								<Tabs.Tab value="dashboard">Dashboard</Tabs.Tab>
-								{!isOnBoardCompleted && (
-									<Tabs.Tab
-										value="settings"
-										onClick={fetchSettings}
-									>
-										Cookie Banner
-									</Tabs.Tab>
-								)}
-								{isConnected && (
-									<Tabs.Tab value="siteSettings">
-										Site Settings
-									</Tabs.Tab>
-								)}
-							</Tabs.List>
-							<Tabs.Panel value="siteSettings">
-								{disconnectMessage && (
-									<Text
-										color={
-											disconnectMessage.includes(
-												'Successfully'
-											)
-												? 'green'
-												: 'red'
-										}
-										mb={10}
-										mt={10}
-									>
-										{disconnectMessage}
-									</Text>
-								)}
-								<Card p="lg" mt={20}>
-									<Group align="center">
-										<IconCircleCheckFilled
-											size={30}
-											color="green"
-										/>
-										<Title order={4}>
-											Your website is connected to CookieX
-										</Title>
-									</Group>
-
-									<Text size="sm" mt="xs">
-										You can access all the plugin settings
-										(Cookie Banner, Cookie Manager,
-										Languages & Policy Generators) on the
-										web app and unlock new features like
-										Cookie Scan and Consent Log.
-									</Text>
-
-									<Divider my="md" />
-
-									{userDetails && (
-										<Stack p="xs">
-											<Text size="sm">
-												<strong>Name:</strong>{' '}
-												{userDetails.name || 'N/A'}
-											</Text>
-											<Text size="sm">
-												<strong>Email:</strong>{' '}
-												{userDetails.email || 'N/A'}
-											</Text>
-											<Text size="sm">
-												<strong>Email Verified:</strong>{' '}
-												{userDetails.emailVerified
-													? 'Yes'
-													: 'No'}
-											</Text>
-											<Text size="sm">
-												<strong>Joined On:</strong>{' '}
-												{userDetails.joinedOn || 'N/A'}
-											</Text>
-										</Stack>
-									)}
-
-									<Group mt="md">
-										<Button
-											color="blue"
-											component="a"
-											href={`${runtimeConfig.cmpRedirectUrl}/dashboard`}
-											target="_blank"
-											rightSection={<IconExternalLink />}
-										>
-											Go to Web App
-										</Button>
-
-										<Button
-											color="red"
-											variant="outline"
-											onClick={handleDisconnect}
-										>
-											Disconnect
-										</Button>
-									</Group>
-								</Card>
-							</Tabs.Panel>
-							<Tabs.Panel value="dashboard">
-								<Container fluid>
-									{isConnected && !showFirstTimeScreen ? (
-										<Card mt={20} p="xl" pl={0}>
-											<Group>
-												<IconCircleCheckFilled
-													size={20}
-													color="green"
-												/>
-												<Text fw={500}>
-													Your website is connected to
-													CookieX Web App
-												</Text>
-											</Group>
-											<Text size="sm" mt="xs">
-												You can access all the plugin
-												settings (Cookie Banner, Cookie
-												Manager, Languages, and Policy
-												Generators) on the web app and
-												unlock new features like Cookie
-												Scanner and Consent Log.
-											</Text>
-											<Group mt="md">
-												<Button
-													color="blue"
-													component="a"
-													href={`${runtimeConfig.cmpRedirectUrl}/dashboard`}
-													target="_blank"
-													rightSection={
-														<IconExternalLink />
-													}
-												>
-													Go to Web App
-												</Button>
-											</Group>
-										</Card>
-									) : (
-										<>
-											<Accordion
-												variant="outline"
-												mt={30}
-												multiple
-												value={openedItems}
-												onChange={setOpenedItems}
-												style={{
-													border: '1px solid #dee2e6',
-												}}
-											>
-												<Accordion.Item value="description">
-													<Accordion.Control>
-														<Stack gap={0}>
-															<Title order={6}>
-																Get started with
-																CookieX
-															</Title>
-															<Text
-																size="sm"
-																mt="xs"
-															>
-																{
-																	"Welcome to CookieX. To become legally compliant for your use of cookies, here's what you need to do."
-																}
-															</Text>
-														</Stack>
-													</Accordion.Control>
-													<Accordion.Panel>
-														<Divider />
-														{isOnBoardCompleted && (
-															<Welcome
-																handleOnboardingComplete={
-																	handleOnboardingComplete
-																}
-															/>
-														)}
-														{!isOnBoardCompleted && (
-															<>
-																<Timeline
-																	active={1}
-																	bulletSize={
-																		30
-																	}
-																	lineWidth={
-																		5
-																	}
-																	pt={30}
-																>
-																	<Timeline.Item
-																		title="Activate your cookie banner"
-																		bullet={
-																			<ThemeIcon
-																				color="blue"
-																				size={
-																					30
-																				}
-																				radius="xl"
-																			>
-																				<IconCheck
-																					size={
-																						20
-																					}
-																				/>
-																			</ThemeIcon>
-																		}
-																	>
-																		<Text size="xs">
-																			Well
-																			done!
-																			🎉
-																			You
-																			have
-																			successfully
-																			implemented
-																			a
-																			cookie
-																			banner
-																			on
-																			your
-																			website.
-																		</Text>
-																	</Timeline.Item>
-																	<Timeline.Item
-																		title="Connect and scan your website"
-																		bullet={
-																			<ThemeIcon
-																				variant="outline"
-																				size={
-																					30
-																				}
-																				radius="xl"
-																			>
-																				<IconCircleFilled
-																					color="white"
-																					size={
-																						20
-																					}
-																				/>
-																			</ThemeIcon>
-																		}
-																	>
-																		<Text size="xs">
-																			To
-																			initiate
-																			an
-																			automatic
-																			cookie
-																			scan,
-																			you
-																			need
-																			to
-																			connect
-																			to
-																			the
-																			CookieYes
-																			web
-																			app.
-																			By
-																			connecting
-																			you
-																			can:
-																		</Text>
-																	</Timeline.Item>
-																</Timeline>
-																<Group mt="md">
-																	<Button
-																		color="blue"
-																		onClick={
-																			handleOpenModal
-																		}
-																		loading={
-																			isWebsiteConnecting
-																		}
-																		rightSection={
-																			<IconExternalLink />
-																		}
-																	>
-																		Connect
-																		to Web
-																		App
-																	</Button>
-																	<Button
-																		variant="subtle"
-																		onClick={
-																			handleCloseAccordion
-																		}
-																	>
-																		Do it
-																		later
-																	</Button>
-																</Group>
-															</>
-														)}
-													</Accordion.Panel>
-												</Accordion.Item>
-											</Accordion>
-										</>
-									)}
-									{!isOnBoardCompleted && (
-										<>
-											<Card
-												withBorder
-												mt={20}
-												mb={20}
-												style={{ borderRadius: '0px' }}
-											>
-												<Card.Section
-													withBorder
-													inheritPadding
-													py="xs"
-												>
-													<Group justify="space-between">
-														<Text fw={500}>
-															OverView
-														</Text>
-													</Group>
-												</Card.Section>
-												<Card.Section
-													withBorder
-													inheritPadding
-													py="xs"
-													bg="#f1f3f5"
-												>
-													<OverView
-														isConnected={
-															isConnected
-														}
-													/>
-												</Card.Section>
-											</Card>
-											<Divider />
-										</>
-									)}
-								</Container>
-							</Tabs.Panel>
-
-							<Tabs.Panel
-								value="settings"
-								mt={30}
-								style={{ border: '1px solid #dee2e6' }}
-								p={20}
+						<Box
+							style={{
+								display: 'flex',
+								padding: '16px 0px',
+								flexDirection: 'column',
+								alignItems: 'flex-start',
+								background: COLORS.page,
+								position: 'relative',
+								width: '100%',
+							}}
+						>
+							<Box
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									alignItems: 'flex-start',
+									width: '100%',
+									marginBottom: '16px',
+								}}
 							>
-								{consentConfig && (
-									<CookieBanner
-										consentConfig={consentConfig}
-									/>
-								)}
-							</Tabs.Panel>
-						</Tabs>
+								<Tabs
+									defaultValue="dashboard"
+									variant="outline"
+									classNames={{
+										root: classes.root,
+										list: classes.list,
+										tab: classes.tab,
+										tabLabel: classes.tabLabel,
+									}}
+									value={activeTab}
+									onChange={setActiveTab}
+								>
+									<Tabs.List>
+										<Tabs.Tab
+											value="dashboard"
+											leftSection={
+												<IconLayoutGrid size={24} />
+											}
+										>
+											Dashboard
+										</Tabs.Tab>
+										{!isOnBoardCompleted && (
+											<Tabs.Tab
+												value="settings"
+												onClick={fetchSettings}
+												leftSection={
+													<IconPencilBolt size={24} />
+												}
+											>
+												Consent Banner
+											</Tabs.Tab>
+										)}
+										{isConnected && (
+											<Tabs.Tab
+												value="siteSettings"
+												leftSection={
+													<IconSettings size={24} />
+												}
+											>
+												Site Settings
+											</Tabs.Tab>
+										)}
+									</Tabs.List>
+									<Box
+										bg="#F8FAFB"
+										style={{ border: '1px solid #E5E5E5' }}
+									>
+										<Tabs.Panel value="siteSettings">
+											<div style={{ padding: '16px' }}>
+												{disconnectMessage && (
+													<Text
+														color={
+															disconnectMessage.includes(
+																'Successfully'
+															)
+																? 'green'
+																: 'red'
+														}
+														mb={10}
+														mt={10}
+													>
+														{disconnectMessage}
+													</Text>
+												)}
+												<RenderConntectedSection />
+												<Card p="lg" mt={20} withBorder>
+													<Card.Section
+														p="md"
+														pl="lg"
+													>
+														<Text fw={600}>
+															Details of the
+															Company/User
+														</Text>
+													</Card.Section>
+													<Divider />
+													{userDetails && (
+														<Stack p="xs">
+															<div>
+																<Text size="sm">
+																	<strong>
+																		Name:
+																	</strong>{' '}
+																</Text>
+																<Text c="#0BA565">
+																	{userDetails.name ||
+																		'N/A'}
+																</Text>
+															</div>
+															<div>
+																<Text size="sm">
+																	<strong>
+																		Email:
+																	</strong>{' '}
+																</Text>
+																<Text c="#0BA565">
+																	{userDetails.email ||
+																		'N/A'}
+																</Text>
+															</div>
+															<div>
+																<Text size="sm">
+																	<strong>
+																		Email
+																		Verified:
+																	</strong>{' '}
+																</Text>
+																<Text c="#0BA565">
+																	{userDetails.emailVerified
+																		? 'Yes'
+																		: 'No'}
+																</Text>
+															</div>
+															<div>
+																<Text size="sm">
+																	<strong>
+																		Joined
+																		On:
+																	</strong>{' '}
+																</Text>
+																<Text c="#0BA565">
+																	{userDetails.joinedOn ||
+																		'N/A'}
+																</Text>
+															</div>
+														</Stack>
+													)}
+
+													<Group mt="md">
+														<Button
+															className={
+																classes.dashboardGetStartedButton
+															}
+															radius="16px"
+															color="blue"
+															component="a"
+															href={`${runtimeConfig.cmpRedirectUrl}/dashboard`}
+															target="_blank"
+															leftSection={
+																<IconWorld />
+															}
+														>
+															Go to Web App
+														</Button>
+
+														<Button
+															className={
+																classes.dashboardGetStartedButton
+															}
+															color="red"
+															radius="16px"
+															variant="outline"
+															onClick={
+																handleDisconnect
+															}
+														>
+															Disconnect
+														</Button>
+													</Group>
+												</Card>
+											</div>
+										</Tabs.Panel>
+										<Tabs.Panel value="dashboard">
+											<Container fluid>
+												{isConnected &&
+												!showFirstTimeScreen ? (
+													<RenderConntectedSection />
+												) : (
+													<>
+														<Accordion
+															className={
+																classes.dashboardSection
+															}
+															variant="outline"
+															mt={30}
+															multiple
+															value={openedItems}
+															onChange={
+																setOpenedItems
+															}
+															style={{
+																border: '1px solid #dee2e6',
+															}}
+														>
+															<Accordion.Item value="description">
+																<Accordion.Control>
+																	<Stack
+																		gap={10}
+																	>
+																		<Title
+																			className={
+																				classes.dashboardGetStarted
+																			}
+																		>
+																			{
+																				'Get started with CookieX'
+																			}
+																		</Title>
+																		<Text
+																			className={
+																				classes.dashboardGetStartedDesc
+																			}
+																		>
+																			{
+																				"Welcome to CookieX. To become legally compliant for your use of cookies, here's what you need to do."
+																			}
+																		</Text>
+																	</Stack>
+																</Accordion.Control>
+																<Accordion.Panel>
+																	<Divider />
+																	{isOnBoardCompleted && (
+																		<Welcome
+																			handleOnboardingComplete={
+																				handleOnboardingComplete
+																			}
+																		/>
+																	)}
+																	{!isOnBoardCompleted && (
+																		<>
+																			<Timeline
+																				color="#0FA958"
+																				active={
+																					1
+																				}
+																				bulletSize={
+																					24
+																				}
+																				lineWidth={
+																					2
+																				}
+																				pt={
+																					30
+																				}
+																				classNames={{
+																					itemTitle:
+																						classes.timeLineTitle,
+																				}}
+																			>
+																				<Timeline.Item
+																					lineVariant="dashed"
+																					title="Activate your cookie banner"
+																					bullet={
+																						<ThemeIcon
+																							color="#0FA958"
+																							size={
+																								30
+																							}
+																							radius="xl"
+																						>
+																							<IconCheck
+																								size={
+																									20
+																								}
+																							/>
+																						</ThemeIcon>
+																					}
+																				>
+																					<Text
+																						className={
+																							classes.timeLineDesc
+																						}
+																					>
+																						Well
+																						done!
+																						🎉
+																						You
+																						have
+																						successfully
+																						implemented
+																						a
+																						cookie
+																						banner
+																						on
+																						your
+																						website.
+																					</Text>
+																				</Timeline.Item>
+																				<Timeline.Item
+																					title="Connect and scan your website"
+																					bullet={
+																						<ThemeIcon
+																							variant="outline"
+																							size={
+																								30
+																							}
+																							radius="xl"
+																						>
+																							<IconCircleFilled
+																								color="white"
+																								size={
+																									20
+																								}
+																							/>
+																						</ThemeIcon>
+																					}
+																				>
+																					<Text
+																						className={
+																							classes.timeLineDesc
+																						}
+																					>
+																						To
+																						initiate
+																						an
+																						automatic
+																						cookie
+																						scan,
+																						you
+																						need
+																						to
+																						connect
+																						to
+																						the
+																						CookieYes
+																						web
+																						app.
+																						By
+																						connecting
+																						you
+																						can:
+																					</Text>
+																				</Timeline.Item>
+																			</Timeline>
+																			<Group mt="md">
+																				<Button
+																					className={
+																						classes.dashboardGetStartedButton
+																					}
+																					radius="16px"
+																					color="blue"
+																					onClick={
+																						handleOpenModal
+																					}
+																					loading={
+																						isWebsiteConnecting
+																					}
+																					leftSection={
+																						<IconWorld />
+																					}
+																				>
+																					Go
+																					to
+																					Web
+																					App
+																				</Button>
+																				<Button
+																					className={
+																						classes.dashboardDoItLaterButton
+																					}
+																					onClick={
+																						handleCloseAccordion
+																					}
+																				>
+																					Do
+																					it
+																					later
+																				</Button>
+																			</Group>
+																		</>
+																	)}
+																</Accordion.Panel>
+															</Accordion.Item>
+														</Accordion>
+													</>
+												)}
+												{!isOnBoardCompleted && (
+													<>
+														<Title
+															order={3}
+															mt={20}
+															mb={20}
+														>
+															Overview
+														</Title>
+														<OverView
+															isConnected={
+																isConnected
+															}
+															classes={classes}
+														/>
+														<Divider />
+													</>
+												)}
+											</Container>
+										</Tabs.Panel>
+										<Tabs.Panel
+											value="settings"
+											mt={30}
+											style={{
+												border: '1px solid #dee2e6',
+											}}
+											p={20}
+										>
+											{consentConfig && (
+												<CookieBanner
+													consentConfig={
+														consentConfig
+													}
+												/>
+											)}
+										</Tabs.Panel>
+									</Box>
+								</Tabs>
+							</Box>
+						</Box>
+
 						<Modal
 							opened={isModalOpen}
 							onClose={handleCloseModal}
@@ -670,7 +752,7 @@ function OnBoardPanel() {
 								>
 									<Group gap={4}>
 										<Image
-											src={runtimeConfig.cookiexIconUrl}
+											src={CookieIcon}
 											alt="Logo"
 											w={30}
 											h={28}
