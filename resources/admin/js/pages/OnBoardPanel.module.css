@@ -1,3 +1,24 @@
+/* =========================
+   Base (type scale + family)
+========================= */
+:root {
+  /* Global family */
+  --font-sans: Inter, -apple-system, Roboto, Helvetica, sans-serif;
+
+  /* Fluid type scale (roughly: 14→16, 15→18, 16→20, 18→24) */
+  --t--1: clamp(0.875rem, 0.28vw + 0.78rem, 1rem);   /* ~14→16 */
+  --t-0:  clamp(0.9375rem, 0.35vw + 0.82rem, 1.125rem); /* ~15→18 */
+  --t-1:  clamp(1rem, 0.6vw + 0.85rem, 1.25rem);     /* ~16→20 */
+  --t-2:  clamp(1.125rem, 0.9vw + 0.9rem, 1.5rem);   /* ~18→24 */
+  --t-3:  clamp(1.25rem, 1.4vw + 0.95rem, 1.875rem); /* ~20→30 */
+
+  /* Line-heights as tokens (unitless) */
+  --lh-tight: 1.15;
+  --lh-snug:  1.25;
+  --lh-normal:1.5;
+  --lh-relaxed:1.6;
+}
+
 .root {
   border-radius: 12px 12px 0 0;
   background: #fff;
@@ -11,27 +32,29 @@
   background: #fff;
 }
 
+/* =========================
+   Tabs
+========================= */
 .tab {
-  height: 52px;
-  padding: 20px 20px;
+  height: 3.25rem;               /* 52px */
+  padding: 1.25rem 1.25rem;      /* 20px 20px */
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 0.625rem;                  /* 10px */
   border-radius: 12px 12px 0 0;
   background: #fff;
-  color: #899098; /* textSecondary */
-  font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
-  font-size: 16px;
+  color: #899098;
+  font-family: var(--font-sans);
+  font-size: var(--t--1);         /* 14→16 */
+  line-height: var(--lh-snug);
   font-weight: 400;
   cursor: pointer;
   border: none;
   transition: background 0.2s ease;
 }
 
-.tab:hover {
-  background: #f8fafb;
-}
+.tab:hover { background: #f8fafb; }
 
 /* Mantine adds [data-active] on the active tab button */
 .tab[data-active] {
@@ -42,190 +65,210 @@
   border-right: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Optional: label weight */
+/* Optional: label weight + fluid size if you use a separate label element */
 .tabLabel {
   font-weight: 400;
+  font-size: var(--t--1);         /* slightly smaller is fine too */
+  line-height: var(--lh-normal);
 }
 
+/* =========================
+   Timeline / Dashboard
+========================= */
 .timelineBorder {
-    width: 1px;
-    min-height: 71px;
-    max-height: 100%;
-    position: relative;
-    left: 12px;
-    top: 24px;
-    position: absolute;
-    margin: 0 !important;
-    top: 23.5px;
-    left: 11.5px;
-    border-right: 1px dashed #0FA958;
-    box-sizing: border-box;
+  width: 1px;
+  min-height: 71px;
+  max-height: 100%;
+  position: absolute;
+  margin: 0 !important;
+  top: 23.5px;
+  left: 11.5px;
+  border-right: 1px dashed #0fa958;
+  box-sizing: border-box;
 }
 
-.dashboardSection {
-  background: #fff;   
+/* Line: green + dashed, full opacity */
+.tlLine {
+  border-color: #0fa958 !important;
+  border-right-style: dashed !important;
+  opacity: 1 !important;
 }
 
+/* Base bullet: hollow circle (upcoming steps) */
+.tlBullet {
+  width: 24px;
+  height: 24px;
+  background: #fff;            /* keep hollow */
+  color: #0fa958;              /* icon (if any) inherits this */
+  box-shadow: none;
+}
+
+/* Optional: nicer focus */
+.tlBullet:focus-visible {
+  outline: 2px solid #0fa958;
+  outline-offset: 2px;
+}
+
+.dashboardSection { background: #fff; }
+
+/* Headline */
 .dashboardGetStarted {
-    color: rgb(26, 26, 26);
-    font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
-    font-size: 24px;
-    font-weight: 700;
+  color: #1a1a1a;
+  font-family: var(--font-sans);
+  font-size: var(--t-2);          /* 18→24 */
+  line-height: var(--lh-tight);
+  font-weight: 700;
 }
 
+/* Subheadline / description */
 .dashboardGetStartedDesc {
-    color: rgb(26, 26, 26);
-    font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
-    font-size: 18px;
-    font-weight: 500;
+  color: #1a1a1a;
+  font-family: var(--font-sans);
+  font-size: var(--t-0);          /* 15→18 */
+  line-height: var(--lh-relaxed);
+  font-weight: 500;
 }
 
+/* Timeline title */
 .timeLineTitle {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-style: normal;
-    font-size: 20px;
-    letter-spacing: 0%;
-}
-.timeLineDesc {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500; /* Medium */
-    font-style: normal; /* Default style, no italic */
-    font-size: 16px;
-    line-height: 40px;
-    letter-spacing: 5%;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-style: normal;
+  font-size: var(--t-1);          /* 16→20 */
+  line-height: var(--lh-snug);
+  letter-spacing: 0.02em;
 }
 
-.dashboardGetStartedButton {
-    height: 56px;
-    padding: 10px 31px;
-    border-radius: 16px;
+/* Timeline description */
+.timeLineDesc {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-style: normal;
+  font-size: var(--t--1);         /* 14→16 */
+  line-height: 1.8;               /* generous for paragraphs */
+  letter-spacing: clamp(0em, 0.2vw, 0.05em);
+}
+
+/* Buttons (keep heights/padding; fluid label via tokens) */
+.dashboardGetStartedButton,
+.dashboardDoItLaterButton {
+  height: 56px;
+  padding: 10px 31px;
+  border-radius: 16px;
+  font-size: var(--t--1);
+  line-height: var(--lh-snug);
 }
 
 .dashboardDoItLaterButton {
-    height: 56px;
-    padding: 10px 60px;
-    border-radius: 16px;
-    background-color: #fff;
-    border: 1px solid #a0aec0;
-    color: #a0aec0;
+  background-color: #fff;
+  border: 1px solid #a0aec0;
+  color: #a0aec0;
 }
 
-/* ---------- Mobile & Tablet Responsiveness ---------- */
+/* =========================
+   Responsiveness (layout/spacing only)
+========================= */
 
 /* Large tablets (<= 1200px) */
 @media (max-width: 1200px) {
-    .tab {
-      height: 48px;
-      padding: 16px 18px;
-      font-size: 15px;
-    }
-  
-    .dashboardGetStarted { font-size: 22px; }
-    .dashboardGetStartedDesc { font-size: 17px; }
-    .timeLineTitle { font-size: 18px; }
-    .timeLineDesc { font-size: 15px; line-height: 34px; letter-spacing: 2%; }
-  
-    .dashboardGetStartedButton,
-    .dashboardDoItLaterButton {
-      height: 52px;
-      padding: 10px 24px;
-    }
+  .tab {
+    height: 3rem;                 /* 48px */
+    padding: 1rem 1.125rem;       /* 16px 18px */
   }
-  
-  /* Tablets / small laptops (<= 992px) */
-  @media (max-width: 992px) {
-    /* Tabs: keep a single row with horizontal scroll instead of wrapping */
-    .list {
-      overflow-x: auto;
-      overflow-y: hidden;
-      gap: 6px;
-      scrollbar-width: thin;              /* Firefox */
-      -ms-overflow-style: none;           /* IE/Edge */
-    }
-    .list::-webkit-scrollbar { height: 6px; }
-    .list::-webkit-scrollbar-thumb { background: #e1e7ec; border-radius: 999px; }
-  
-    .tab {
-      flex: 0 0 auto;                     /* prevent shrinking */
-      min-width: 160px;                   /* each tab stays tappable */
-      padding: 14px 16px;
-      font-size: 14.5px;
-    }
-  
-    .timelineBorder {
-      left: 10px;
-      top: 20px;
-      min-height: 60px;
-    }
+
+  .dashboardGetStartedButton,
+  .dashboardDoItLaterButton {
+    height: 52px;
+    padding: 10px 24px;
   }
-  
-  /* Phones / phablets (<= 768px) */
-  @media (max-width: 768px) {
-    .root { border-radius: 12px; }
-  
-    .tab {
-      height: 44px;
-      padding: 12px 14px;
-      font-size: 14px;
-      border-radius: 10px 10px 0 0;
-    }
-  
-    .dashboardSection { padding: 12px; }
-  
-    .dashboardGetStarted { font-size: 20px; }
-    .dashboardGetStartedDesc { font-size: 16px; }
-  
-    .timeLineTitle { font-size: 17px; }
-    .timeLineDesc { font-size: 14.5px; line-height: 28px; letter-spacing: 1%; }
-  
-    /* Buttons: easier to tap + stack on small screens */
-    .dashboardGetStartedButton,
-    .dashboardDoItLaterButton {
-      width: 100%;
-      height: 50px;
-      padding: 10px 18px;
-      border-radius: 14px;
-    }
-  
-    /* If the buttons are side-by-side in a flex row, stack them */
-    .buttonsStack {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-  
-    .timelineBorder {
-      left: 8px;
-      top: 18px;
-      min-height: 56px;
-    }
+}
+
+/* Tablets / small laptops (<= 992px) */
+@media (max-width: 992px) {
+  .list {
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    scrollbar-width: thin;
+    -ms-overflow-style: none;
   }
-  
-  /* Small phones (<= 480px) */
-  @media (max-width: 480px) {
-    .tab {
-      min-width: 140px;
-      padding: 10px 12px;
-      font-size: 13.5px;
-    }
-  
-    .dashboardGetStarted { font-size: 18px; }
-    .dashboardGetStartedDesc { font-size: 15px; }
-  
-    .timeLineTitle { font-size: 16px; }
-    .timeLineDesc { font-size: 14px; line-height: 24px; letter-spacing: 0; }
-  
-    .timelineBorder {
-      left: 6px;
-      top: 16px;
-      min-height: 48px;
-      border-right: 1px dashed #0FA958;
-    }
+  .list::-webkit-scrollbar { height: 6px; }
+  .list::-webkit-scrollbar-thumb { background: #e1e7ec; border-radius: 999px; }
+
+  .tab {
+    flex: 0 0 auto;
+    min-width: 10rem;             /* 160px */
+    padding: 0.875rem 1rem;       /* 14px 16px */
   }
-  
-  /* Accessibility: reduce motion if user prefers */
-  @media (prefers-reduced-motion: reduce) {
-    .tab { transition: none; }
+
+  .timelineBorder {
+    left: 10px;
+    top: 20px;
+    min-height: 60px;
   }
-  
+}
+
+/* Phones / phablets (<= 768px) */
+@media (max-width: 768px) {
+  .root { border-radius: 12px; }
+
+  .tab {
+    height: 2.75rem;              /* 44px */
+    padding: 0.75rem 0.875rem;    /* 12px 14px */
+    border-radius: 10px 10px 0 0;
+  }
+
+  .dashboardSection { padding: 12px; }
+
+  .dashboardGetStartedButton,
+  .dashboardDoItLaterButton {
+    width: 100%;
+    height: 50px;
+    padding: 10px 18px;
+    border-radius: 14px;
+  }
+
+  .buttonsStack {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .timelineBorder {
+    left: 8px;
+    top: 18px;
+    min-height: 56px;
+  }
+}
+
+/* Small phones (<= 480px) */
+@media (max-width: 480px) {
+  .tab {
+    min-width: 8.75rem;           /* 140px */
+    padding: 0.625rem 0.75rem;    /* 10px 12px */
+  }
+
+  .timelineBorder {
+    left: 6px;
+    top: 16px;
+    min-height: 48px;
+    border-right: 1px dashed #0FA958;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .tab { transition: none; }
+}
+
+/* =========================
+   Fallback for older browsers
+========================= */
+@supports not (font-size: clamp(1rem, 2vw, 2rem)) {
+  .tab                 { font-size: 0.9375rem; line-height: 1.25; }
+  .tabLabel            { font-size: 0.9375rem; line-height: 1.5; }
+  .dashboardGetStarted { font-size: 1.125rem; line-height: 1.15; }
+  .dashboardGetStartedDesc { font-size: 0.9375rem; line-height: 1.6; }
+  .timeLineTitle       { font-size: 1rem; line-height: 1.25; }
+  .timeLineDesc        { font-size: 0.875rem; line-height: 1.7; }
+}

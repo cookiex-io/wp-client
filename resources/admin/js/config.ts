@@ -10,8 +10,6 @@ export async function prepare() {
 	// Else: production mode
 	const { default: apiFetch } = await import('@wordpress/api-fetch');
 	const productionConfig = {
-		logoUrl:
-			'/wp-content/plugins/cookiex-consent-management-platform/dist/static/logo.svg',
 		previewUrl: 'https://cdn.cookiex.io/banner/cookiex.min.js',
 		cmpRedirectUrl: 'https://app.cookiex.io',
 		apiFetch,
@@ -22,7 +20,6 @@ export async function prepare() {
 }
 
 export const runtimeConfig = {
-	logoUrl: '',
 	previewUrl: '',
 	cmpRedirectUrl: '',
 	apiFetch: <T = any>(options?: APIFetchOptions) =>

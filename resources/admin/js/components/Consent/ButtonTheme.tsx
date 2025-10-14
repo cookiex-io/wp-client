@@ -48,7 +48,9 @@ function ButtonTheme(props: any): JSX.Element {
 				<Popover.Target>
 					<Group mt="xs">
 						<ColorSwatch color={colorValue} size={20} />
-						<Text size="xs">{props.label}</Text>
+						<Text className={props.subTimeLineTitle}>
+							{props.label}
+						</Text>
 						{props.description && (
 							<Tooltip label={props.description}>
 								<IconInfoCircle size={14} />

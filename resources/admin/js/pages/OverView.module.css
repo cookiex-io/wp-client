@@ -1,85 +1,61 @@
+:root {
+  --font-sans: 'Inter', -apple-system, Roboto, Helvetica, sans-serif;
+  --o-t--2: clamp(0.6875rem, 0.3vw + 0.65rem, 0.8125rem);
+  --o-t--1: clamp(0.75rem, 0.35vw + 0.7rem, 0.9375rem);
+  --o-t-0:  clamp(0.825rem, 0.4vw + 0.8rem, 1rem);
+  --o-t-1:  clamp(1rem, 0.6vw + 0.85rem, 1.125rem);
+}
+
 .overViewCardTitle {
-    font-family: 'Inter', sans-serif;
-    font-style: normal;
-    font-size: 20px;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 600;
+  font-size: var(--o-t-1);
+  line-height: 1.25;
+  color: #1a1a1a;
 }
 
 .overViewCardDescription {
-    font-family: 'Inter', sans-serif;
-    font-style: normal;
-    font-size: 18px;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--o-t-0);
+  line-height: 1.45;
+  color: #333;
 }
 
 .overViewCardValueDesc {
-    font-family: 'Inter', sans-serif;
-    font-style: normal;
-    font-size: 14px;
-    line-height: 140%;
-    letter-spacing: 0%;
-    color: #0ba565;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--o-t--1);
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: #0ba565;
 }
 
 .overViewCardSubDesc {
-    font-family: 'Inter', sans-serif;
-    font-style: normal;
-    font-size: 12px;
-    line-height: 110%;
-    letter-spacing: -3%;
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 500;
+  font-size: var(--o-t--2);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #6b7280;
 }
 
-@media (max-width: 992px) {
-    .overViewCardTitle {
-      font-size: 18px;
-    }
-  
-    .overViewCardDescription {
-      font-size: 16px;
-    }
-  
-    .overViewCardValueDesc {
-      font-size: 13.5px;
-    }
-  
-    .overViewCardSubDesc {
-      font-size: 11.5px;
-    }
+@media (prefers-reduced-motion: reduce) {
+  .overViewCardTitle,
+  .overViewCardDescription,
+  .overViewCardValueDesc,
+  .overViewCardSubDesc {
+    transition: none !important;
   }
-  
-  @media (max-width: 768px) {
-    .overViewCardTitle {
-      font-size: 17px;
-    }
-  
-    .overViewCardDescription {
-      font-size: 15px;
-    }
-  
-    .overViewCardValueDesc {
-      font-size: 13px;
-      line-height: 135%;
-    }
-  
-    .overViewCardSubDesc {
-      font-size: 11px;
-      line-height: 105%;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .overViewCardTitle {
-      font-size: 16px;
-    }
-  
-    .overViewCardDescription {
-      font-size: 14px;
-    }
-  
-    .overViewCardValueDesc {
-      font-size: 12.5px;
-    }
-  
-    .overViewCardSubDesc {
-      font-size: 10.5px;
-    }
-  }
-  
+}
+
+@supports not (font-size: clamp(1rem, 2vw, 2rem)) {
+  .overViewCardTitle { font-size: 20px; }
+  .overViewCardDescription { font-size: 18px; }
+  .overViewCardValueDesc { font-size: 14px; }
+  .overViewCardSubDesc { font-size: 12px; }
+}

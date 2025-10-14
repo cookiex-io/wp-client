@@ -1,6 +1,4 @@
 import {
-	Card,
-	Title,
 	Text,
 	Button,
 	Divider,
@@ -10,19 +8,30 @@ import {
 	Switch,
 	MultiSelect,
 	Alert,
-	Tabs,
-	Grid,
 	Paper,
-	SegmentedControl,
+	Image,
+	Accordion,
+	Timeline,
+	Stack,
+	rem,
+	Box,
 } from '@mantine/core';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { runtimeConfig } from '../config';
-import { IconInfoCircle } from '@tabler/icons-react';
+import {
+	IconDevices,
+	IconInfoCircle,
+	IconPalette,
+	IconPointFilled,
+	IconShieldCheckFilled,
+} from '@tabler/icons-react';
 import { ConsentBannerScreen } from '../components/Consent/ConsentBannerScreen';
 import { regulations, finalConsentConfig, themesConfig } from '../utils/utils';
 import { BannerTheme } from '../components/Consent/BannerTheme';
 import { ButtonTheme } from '../components/Consent/ButtonTheme';
-import { UpgradeCard } from '../components/Consent/UpgradeCard';
+import UpgradeCard from '../components/Consent/UpgradeCard';
+import colorgradient from '../assets/colorgradient.webp';
+import classes from './CookieBanner.module.css';
 
 declare let Cookiex: {
 	new (): {
@@ -75,39 +84,10 @@ export function CookieBanner(props: any) {
 		vi: 'Vietnamese',
 	});
 	const [colorScheme, setColorScheme] = useState('Light');
-	const [bannerPreview, setBannerPreview] = useState<any>(null);
+	const [bannerPreview] = useState<any>(true);
 	const [regulation, setRegulation] = useState<any>(regulations[0]);
 	const [consentConfig, setConsentConfig] = useState<any>(finalConsentConfig);
 	const [loading, setLoading] = useState(false);
-
-	const userInteracted = useRef(false);
-
-	const saveBannerPreview = async () => {
-		try {
-			const payload = {
-				bannerPreview: bannerPreview ?? false,
-			};
-
-			const response = await runtimeConfig.apiFetch({
-				path: '/cookiex/v1/save-banner-preview',
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(payload),
-			});
-
-			if (response.status === 'success') {
-				setSuccessMessage(response.message);
-			} else {
-				setErrorMessage(
-					response.message || 'Could not save banner preview setting'
-				);
-			}
-		} catch (error) {
-			setErrorMessage('Error saving banner preview setting.');
-		}
-	};
 
 	useEffect(() => {
 		const filteredTheme = themesConfig.filter(
@@ -142,44 +122,6 @@ export function CookieBanner(props: any) {
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [props.consentConfig]);
-
-	const handleBannerToggle = (checked: boolean) => {
-		setBannerPreview(checked);
-		userInteracted.current = true; // Mark as user interaction
-	};
-
-	useEffect(() => {
-		if (bannerPreview) {
-			generatePreview(regulation, false, props?.consentConfig?.theme);
-		} else {
-			document.querySelector('#cookiex-cc-div')?.remove();
-		}
-
-		if (userInteracted.current) {
-			saveBannerPreview();
-		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [bannerPreview]);
-
-	useEffect(() => {
-		const fetchBannerPreview = async () => {
-			try {
-				const response: any = await runtimeConfig.apiFetch({
-					path: '/cookiex/v1/fetch-banner-preview',
-					method: 'GET',
-				});
-
-				if (response.status === 'success') {
-					setBannerPreview(response.bannerPreview);
-				}
-			} catch (error) {
-				console.error('Error fetching banner preview setting:', error);
-			}
-		};
-
-		fetchBannerPreview();
-	}, []);
 
 	const validateInputs = () => {
 		setErrorMessage('');
@@ -361,180 +303,194 @@ export function CookieBanner(props: any) {
 					{successMessage}
 				</Alert>
 			)}
-			<Tabs
-				color="#f1f3f5"
-				variant="pills"
-				defaultValue="general"
-				orientation="vertical"
-				p={20}
-			>
-				<Tabs.List>
-					<Tabs.Tab
-						p={10}
-						style={{ color: '#000', borderRadius: '0px' }}
-						value="general"
-					>
-						General
-					</Tabs.Tab>
-					<Tabs.Tab
-						p={10}
-						style={{ color: '#000', borderRadius: '0px' }}
-						value="layout"
-					>
-						Layout
-					</Tabs.Tab>
-					<Tabs.Tab
-						p={10}
-						style={{ color: '#000', borderRadius: '0px' }}
-						value="content&Colours"
-					>
-						Color Schemes
-					</Tabs.Tab>
-				</Tabs.List>
-				<div style={{ padding: '20px' }}>
-					<Group justify="space-between" mb="lg">
-						<Group>
-							<Select
-								mr={10}
-								label="Consent Template"
-								placeholder="Choose a regulation"
-								allowDeselect={false}
-								searchable
-								data={regulations.map((reg) => ({
-									value: reg.value,
-									label: reg.label,
-								}))}
-								defaultValue={regulation.value}
-								onChange={(value) => {
-									const selectedRegulation = regulations.find(
-										(reg) => reg.value === value
-									);
-									setRegulation(selectedRegulation);
-									generatePreview(
-										selectedRegulation,
-										false,
-										null
-									);
-								}}
+			<Box className={classes.cookiexGrid}>
+				<div className={classes.cookiexPreviewWrapper}>
+					<div className="cookiex-preview-wrapper">
+						<div className="cookiex-preview-box">
+							<Image
+								src={colorgradient}
+								alt="Preview Background"
 							/>
-							<Switch
-								mt={20}
-								label="Banner Preview"
-								checked={bannerPreview}
-								onChange={(event) =>
-									handleBannerToggle(
-										event.currentTarget.checked
-									)
-								}
-							/>
-						</Group>
-						<Button
-							color="green"
-							mt="md"
-							onClick={updateSettings}
-							loading={loading}
-						>
-							Publish Changes
-						</Button>
-					</Group>
-					<Alert variant="light" color="blue" mb={20}>
-						<Text size="sm">{regulation?.description}</Text>
-					</Alert>
-					<Tabs.Panel value="general" bg="#f1f3f5" p={20}>
-						<Grid gutter="lg">
-							{/* General Settings */}
-							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
-								<Card
-									padding="lg"
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										minHeight: '300px',
-										height: '100%',
+						</div>
+						<div id="coookiex-comp-banner-preview" />
+					</div>
+				</div>
+				<div className={classes.cookiexSettingsPanel}>
+					<Accordion
+						variant="contained"
+						defaultValue="general"
+						classNames={{
+							root: 'custom-accordion',
+						}}
+					>
+						<Accordion.Item value="general">
+							<Accordion.Control
+								className={classes.sectionTitle}
+								icon={<IconShieldCheckFilled size={25} />}
+							>
+								General Settings
+							</Accordion.Control>
+							<Accordion.Panel className="themed-bg">
+								<Timeline
+									active={4}
+									lineWidth={2}
+									color="#0078B4"
+									bulletSize={20}
+									styles={{
+										item: { minHeight: 50 },
+										itemBullet: {
+											border: '2px solid #228be6',
+											background: '#deedf5',
+											color: '#228be6',
+										},
 									}}
-									radius="md"
-									withBorder
 								>
-									<Title order={3}>General Settings</Title>
-									<input
-										type="hidden"
-										name="serverCountry"
-										value={serverCountry}
-									/>
-									<Divider my="md" />
-									<Paper p={20}>
-										<Group gap="sm" grow>
-											<Text size="sm">
+									<Timeline.Item
+										bullet={
+											<IconPointFilled
+												color="#228be6"
+												size={13}
+											/>
+										}
+									>
+										<Stack gap="sm">
+											<input
+												type="hidden"
+												name="serverCountry"
+												value={serverCountry}
+											/>
+											<Text
+												className={
+													classes.subTimeLineTitle
+												}
+											>
 												Connect domain ID (UUID)
 											</Text>
-											<Group grow>
-												<TextInput
-													value={domainId}
-													onChange={(e) =>
-														setDomainId(
-															e.currentTarget
-																.value
-														)
-													}
-													placeholder="E.g. 123e4567-e89b-12d3-a456-426614174000"
-												/>
-											</Group>
-										</Group>
-										<Group gap="sm" grow mt="sm">
-											<Text size="sm">
-												Auto Block Cookies
-											</Text>
-											<Switch
-												checked={autoBlockCookies}
-												color="green"
-												onChange={(event) =>
-													setAutoBlockCookies(
-														event.currentTarget
-															.checked
+											<TextInput
+												value={domainId}
+												onChange={(e) =>
+													setDomainId(
+														e.currentTarget.value
 													)
 												}
-												size="sm"
+												placeholder="E.g. 123e4567-e89b-12d3-a456-426614174000"
 											/>
-										</Group>
-										<Group gap="sm" grow mt="sm">
-											<Text size="sm">Language</Text>
-											{languagesAvailable && (
-												<Select
-													value={language}
-													onChange={setLanguage}
-													data={Object.entries(
-														languagesAvailable
-													).map(([code, name]) => ({
-														value: code,
-														label: name,
-													}))}
+										</Stack>
+									</Timeline.Item>
+									<Timeline.Item
+										bullet={
+											<IconPointFilled
+												color="#228be6"
+												size={13}
+											/>
+										}
+									>
+										<Group gap="xs" justify="space-between">
+											<Text
+												className={
+													classes.subTimeLineTitle
+												}
+											>
+												Auto Block Cookies
+											</Text>
+											<div style={{ flex: '0 0 auto' }}>
+												<Switch
+													checked={autoBlockCookies}
+													color="#0078B4"
+													onChange={(event) =>
+														setAutoBlockCookies(
+															event.currentTarget
+																.checked
+														)
+													}
+													size="xs"
 												/>
-											)}
+											</div>
 										</Group>
-										<Divider my="md" />
-										<Title order={4}>
-											Google Tag Manager
-										</Title>
-										<Group gap="sm" grow mt="sm">
-											<Text size="sm">
+									</Timeline.Item>
+									{languagesAvailable && (
+										<Timeline.Item
+											bullet={
+												<IconPointFilled
+													color="#228be6"
+													size={13}
+												/>
+											}
+										>
+											<Stack gap="sm">
+												<Text
+													className={
+														classes.subTimeLineTitle
+													}
+												>
+													Language
+												</Text>
+												{languagesAvailable && (
+													<Select
+														value={language}
+														onChange={setLanguage}
+														data={Object.entries(
+															languagesAvailable
+														).map(
+															([code, name]) => ({
+																value: code,
+																label: name,
+															})
+														)}
+													/>
+												)}
+											</Stack>
+										</Timeline.Item>
+									)}
+									<Timeline.Item
+										bullet={
+											<IconPointFilled
+												color="#228be6"
+												size={13}
+											/>
+										}
+									>
+										<Group
+											gap="sm"
+											justify="space-between"
+											mt="sm"
+										>
+											<Text
+												className={
+													classes.subTimeLineTitle
+												}
+											>
 												Enable Google Tag Manager
 											</Text>
 											<Switch
 												checked={gtmEnabled}
-												color="green"
+												color="#0078B4"
 												onChange={(event) =>
 													setGtmEnabled(
 														event.currentTarget
 															.checked
 													)
 												}
-												size="sm"
+												size="xs"
 											/>
 										</Group>
-										{gtmEnabled && (
-											<>
-												<Group gap="sm" grow mt="sm">
-													<Text size="sm">
+									</Timeline.Item>
+									{gtmEnabled && (
+										<>
+											<Timeline.Item
+												bullet={
+													<IconPointFilled
+														color="#228be6"
+														size={13}
+													/>
+												}
+											>
+												<Stack gap="sm" mt="sm">
+													<Text
+														className={
+															classes.subTimeLineTitle
+														}
+													>
 														Enter Google Tag Manager
 														ID
 													</Text>
@@ -548,9 +504,22 @@ export function CookieBanner(props: any) {
 														}
 														placeholder="Google Tag Manager ID"
 													/>
-												</Group>
-												<Group gap="sm" grow mt="sm">
-													<Text size="sm">
+												</Stack>
+											</Timeline.Item>
+											<Timeline.Item
+												bullet={
+													<IconPointFilled
+														color="#228be6"
+														size={13}
+													/>
+												}
+											>
+												<Stack gap="sm" mt="sm">
+													<Text
+														className={
+															classes.subTimeLineTitle
+														}
+													>
 														Choose Google Tag
 														Manager cookies
 													</Text>
@@ -565,91 +534,79 @@ export function CookieBanner(props: any) {
 															setCookiePreference
 														}
 													/>
-												</Group>
-											</>
-										)}
-									</Paper>
-									<div style={{ flexGrow: 1 }}></div>
-								</Card>
-							</Grid.Col>
-						</Grid>
-					</Tabs.Panel>
-					<Tabs.Panel value="layout" bg="#f1f3f5" p={20}>
-						<Grid gutter="lg">
-							{/* General Settings */}
-							<Grid.Col span={{ base: 12, md: 8, lg: 8 }}>
-								<Card
-									padding="lg"
-									style={{
-										display: 'flex',
-										flexDirection: 'column',
-										minHeight: '300px',
-										height: '100%',
-									}}
-									radius="md"
-									withBorder
+												</Stack>
+											</Timeline.Item>
+										</>
+									)}
+								</Timeline>
+							</Accordion.Panel>
+						</Accordion.Item>
+
+						<Accordion.Item value="design">
+							<Accordion.Control
+								className={classes.sectionTitle}
+								icon={<IconDevices size={25} />}
+							>
+								Design
+							</Accordion.Control>
+							<Accordion.Panel className="themed-bg">
+								<ConsentBannerScreen
+									consentConfig={consentConfig}
+									regulation={regulation}
+									handleLayout={handleLayout}
+									setRegulation={setRegulation}
+									subTimeLineTitle={classes.subTimeLineTitle}
+								/>
+							</Accordion.Panel>
+						</Accordion.Item>
+
+						<Accordion.Item value="colorScheme">
+							<Accordion.Control
+								className={classes.sectionTitle}
+								icon={<IconPalette size={25} />}
+							>
+								Color Schemes
+							</Accordion.Control>
+							<Accordion.Panel className="themed-bg">
+								<Text
+									className={classes.subTimeLineTitle}
+									mt="md"
 								>
-									<Title order={3}>
-										Consent Banner Settings
-									</Title>
-									<Divider my="md" />
-									<ConsentBannerScreen
-										consentConfig={consentConfig}
-										handleLayout={handleLayout}
-									/>
-									<div style={{ flexGrow: 1 }}></div>
-								</Card>
-							</Grid.Col>
-						</Grid>
-					</Tabs.Panel>
-					<Tabs.Panel value="content&Colours" bg="#f1f3f5" p={20}>
-						<Grid>
-							{/* General Settings */}
-							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-								<Card
-									padding="lg"
-									style={{
-										minHeight: '300px',
-										height: '100%',
+									Theme
+								</Text>
+								<Select
+									allowDeselect={false}
+									defaultValue={colorScheme}
+									onChange={(value) => {
+										if (value !== null) {
+											setColorScheme(value);
+										} else {
+											setColorScheme('Light'); // or some other default value
+										}
 									}}
-									radius="md"
-									withBorder
-								>
-									<Title order={3}>Colour scheme</Title>
-									<Divider my="md" />
-									<SegmentedControl
-										color="blue"
-										fullWidth
-										value={colorScheme}
-										onChange={setColorScheme}
-										data={[
-											{ label: 'Light', value: 'Light' },
-											{ label: 'Dark', value: 'Dark' },
-											{
-												label: 'Custom',
-												value: 'Custom',
-											},
-										]}
-										mb="md"
-									/>
-									<Divider my="md" />
-								</Card>
-							</Grid.Col>
-							<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-								<UpgradeCard />
-							</Grid.Col>
-						</Grid>
-						{colorScheme === 'Custom' && (
-							<Grid>
-								<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-									<Card
-										padding="lg"
+									data={[
+										{
+											value: 'Light',
+											label: 'Light',
+										},
+										{
+											value: 'Dark',
+											label: 'Dark',
+										},
+										{
+											value: 'Custom',
+											label: 'Custom',
+										},
+									]}
+								/>
+								{colorScheme === 'Custom' && (
+									<Paper
+										p="lg"
 										style={{
 											minHeight: '300px',
 											height: '100%',
 										}}
 										radius="md"
-										withBorder
 									>
 										{colorScheme === 'Custom' && (
 											<div>
@@ -665,6 +622,9 @@ export function CookieBanner(props: any) {
 													name="background"
 													label="Background"
 													description=""
+													subTimeLineTitle={
+														classes.subTimeLineTitle
+													}
 												/>
 												<BannerTheme
 													customStyles={
@@ -678,6 +638,9 @@ export function CookieBanner(props: any) {
 													name="textColor"
 													label="Text Color"
 													description="Choose the color of all texts within the banner"
+													subTimeLineTitle={
+														classes.subTimeLineTitle
+													}
 												/>
 												<BannerTheme
 													customStyles={
@@ -691,13 +654,20 @@ export function CookieBanner(props: any) {
 													name="highlight"
 													label="Highlight"
 													description="Choose your highlight color that will impact all links and active toggles in your banner"
+													subTimeLineTitle={
+														classes.subTimeLineTitle
+													}
 												/>
 												<Divider my="sm" />
 												{regulation.value ===
 													'gdpr' && (
 													<>
 														<Group justify="left">
-															<Text size="xs">
+															<Text
+																className={
+																	classes.subTimeLineTitle
+																}
+															>
 																{' '}
 																Button 1 (Reject
 																All){' '}
@@ -716,6 +686,9 @@ export function CookieBanner(props: any) {
 															label="BackGround"
 															type="buttonReject"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -730,6 +703,9 @@ export function CookieBanner(props: any) {
 															label="TextColor"
 															type="buttonReject"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -744,10 +720,17 @@ export function CookieBanner(props: any) {
 															label="Border"
 															type="buttonReject"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<Divider my="sm" />
 														<Group justify="left">
-															<Text size="xs">
+															<Text
+																className={
+																	classes.subTimeLineTitle
+																}
+															>
 																Button 2
 																(Accept){' '}
 															</Text>
@@ -765,6 +748,9 @@ export function CookieBanner(props: any) {
 															label="BackGround"
 															type="buttonAccept"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -779,6 +765,9 @@ export function CookieBanner(props: any) {
 															label="TextColor"
 															type="buttonAccept"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -793,10 +782,17 @@ export function CookieBanner(props: any) {
 															label="Border"
 															type="buttonAccept"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<Divider my="sm" />
 														<Group justify="left">
-															<Text size="xs">
+															<Text
+																className={
+																	classes.subTimeLineTitle
+																}
+															>
 																Button 3
 																(Customize)
 															</Text>
@@ -814,6 +810,9 @@ export function CookieBanner(props: any) {
 															label="BackGround"
 															type="buttonCustomize"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -828,6 +827,9 @@ export function CookieBanner(props: any) {
 															label="TextColor"
 															type="buttonCustomize"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -842,6 +844,9 @@ export function CookieBanner(props: any) {
 															label="Border"
 															type="buttonCustomize"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 													</>
 												)}
@@ -851,7 +856,11 @@ export function CookieBanner(props: any) {
 															justify="left"
 															mt={20}
 														>
-															<Text size="xs">
+															<Text
+																className={
+																	classes.subTimeLineTitle
+																}
+															>
 																{' '}
 																Button 1 (Do Not
 																Sell My Info){' '}
@@ -870,6 +879,9 @@ export function CookieBanner(props: any) {
 															label="BackGround"
 															type="buttonReject"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -884,6 +896,9 @@ export function CookieBanner(props: any) {
 															label="TextColor"
 															type="buttonReject"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 														<ButtonTheme
 															customStyles={
@@ -898,21 +913,46 @@ export function CookieBanner(props: any) {
 															label="Border"
 															type="buttonReject"
 															description=""
+															subTimeLineTitle={
+																classes.subTimeLineTitle
+															}
 														/>
 													</>
 												)}
 											</div>
 										)}
-									</Card>
-								</Grid.Col>
-							</Grid>
-						)}
-					</Tabs.Panel>
+									</Paper>
+								)}
+							</Accordion.Panel>
+						</Accordion.Item>
+					</Accordion>
+					<Button
+						h={rem(56)}
+						fullWidth
+						color="#0078B4"
+						mt="xs"
+						onClick={updateSettings}
+						loading={loading}
+					>
+						Save Changes
+					</Button>
 				</div>
-			</Tabs>
-			<div
-				style={{ height: '100%', width: '100%', minHeight: '450px' }}
-				id="coookiex-comp-banner-preview"
+			</Box>
+			<UpgradeCard
+				onCreateAccount={() => {
+					// e.g. open your signup flow
+					window.open(
+						`${runtimeConfig.cmpRedirectUrl}/register`,
+						'_blank'
+					);
+				}}
+				onConnectAccount={() => {
+					// e.g. open connect account modal/flow
+					window.open(
+						`${runtimeConfig.cmpRedirectUrl}/login`,
+						'_blank'
+					);
+				}}
 			/>
 		</>
 	);

@@ -112,7 +112,7 @@ function OverView(props: any) {
 	}, []);
 
 	return (
-		<Grid gutter="lg" mt="md">
+		<Grid gutter="lg" mt="md" mb="md">
 			<Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
 				<Card
 					shadow="sm"
@@ -136,6 +136,7 @@ function OverView(props: any) {
 						className={classes.overViewCardDescription}
 						fw={500}
 						mb="md"
+						c="#718096"
 					>
 						Consent analytics shows the data of consents given by
 						users on the consent banner present on your domain.
@@ -287,13 +288,14 @@ function OverView(props: any) {
 						className={classes.overViewCardDescription}
 						mb="md"
 						fw={500}
+						c="#718096"
 					>
 						Here you can see the current status of your cookie
 						banner.
 					</Text>
 					<Divider mb="md" />
 					<Grid gutter="md" style={{ width: '100%' }}>
-						<Grid.Col span={{ base: 12, sm: 7 }}>
+						<Grid.Col span={{ base: 12, sm: 8 }}>
 							<Paper
 								shadow="xs"
 								p="md"
@@ -394,9 +396,9 @@ function OverView(props: any) {
 								</Stack>
 							</Paper>
 						</Grid.Col>
-						<Grid.Col span={{ base: 12, sm: 5 }}>
+						<Grid.Col span={{ base: 12, sm: 4 }}>
 							<div>
-								<Stack gap={7}>
+								<Stack gap={6}>
 									<Text
 										className={
 											classes.overViewCardDescription

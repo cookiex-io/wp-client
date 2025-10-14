@@ -42,10 +42,21 @@ export function OnboardingPanel({
 	stepStatuses,
 	onboardingSteps,
 	onStartOnboarding,
+	onComplete,
 }: OnboardingPanelProps) {
 	useEffect(() => {
 		onStartOnboarding();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	useEffect(() => {
+		if (
+			currentStep === onboardingSteps.length &&
+			stepStatuses[onboardingSteps.length - 1] === 'completed'
+		) {
+			onComplete();
+		}
+	}, [currentStep, stepStatuses, onboardingSteps.length, onComplete]);
 
 	const retryNeeded = stepStatuses.some((s) => s === 'failed');
 	const completedCount = stepStatuses.filter((s) => s === 'completed').length;

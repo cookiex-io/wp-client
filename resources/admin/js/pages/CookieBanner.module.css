@@ -1,0 +1,118 @@
+:root {
+  --font-sans: 'Inter', -apple-system, Roboto, Helvetica, sans-serif;
+  
+  /* Base font size (1rem = 16px by default) */
+  font-size: 100%;
+  
+  /* Type scale using rem */
+  --ct--1: 0.75rem;    /* 12px */
+  --ct-0:  0.875rem;   /* 14px */
+  --ct-1:  1rem;       /* 16px */
+  
+  /* Line heights */
+  --clh-tight: 1.25;
+  --clh-normal: 1.4;
+  --clh-relaxed: 1.5;
+}
+
+.sectionTitle {
+  font-weight: 500;
+  font-size: var(--ct--1);
+  line-height: var(--clh-normal);
+  letter-spacing: 0.05em;
+}
+
+.subTimeLineTitle {
+  font-weight: 500;
+  font-size: var(--ct--1);
+  line-height: var(--clh-tight);
+  letter-spacing: 0.05em;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+/* Grid Container */
+.cookiexGrid {
+  --grid-gap: 1.5rem;
+  --grid-padding: clamp(1rem, 3vw, 2rem);
+  --grid-max-width: 1440px;
+  --sidebar-width: min(100%, 320px);
+  
+  display: grid;
+  gap: var(--grid-gap);
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Preview Section */
+.cookiexPreviewWrapper {
+  grid-area: preview;
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Settings Panel */
+.cookiexSettingsPanel {
+  grid-area: settings;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  height: fit-content;
+  position: relative;
+}
+
+/* Responsive Layout */
+@media (min-width: 768px) {
+   :root {
+    --ct--1: 0.875rem;  /* 14px */
+    --ct-0:  1rem;      /* 16px */
+    --ct-1:  1.125rem;  /* 18px */
+  }
+  .cookiexGrid {
+    grid-template-areas: 
+      "preview settings"
+      "preview settings";
+    grid-template-columns: 1fr var(--sidebar-width);
+    align-items: start;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .cookiexGrid {
+    --grid-padding: clamp(2rem, 5vw, 4rem);
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+  }
+  
+  .cookiexSettingsPanel {
+    position: sticky;
+    top: calc(var(--header-height, 60px) + 1rem);
+    max-height: calc(100vh - var(--header-height, 60px) - 2rem);
+    overflow-y: auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  .cookiexGrid {
+    grid-template-areas: none;
+    display: block;
+  }
+  
+  .cookiexSettingsPanel {
+    break-inside: avoid;
+    box-shadow: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  :root {
+    --ct--1: 10pt;
+    --ct-0: 11pt;
+    --ct-1: 12pt;
+  }
+}
+

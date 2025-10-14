@@ -9,7 +9,6 @@ import {
 	Accordion,
 	Stack,
 	Timeline,
-	ThemeIcon,
 	Group,
 	Modal,
 	Box,
@@ -20,7 +19,7 @@ import {
 } from '@mantine/core';
 import {
 	IconCheck,
-	IconCircleFilled,
+	IconCircle,
 	IconLayoutGrid,
 	IconPencilBolt,
 	IconSettings,
@@ -214,10 +213,6 @@ function OnBoardPanel() {
 			console.error('Failed to fetch settings:', error);
 			setLoading(false);
 		}
-	};
-
-	const handleUserAcknowledgement = async () => {
-		setShowFirstTimeScreen(false);
 	};
 
 	const handleDisconnect = async () => {
@@ -556,6 +551,9 @@ function OnBoardPanel() {
 																					30
 																				}
 																				classNames={{
+																					item: classes.tlItem,
+																					itemBullet:
+																						classes.tlBullet,
 																					itemTitle:
 																						classes.timeLineTitle,
 																				}}
@@ -564,19 +562,11 @@ function OnBoardPanel() {
 																					lineVariant="dashed"
 																					title="Activate your cookie banner"
 																					bullet={
-																						<ThemeIcon
-																							color="#0FA958"
+																						<IconCheck
 																							size={
-																								30
+																								15
 																							}
-																							radius="xl"
-																						>
-																							<IconCheck
-																								size={
-																									20
-																								}
-																							/>
-																						</ThemeIcon>
+																						/>
 																					}
 																				>
 																					<Text
@@ -602,20 +592,15 @@ function OnBoardPanel() {
 																				<Timeline.Item
 																					title="Connect and scan your website"
 																					bullet={
-																						<ThemeIcon
-																							variant="outline"
-																							size={
-																								30
+																						<IconCircle
+																							color="white"
+																							stroke={
+																								0.8
 																							}
-																							radius="xl"
-																						>
-																							<IconCircleFilled
-																								color="white"
-																								size={
-																									20
-																								}
-																							/>
-																						</ThemeIcon>
+																							size={
+																								20
+																							}
+																						/>
 																					}
 																				>
 																					<Text
@@ -707,14 +692,7 @@ function OnBoardPanel() {
 												)}
 											</Container>
 										</Tabs.Panel>
-										<Tabs.Panel
-											value="settings"
-											mt={30}
-											style={{
-												border: '1px solid #dee2e6',
-											}}
-											p={20}
-										>
+										<Tabs.Panel value="settings" p={20}>
 											{consentConfig && (
 												<CookieBanner
 													consentConfig={
