@@ -92,8 +92,12 @@ function ConsentBannerScreen(props: any) {
 		},
 	];
 
-	const handleConsentBannerChange = (fieldName: any, value: any) => {
-		props.handleLayout(fieldName, value);
+	const handleConsentBannerChange = (
+		fieldName: any,
+		value: any,
+		regulationObj: any
+	) => {
+		props.handleLayout(fieldName, value, regulationObj);
 	};
 
 	return (
@@ -138,11 +142,12 @@ function ConsentBannerScreen(props: any) {
 									const selectedRegulation = regulations.find(
 										(reg) => reg.value === value
 									);
+									props.setRegulation(selectedRegulation);
 									handleConsentBannerChange(
 										'regulation',
+										selectedRegulation,
 										selectedRegulation
 									);
-									props.setRegulation(selectedRegulation);
 								}}
 							/>
 							<Popover
@@ -202,14 +207,16 @@ function ConsentBannerScreen(props: any) {
 											onClick={() => {
 												handleConsentBannerChange(
 													'layout',
-													layout.layoutType
+													layout.layoutType,
+													regulation
 												);
 												setLayoutType(
 													layout.layoutType
 												);
 												handleConsentBannerChange(
 													'alignment',
-													layout.bannerValue
+													layout.bannerValue,
+													regulation
 												);
 												setBannerValue(
 													layout.bannerValue
@@ -285,7 +292,8 @@ function ConsentBannerScreen(props: any) {
 									onChange={(e: any) => {
 										handleConsentBannerChange(
 											'alignment',
-											e
+											e,
+											regulation
 										);
 										setBannerValue(e);
 									}}

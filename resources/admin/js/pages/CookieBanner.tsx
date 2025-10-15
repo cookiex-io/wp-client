@@ -204,9 +204,9 @@ export function CookieBanner(props: any) {
 		}
 	};
 
-	const handleLayout = (fieldName: any, value: any) => {
+	const handleLayout = (fieldName: any, value: any, regulationObj: any) => {
 		consentConfig[fieldName] = value;
-		generatePreview(regulation, false, null);
+		generatePreview(regulationObj, false, null);
 	};
 
 	const generateHTML = (

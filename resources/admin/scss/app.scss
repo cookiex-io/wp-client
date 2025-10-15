@@ -197,7 +197,8 @@
     border: 1px solid #0078b4;
     background-color: #f9f9f9;
     /* responsive height without forcing full viewport on phones */
-    min-height: clamp(320px, 78vh, 900px);
+    min-height: calc(100vh - var(--header-height, 16px) - 2rem);
+    max-height: calc(100vh - var(--header-height, 16px) - 2rem);
     margin: 0;
     padding: 0;
   }

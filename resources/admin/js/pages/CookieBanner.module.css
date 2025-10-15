@@ -88,8 +88,8 @@
   
   .cookiexSettingsPanel {
     position: sticky;
-    top: calc(var(--header-height, 60px) + 1rem);
-    max-height: calc(100vh - var(--header-height, 60px) - 2rem);
+    top: calc(var(--header-height, 16px) + 1rem);
+    max-height: calc(100vh - var(--header-height, 16px) - 2rem);
     overflow-y: auto;
   }
 }
