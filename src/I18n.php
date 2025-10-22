@@ -22,13 +22,10 @@ class I18n {
 	 * Load the plugin text domain for translation.
 	 *
 	 * @since    1.0.0
+	 * @deprecated Since WordPress 4.6, translations are automatically loaded.
 	 */
 	public function load_plugin_textdomain(): void {
-
-		load_plugin_textdomain(
-			'cookiex-consent-management-plugin',
-			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
-		);
+		// No longer needed - WordPress automatically loads translations
+		// for plugins hosted on WordPress.org sin
 	}
 }
